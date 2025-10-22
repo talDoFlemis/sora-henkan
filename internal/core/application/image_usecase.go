@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 	"github.com/taldoflemis/sora-henkan/internal/core/domain/images"
@@ -41,21 +41,28 @@ type ImageUseCase struct {
 	imageScaler     ports.ImageScaler
 	objectStorer    ports.ObjectStorer
 	imagesBucket    string
-	eventBus        cqrs.EventBus
+	publisher       message.Publisher
 	subscriber      message.Subscriber
+	imageTopic      string
 }
 
 func NewImageUseCase(
+	publisher message.Publisher,
+	subscriber message.Subscriber,
 	imageRepository ports.ImageRepository,
 	imageScaler ports.ImageScaler,
 	objectStorer ports.ObjectStorer,
 	imagesBucket string,
+	imageTopic string,
 ) *ImageUseCase {
 	return &ImageUseCase{
+		publisher:       publisher,
+		subscriber:      subscriber,
 		imageRepository: imageRepository,
 		imageScaler:     imageScaler,
 		imagesBucket:    imagesBucket,
 		objectStorer:    objectStorer,
+		imageTopic:      imageTopic,
 	}
 }
 
@@ -80,7 +87,16 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 		return nil, err
 	}
 
-	err = u.eventBus.Publish(ctx, &imageEntity)
+	payload, err := json.Marshal(imageEntity)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to marshal image", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
+	message := message.NewMessageWithContext(ctx, watermill.NewUUID(), payload)
+
+	err = u.publisher.Publish(u.imageTopic, message)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to publish image request", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
@@ -117,7 +133,7 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
-	imageEntity.TransformationsApplied = req.Transformations
+	imageEntity.ScaleTransformation = req.ScaleTransformation
 
 	err = u.imageRepository.UpdateImage(ctx, imageEntity)
 	if err != nil {
@@ -126,7 +142,16 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
-	err = u.eventBus.Publish(ctx, &imageEntity)
+	payload, err := json.Marshal(imageEntity)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to marshal image", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
+	message := message.NewMessageWithContext(ctx, watermill.NewUUID(), payload)
+
+	err = u.publisher.Publish(u.imageTopic, message)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to publish image request", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
@@ -325,7 +350,49 @@ func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (c
 
 	ctx, cancel := context.WithCancel(ctx)
 
-	ch, err := u.subscriber.Subscribe(ctx, "events")
+	ch, err := u.subscriber.Subscribe(ctx, u.imageTopic)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to subscribe to events", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		cancel()
+		return nil, nil, err
+	}
+
+	imagesChan := make(chan *images.Image, len(ch))
+
+	go func() {
+		for msg := range ch {
+			image := images.Image{}
+
+			err := json.Unmarshal(msg.Payload, &image)
+			if err != nil {
+				slog.ErrorContext(ctx, "failed to unmarshal image", slog.Any("err", err))
+				msg.Nack()
+				continue
+			}
+
+			if image.ID.String() != id {
+				msg.Nack()
+				continue
+			}
+
+			imagesChan <- &image
+		}
+	}()
+
+	return imagesChan, func() error {
+		cancel()
+		return nil
+	}, nil
+}
+
+func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Image, func() error, error) {
+	ctx, span := tracer.Start(ctx, "ImageUseCase.GetAllImagesUpdates")
+	defer span.End()
+
+	ctx, cancel := context.WithCancel(ctx)
+
+	ch, err := u.subscriber.Subscribe(ctx, u.imageTopic)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to subscribe to events", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)

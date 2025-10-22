@@ -25,6 +25,7 @@ type APISettings struct {
 	HTTP           settings.HTTPSettings           `mapstructure:"http" validate:"required"`
 	ImageProcessor settings.ImageProcessorSettings `mapstructure:"image-processor" validate:"required"`
 	ObjectStorer   settings.ObjectStorerSettings   `mapstructure:"object-storer" validate:"required"`
+	Watermill      settings.WatermillSettings      `mapstructure:"watermill" validate:"required"`
 }
 
 func main() {
@@ -106,6 +107,20 @@ func main() {
 		return
 	}
 
+	slog.InfoContext(ctx, "Setting up Watermill")
+
+	publisher, err := settings.Watermill.Broker.NewPublisher()
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to create publisher", slog.Any("err", err))
+		return
+	}
+
+	subscriber, err := settings.Watermill.Broker.NewSubscriber()
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to create subscriber", slog.Any("err", err))
+		return
+	}
+
 	router := http.NewRouter(&settings.HTTP, &settings.App)
 	prefixedGroup := router.GetGroup()
 
@@ -116,10 +131,13 @@ func main() {
 
 	// Create usecases
 	imageUseCase := application.NewImageUseCase(
+		publisher,
+		subscriber,
 		imageRepository,
 		imageScaler,
 		objectStorerAdapter,
 		settings.ImageProcessor.BucketName,
+		settings.Watermill.ImageTopic,
 	)
 
 	// Register handlers

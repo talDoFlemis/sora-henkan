@@ -33,6 +33,6 @@ type ProcessImageRequest struct {
 }
 
 type UpdateImageRequest struct {
-	ID              string `validate:"required,uuid"`
-	Transformations []string
+	ID                  string              `validate:"required,uuid"`
+	ScaleTransformation ScaleTransformation `validate:"required"`
 }

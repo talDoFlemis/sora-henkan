@@ -29,6 +29,9 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 	e.HideBanner = true
 	e.Use(slogecho.New(logger))
 	e.Use(middleware.Recover())
+	// e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+	// 	Timeout: 5 * time.Second,
+	// }))
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: httpSettings.CORS.Origins,

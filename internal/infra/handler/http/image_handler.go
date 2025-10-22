@@ -54,7 +54,42 @@ func (h *ImageHandler) ListImages(c echo.Context) error {
 }
 
 func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{})
+	ctx := context.Background()
+	fluser, ok := c.Response().Writer.(http.Flusher)
+	if !ok {
+		slog.ErrorContext(ctx, "streaming unsupported by response writer")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Streaming unsupported")
+	}
+	
+	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+	c.Response().Header().Set("Cache-Control", "no-cache")
+	c.Response().Header().Set("Connection", "keep-alive")
+
+	imageUpdates, closeCallback, err := h.imageUseCase.GetAllImagesUpdates(ctx)
+	if err != nil {
+		return err
+	}
+	defer closeCallback()
+
+	for {
+		select {
+		case <-c.Request().Context().Done():
+			slog.InfoContext(ctx, "client closed connection")
+			return nil
+		case update := <-imageUpdates:
+			data, err := json.Marshal(update)
+			if err != nil {
+				slog.ErrorContext(ctx, "marshal order for SSE", slog.String("error", err.Error()))
+				continue
+			}
+			_, err = c.Response().Writer.Write([]byte("data: " + string(data) + "\n\n"))
+			if err != nil {
+				slog.ErrorContext(ctx, "write SSE", slog.String("error", err.Error()))
+				return err
+			}
+			fluser.Flush()
+		}
+	}
 }
 
 func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {

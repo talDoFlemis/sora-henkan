@@ -32,32 +32,39 @@ type imageModel struct {
 	CreatedAt              time.Time       `db:"created_at"`
 }
 
+type transformationsApplied struct {
+	ScaleTransformation images.ScaleTransformation `json:"scale_transformation"`
+}
+
 // toDomain converts a persistence model to domain model
 func (m *imageModel) toDomain() (*images.Image, error) {
-	var transformations []string
-	if len(m.TransformationsApplied) > 0 {
-		if err := json.Unmarshal(m.TransformationsApplied, &transformations); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal transformations: %w", err)
-		}
+	var transformations transformationsApplied
+	err := json.Unmarshal(m.TransformationsApplied, &transformations)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal transformations: %w", err)
 	}
 
 	return &images.Image{
-		ID:                     m.ID,
-		OriginalImageURL:       m.OriginalImageURL,
-		ObjectStorageImageKey:  m.ObjectStorageImageKey,
-		MimeType:               m.MimeType,
-		Status:                 m.Status,
-		TransformedImageKey:    m.TransformedImageKey,
-		Checksum:               m.Checksum,
-		TransformationsApplied: transformations,
-		UpdatedAt:              m.UpdatedAt,
-		CreatedAt:              m.CreatedAt,
+		ID:                    m.ID,
+		OriginalImageURL:      m.OriginalImageURL,
+		ObjectStorageImageKey: m.ObjectStorageImageKey,
+		MimeType:              m.MimeType,
+		Status:                m.Status,
+		TransformedImageKey:   m.TransformedImageKey,
+		Checksum:              m.Checksum,
+		ScaleTransformation:   transformations.ScaleTransformation,
+		UpdatedAt:             m.UpdatedAt,
+		CreatedAt:             m.CreatedAt,
 	}, nil
 }
 
 // fromDomain converts a domain model to persistence model
 func fromDomain(img *images.Image) (*imageModel, error) {
-	transformationsJSON, err := json.Marshal(img.TransformationsApplied)
+	transformationsApplied := transformationsApplied{
+		ScaleTransformation: img.ScaleTransformation,
+	}
+
+	json, err := json.Marshal(transformationsApplied)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal transformations: %w", err)
 	}
@@ -70,7 +77,7 @@ func fromDomain(img *images.Image) (*imageModel, error) {
 		Status:                 img.Status,
 		TransformedImageKey:    img.TransformedImageKey,
 		Checksum:               img.Checksum,
-		TransformationsApplied: transformationsJSON,
+		TransformationsApplied: json,
 		UpdatedAt:              img.UpdatedAt,
 		CreatedAt:              img.CreatedAt,
 	}, nil
@@ -120,7 +127,6 @@ func (p *PostgresImageRepository) CreateNewImage(ctx context.Context, image *ima
 		model.UpdatedAt,
 		model.CreatedAt,
 	)
-
 	if err != nil {
 		span.RecordError(err)
 		return fmt.Errorf("failed to create image: %w", err)
@@ -265,7 +271,6 @@ func (p *PostgresImageRepository) FindImageByID(ctx context.Context, id string) 
 		&model.UpdatedAt,
 		&model.CreatedAt,
 	)
-
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ports.ErrImageNotFound
@@ -318,7 +323,6 @@ func (p *PostgresImageRepository) UpdateImage(ctx context.Context, image *images
 		model.TransformationsApplied,
 		time.Now(),
 	)
-
 	if err != nil {
 		span.RecordError(err)
 		return fmt.Errorf("failed to update image: %w", err)

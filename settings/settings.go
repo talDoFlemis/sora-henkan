@@ -5,15 +5,28 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
+	"net/url"
 	"strings"
 
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill-aws/sqs"
+	watermillSqs "github.com/ThreeDotsLabs/watermill-aws/sqs"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	awsCreds "github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/go-playground/validator/v10"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	_ "embed"
 
+	amazonsqs "github.com/aws/aws-sdk-go-v2/service/sqs"
+	transport "github.com/aws/smithy-go/endpoints"
+	wotelfloss "github.com/dentech-floss/watermill-opentelemetry-go-extra/pkg/opentelemetry"
 	"github.com/spf13/viper"
+	wotel "github.com/voi-oss/watermill-opentelemetry/pkg/opentelemetry"
 )
 
 //go:embed base.yaml
@@ -26,10 +39,11 @@ type CORSSettings struct {
 }
 
 type HTTPSettings struct {
-	Port   string       `mapstructure:"port" validate:"required,numeric"`
-	Prefix string       `mapstructure:"prefix" validate:"required"`
-	IP     string       `mapstructure:"ip" validate:"required,ip"`
-	CORS   CORSSettings `mapstructure:"cors" validate:"required"`
+	Port    string       `mapstructure:"port" validate:"required,numeric"`
+	Prefix  string       `mapstructure:"prefix" validate:"required"`
+	IP      string       `mapstructure:"ip" validate:"required,ip"`
+	CORS    CORSSettings `mapstructure:"cors" validate:"required"`
+	Timeout int          `mapstructure:"timeout" validate:"gte=1"`
 }
 
 type ObservabilitySettings struct {
@@ -137,6 +151,163 @@ func (d *DatabaseSettings) BuildConnectionString() string {
 	}
 
 	return connStr
+}
+
+type AWSSettings struct {
+	Endpoint string `mapstructure:"endpoint" validate:"url"`
+	// AccessKeyID and SecretAccessKey are used for explicit key-based authentication.
+	// If both are empty, the application should assume an implicit credential
+	// mechanism (e.g., EC2 IAM role, ECS task role, EKS Service Account).
+	AccessKey string `mapstructure:"access_key"`
+	SecretKey string `mapstructure:"secret_key"`
+	Region    string `json:"region"`
+	Anonymous bool   `mapstructure:"anonymous"`
+}
+
+func (a *AWSSettings) NewAWSConfig() (awsConfig.Config, error) {
+	if a.Anonymous {
+		slog.InfoContext(context.TODO(), "Using anonymous AWS credentials provider")
+		return awsConfig.LoadDefaultConfig(
+			context.TODO(),
+			awsConfig.WithRegion(a.Region),
+			awsConfig.WithCredentialsProvider(aws.AnonymousCredentials{}),
+		)
+	}
+	if a.AccessKey == "" && a.SecretKey == "" {
+		slog.InfoContext(context.TODO(), "Using default AWS credentials provider chain")
+
+		return awsConfig.LoadDefaultConfig(
+			context.TODO(),
+			awsConfig.WithRegion(a.Region),
+		)
+	}
+
+	return awsConfig.LoadDefaultConfig(
+		context.TODO(),
+		awsConfig.WithCredentialsProvider(
+			awsCreds.NewStaticCredentialsProvider(a.AccessKey, a.SecretKey, ""),
+		),
+		awsConfig.WithRegion(a.Region),
+	)
+}
+
+func (a *AWSSettings) GetEndpointResolver() (func(*amazonsqs.Options), error) {
+	endpoint, err := url.Parse(a.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return amazonsqs.WithEndpointResolverV2(watermillSqs.OverrideEndpointResolver{
+		Endpoint: transport.Endpoint{
+			URI: *endpoint,
+		},
+	}), nil
+}
+
+type (
+	WatermillPublisherSettings  struct{}
+	WatermillSubscriberSettings struct{}
+)
+
+type WatermillBrokerSettings struct {
+	Kind       string                      `mapstructure:"kind" validate:"required,oneof=sns nats"`
+	AWS        AWSSettings                 `mapstructure:"aws" validate:"required_if=Kind sns"`
+	Publisher  WatermillPublisherSettings  `mapstructure:"publisher" validate:"omitempty"`
+	Subscriber WatermillSubscriberSettings `mapstructure:"subscriber" validate:"omitempty"`
+}
+
+func (broker *WatermillBrokerSettings) NewPublisher() (message.Publisher, error) {
+	wattermilLogger := watermill.NewSlogLoggerWithLevelMapping(
+		slog.With("watermill", true),
+		map[slog.Level]slog.Level{
+			slog.LevelInfo: slog.LevelDebug,
+		},
+	)
+	var publisher message.Publisher
+
+	switch broker.Kind {
+	case "sns":
+		endpointResolver, err := broker.AWS.GetEndpointResolver()
+		if err != nil {
+			return nil, err
+		}
+		cfg, err := broker.AWS.NewAWSConfig()
+
+		slog.InfoContext(context.TODO(), "casting aws config")
+		castedConfig := (cfg).(aws.Config)
+
+		optFns := make([]func(*amazonsqs.Options), 0)
+
+		if broker.AWS.Endpoint != "" {
+			optFns = append(optFns, endpointResolver)
+		}
+
+		sqsConfig := sqs.PublisherConfig{
+			OptFns:    optFns,
+			AWSConfig: castedConfig,
+		}
+
+		sqsPublisher, err := sqs.NewPublisher(sqsConfig, wattermilLogger)
+		if err != nil {
+			return nil, err
+		}
+
+		publisher = sqsPublisher
+	case "nats":
+		println("nats")
+	}
+
+	tracePropagatingPublisherDecorator := wotelfloss.NewTracePropagatingPublisherDecorator(publisher)
+	return wotel.NewNamedPublisherDecorator("pubsub.Publish", tracePropagatingPublisherDecorator), nil
+}
+
+func (broker *WatermillBrokerSettings) NewSubscriber() (message.Subscriber, error) {
+	wattermilLogger := watermill.NewSlogLoggerWithLevelMapping(
+		slog.With("watermill", true),
+		map[slog.Level]slog.Level{
+			slog.LevelInfo: slog.LevelDebug,
+		},
+	)
+	var subscriber message.Subscriber
+
+	switch broker.Kind {
+	case "sns":
+		endpointResolver, err := broker.AWS.GetEndpointResolver()
+		if err != nil {
+			return nil, err
+		}
+		cfg, err := broker.AWS.NewAWSConfig()
+
+		slog.InfoContext(context.TODO(), "casting aws config")
+		castedConfig := (cfg).(aws.Config)
+
+		optFns := make([]func(*amazonsqs.Options), 0)
+
+		if broker.AWS.Endpoint != "" {
+			optFns = append(optFns, endpointResolver)
+		}
+
+		sqsConfig := sqs.SubscriberConfig{
+			OptFns:    optFns,
+			AWSConfig: castedConfig,
+		}
+
+		sqsSubs, err := sqs.NewSubscriber(sqsConfig, wattermilLogger)
+		if err != nil {
+			return nil, err
+		}
+
+		subscriber = sqsSubs
+	case "nats":
+		println("nats")
+	}
+
+	return subscriber, nil
+}
+
+type WatermillSettings struct {
+	Broker     WatermillBrokerSettings `mapstructure:"broker" validate:"required"`
+	ImageTopic string                  `mapstructure:"image-topic" validate:"required"`
 }
 
 type AppSettings struct {
