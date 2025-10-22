@@ -3,15 +3,8 @@ app:
   version: 0.1.0
   env: base
 
-nats:
-  usecredentials: false
-  host: localhost
-  username: nats
-  password: nats
-  port: 4222
-
 http:
-  port: 8080
+  port: 42069
   prefix: "/"
   ip: 0.0.0.0
   cors:
@@ -31,7 +24,7 @@ http:
       - "X-CSRF-Token"
 
 opentelemetry:
-  enabled: true
+  enabled: false
   endpoint: localhost:4317
   insecure: true
   interval: 20

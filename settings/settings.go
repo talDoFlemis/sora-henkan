@@ -13,12 +13,12 @@ import (
 )
 
 //go:embed base.yaml
-var baseSettings []byte
+var BaseSettings []byte
 
 type CORSSettings struct {
 	Origins []string `mapstructure:"origins" validate:"min=1,dive,url"`
 	Methods []string `mapstructure:"methods" validate:"min=1,dive,oneof=GET POST PUT DELETE OPTIONS PATCH HEAD"`
-	Headers []string `mapstructure:"headers" validate:"min=1,dive,baseheader"`
+	Headers []string `mapstructure:"headers" validate:"min=1"`
 }
 
 type HTTPSettings struct {
@@ -67,23 +67,17 @@ type AppSettings struct {
 	Env     string `mapstructure:"env"`
 }
 
-type Settings struct {
-	App           AppSettings           `mapstructure:"app" validate:"required"`
-	HTTP          HTTPSettings          `mapstructure:"http" validate:"required"`
-	OpenTelemetry OpenTelemetrySettings `mapstructure:"opentelemetry" validate:"required"`
-}
-
-func LoadSettings() (*Settings, error) {
-	var cfg *Settings
+func LoadConfig[T any](prefix string, baseConfig []byte) (*T, error) {
+	var cfg *T
 
 	viper.SetConfigType("yaml")
-	err := viper.ReadConfig(bytes.NewReader(baseSettings))
+	err := viper.ReadConfig(bytes.NewReader(baseConfig))
 	if err != nil {
 		log.Println("Failed to read config from yaml")
 		return nil, err
 	}
 
-	viper.SetEnvPrefix("WEBSERVER")
+	viper.SetEnvPrefix(prefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", ""))
 	viper.AutomaticEnv()
 
@@ -92,15 +86,7 @@ func LoadSettings() (*Settings, error) {
 		return nil, err
 	}
 
-	validate := validator.New()
-	allowedHeaders := map[string]struct{}{
-		"Accept": {}, "Authorization": {}, "Content-Type": {}, "X-CSRF-Token": {},
-	}
-	validate.RegisterValidation("baseheader", func(fl validator.FieldLevel) bool {
-		header := fl.Field().String()
-		_, ok := allowedHeaders[header]
-		return ok
-	})
+	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(cfg); err != nil {
 		return nil, err
 	}
