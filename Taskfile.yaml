@@ -34,6 +34,14 @@ tasks:
     desc: Rollback all database migrations
     cmd: go run ./cmd/migrate -direction=down
 
+  localstack:up:
+    desc: Start LocalStack
+    cmd: docker-compose up -d localstack
+
+  localstack:down:
+    desc: Stop LocalStack
+    cmd: docker-compose down localstack
+
   clean:
     desc: Clean build artifacts
     cmd: rm -rf bin/

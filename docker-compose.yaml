@@ -37,6 +37,21 @@ services:
     networks:
       - sora-henkan-network
 
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=sqs
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+    ports:
+      - "4566-4597:4566-4597"
+    healthcheck:
+      test: awslocal sqs list-queues
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   postgres_data:
     driver: local
