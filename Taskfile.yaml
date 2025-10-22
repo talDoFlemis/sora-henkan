@@ -2,4 +2,75 @@ version: "3"
 
 tasks:
   run-api:
+    desc: Run the API server
     cmd: go run ./cmd/api
+
+  # Database tasks
+  db-up:
+    desc: Start PostgreSQL database
+    cmd: docker-compose up -d postgres
+
+  db-down:
+    desc: Stop PostgreSQL database
+    cmd: docker-compose down
+
+  db-logs:
+    desc: Show PostgreSQL logs
+    cmd: docker-compose logs -f postgres
+
+  # Migration tasks
+  migrate-up:
+    desc: Run all database migrations
+    cmd: go run ./cmd/migrate -direction=up
+
+  migrate-down:
+    desc: Rollback all database migrations
+    cmd: go run ./cmd/migrate -direction=down
+
+  migrate-up-step:
+    desc: Run one migration up
+    cmd: go run ./cmd/migrate -direction=up -steps=1
+
+  migrate-down-step:
+    desc: Rollback one migration
+    cmd: go run ./cmd/migrate -direction=down -steps=1
+
+  migrate-build:
+    desc: Build migration binary
+    cmd: go build -o bin/migrate ./cmd/migrate
+
+  # Development workflow
+  dev-setup:
+    desc: Setup development environment
+    cmds:
+      - task: db-up
+      - sleep 3
+      - task: migrate-up
+
+  dev-reset:
+    desc: Reset development database
+    cmds:
+      - task: migrate-down
+      - task: migrate-up
+
+  # Build tasks
+  build:
+    desc: Build all binaries
+    cmds:
+      - go build -o bin/api ./cmd/api
+      - go build -o bin/migrate ./cmd/migrate
+
+  # Test tasks
+  test:
+    desc: Run tests
+    cmd: go test -v ./...
+
+  test-coverage:
+    desc: Run tests with coverage
+    cmd: go test -v -coverprofile=coverage.out ./...
+
+  # Cleanup
+  clean:
+    desc: Clean build artifacts
+    cmd: rm -rf bin/
+

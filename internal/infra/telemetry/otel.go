@@ -14,6 +14,7 @@ import (
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -23,6 +24,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	traceNonSdk "go.opentelemetry.io/otel/trace"
+
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
@@ -270,4 +273,9 @@ func InjectContextToNatsMsg(ctx context.Context, msg *nats.Msg) {
 	carrier := propagation.HeaderCarrier(msg.Header)
 
 	propagator.Inject(ctx, carrier)
+}
+
+func RegisterSpanError(span traceNonSdk.Span, err error) {
+	span.SetStatus(codes.Error, err.Error())
+	span.RecordError(err)
 }

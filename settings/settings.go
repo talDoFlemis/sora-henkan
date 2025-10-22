@@ -2,6 +2,7 @@ package settings
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"strings"
 
@@ -59,6 +60,51 @@ type OpenTelemetrySettings struct {
 	Traces   OpenTelemetryTraceSettings  `mapstructure:"traces"`
 	Logs     OpenTelemetryLogSettings    `mapstructure:"logs"`
 	Interval int                         `mapstructure:"interval"`
+}
+
+type ImageProcessorSettings struct {
+	BucketName string `mapstructure:"bucket_name" validate:"required"`
+}
+
+type DatabaseSettings struct {
+	Host                   string `mapstructure:"host" validate:"required"`
+	Port                   int    `mapstructure:"port" validate:"required,gte=1,lte=65535"`
+	User                   string `mapstructure:"user" validate:"required"`
+	Password               string `mapstructure:"password" validate:"required"`
+	Database               string `mapstructure:"database" validate:"required"`
+	Schema                 string `mapstructure:"schema"`
+	SSLMode                string `mapstructure:"ssl_mode" validate:"oneof=disable require verify-ca verify-full"`
+	MaxOpenConns           int    `mapstructure:"max_open_conns" validate:"gte=1"`
+	MaxIdleConns           int    `mapstructure:"max_idle_conns" validate:"gte=1"`
+	ConnMaxLifetimeMinutes int    `mapstructure:"conn_max_lifetime_minutes" validate:"gte=1"`
+}
+
+// BuildConnectionString builds a PostgreSQL connection string from the settings
+func (d *DatabaseSettings) BuildConnectionString() string {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+		d.User,
+		d.Password,
+		d.Host,
+		d.Port,
+		d.Database,
+	)
+
+	// Add query parameters
+	params := []string{}
+
+	if d.SSLMode != "" {
+		params = append(params, fmt.Sprintf("sslmode=%s", d.SSLMode))
+	}
+
+	if d.Schema != "" {
+		params = append(params, fmt.Sprintf("search_path=%s", d.Schema))
+	}
+
+	if len(params) > 0 {
+		connStr += "?" + strings.Join(params, "&")
+	}
+
+	return connStr
 }
 
 type AppSettings struct {
