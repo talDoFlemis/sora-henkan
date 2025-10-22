@@ -114,7 +114,7 @@ func (m *MinioObjectStorer) PresignedUpload(ctx context.Context, bucket string) 
 	// Note: The interface might need to be updated to accept a key parameter
 	// For now, generating a placeholder key
 	key := "upload-placeholder"
-	
+
 	// Generate presigned URL valid for 15 minutes
 	presignedURL, err := m.minioClient.PresignedPutObject(ctx, bucket, key, 15*time.Minute)
 	if err != nil {
@@ -125,7 +125,7 @@ func (m *MinioObjectStorer) PresignedUpload(ctx context.Context, bucket string) 
 
 	span.SetAttributes(attribute.String("presigned.url", presignedURL.String()))
 	slog.InfoContext(ctx, "successfully generated presigned upload URL", slog.String("url", presignedURL.String()))
-	
+
 	return presignedURL.String(), nil
 }
 

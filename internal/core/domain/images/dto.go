@@ -1,8 +1,8 @@
 package images
 
 type ListImagesRequest struct {
-	Page  int `json:"page" validate:"required,gte=1"`
-	Limit int `json:"limit" validate:"required,gte=1,lte=100"`
+	Page  int `query:"page" validate:"required,gte=1"`
+	Limit int `query:"limit" validate:"required,gte=1,lte=100"`
 }
 
 type ListImagesResponse struct {

@@ -13,6 +13,10 @@ type VipsImageProcessor struct{}
 
 var _ ports.ImageScaler = (*VipsImageProcessor)(nil)
 
+func NewVipsImageProcessor() *VipsImageProcessor {
+	return &VipsImageProcessor{}
+}
+
 // Scale implements ports.ImageScaler.
 func (v *VipsImageProcessor) Scale(ctx context.Context, image io.Reader, targetHeight int, targetWidth int) ([]byte, error) {
 	slog.DebugContext(ctx, "Scaling image", slog.Int("targetHeight", targetHeight), slog.Int("targetWidth", targetWidth))

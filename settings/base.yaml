@@ -19,6 +19,11 @@ image-processor:
   bucket_name: images
 
 object-storer:
+  endpoint: localhost:9000
+  access_key_id: minioadmin
+  secret_access_key: minioadmin
+  use_ssl: false
+  region: us-east-1
 
 http:
   port: 42069

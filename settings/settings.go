@@ -2,11 +2,14 @@ package settings
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	_ "embed"
 
@@ -64,6 +67,35 @@ type OpenTelemetrySettings struct {
 
 type ImageProcessorSettings struct {
 	BucketName string `mapstructure:"bucket_name" validate:"required"`
+}
+
+type ObjectStorerSettings struct {
+	Endpoint        string `mapstructure:"endpoint" validate:"required"`
+	AccessKeyID     string `mapstructure:"access_key_id" validate:"required"`
+	SecretAccessKey string `mapstructure:"secret_access_key" validate:"required"`
+	UseSSL          bool   `mapstructure:"use_ssl"`
+	Region          string `mapstructure:"region"`
+}
+
+// NewMinioClient creates a new MinIO client from the settings
+func (o *ObjectStorerSettings) NewMinioClient(ctx context.Context) (*minio.Client, error) {
+	// Initialize MinIO client
+	minioClient, err := minio.New(o.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(o.AccessKeyID, o.SecretAccessKey, ""),
+		Secure: o.UseSSL,
+		Region: o.Region,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize MinIO client: %w", err)
+	}
+
+	// Verify connection by listing buckets
+	_, err = minioClient.ListBuckets(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to MinIO: %w", err)
+	}
+
+	return minioClient, nil
 }
 
 type DatabaseSettings struct {
