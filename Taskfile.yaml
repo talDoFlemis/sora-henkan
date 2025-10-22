@@ -1,34 +1,50 @@
 version: "3"
 
 tasks:
-  api:up:
+  api:run:
     desc: Run the API server
     cmd: go run ./cmd/api
 
-  worker:up:
+  api:up:
+    desc: Run the api
+    cmd: docker compose up -d api --build
+
+  api:down:
+    desc: Stop the api
+    cmd: docker compose down api
+
+  worker:run:
     desc: Run the worker
     cmd: go run ./cmd/worker
+
+  worker:up:
+    desc: Run the worker
+    cmd: docker compose up -d worker --build
+
+  worker:down:
+    desc: Stop the worker
+    cmd: docker compose down worker
 
   # Database tasks
   db:up:
     desc: Start PostgreSQL database
-    cmd: docker-compose up -d postgres
+    cmd: docker compose up -d postgres
 
   db:down:
     desc: Stop PostgreSQL database
-    cmd: docker-compose down postgres
+    cmd: docker compose down postgres
 
   minio:up:
     desc: Start MinIO server
-    cmd: docker-compose up -d minio
+    cmd: docker compose up -d minio
 
   minio:down:
     desc: Stop MinIO server
-    cmd: docker-compose down minio
+    cmd: docker compose down minio
 
   minio:create-bucket:
     desc: Create MinIO bucket
-    cmd: docker-compose exec minio mc mb minioadmin/images
+    cmd: docker compose exec minio mc mb minioadmin/images
 
   migrate:up:
     desc: Run all database migrations
@@ -40,11 +56,11 @@ tasks:
 
   localstack:up:
     desc: Start LocalStack
-    cmd: docker-compose up -d localstack
+    cmd: docker compose up -d localstack
 
   localstack:down:
     desc: Stop LocalStack
-    cmd: docker-compose down localstack
+    cmd: docker compose down localstack
 
   clean:
     desc: Clean build artifacts

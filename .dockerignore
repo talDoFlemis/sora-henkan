@@ -1,4 +1,3 @@
-tmp
 # Compiled binaries
 *.exe
 *.bin
@@ -25,3 +24,6 @@ Thumbs.db # Windows specific
 # Log files and temporary files
 *.log
 tmp/
+README.md
+Dockerfile
+.git
