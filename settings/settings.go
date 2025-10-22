@@ -217,12 +217,8 @@ type WatermillBrokerSettings struct {
 }
 
 func (broker *WatermillBrokerSettings) NewPublisher() (message.Publisher, error) {
-	wattermilLogger := watermill.NewSlogLoggerWithLevelMapping(
-		slog.With("watermill", true),
-		map[slog.Level]slog.Level{
-			slog.LevelInfo: slog.LevelDebug,
-		},
-	)
+	wattermilLogger := watermill.NewSlogLogger(slog.Default())
+
 	var publisher message.Publisher
 
 	switch broker.Kind {
@@ -262,12 +258,7 @@ func (broker *WatermillBrokerSettings) NewPublisher() (message.Publisher, error)
 }
 
 func (broker *WatermillBrokerSettings) NewSubscriber() (message.Subscriber, error) {
-	wattermilLogger := watermill.NewSlogLoggerWithLevelMapping(
-		slog.With("watermill", true),
-		map[slog.Level]slog.Level{
-			slog.LevelInfo: slog.LevelDebug,
-		},
-	)
+	wattermilLogger := watermill.NewSlogLogger(slog.Default())
 	var subscriber message.Subscriber
 
 	switch broker.Kind {

@@ -42,7 +42,7 @@ func (h *ImageHandler) ListImages(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
 	resp, err := h.imageUseCase.ListImages(ctx, &req)
@@ -60,7 +60,7 @@ func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 		slog.ErrorContext(ctx, "streaming unsupported by response writer")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Streaming unsupported")
 	}
-	
+
 	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
@@ -111,9 +111,8 @@ func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 	imageUpdates, closeCallback, err := h.imageUseCase.GetImageRealtimeUpdate(ctx, id)
 	if err != nil {
 		if errors.Is(err, ports.ErrImageNotFound) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "image not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "Image not found")
 		}
-
 		return err
 	}
 	defer closeCallback()
@@ -147,9 +146,8 @@ func (h *ImageHandler) GetImage(c echo.Context) error {
 	image, err := h.imageUseCase.GetImage(ctx, id)
 	if err != nil {
 		if errors.Is(err, ports.ErrImageNotFound) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "image not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "Image not found")
 		}
-
 		return err
 	}
 
@@ -162,7 +160,7 @@ func (h *ImageHandler) CreateImage(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
 	resp, err := h.imageUseCase.CreateImageRequest(ctx, &req)
@@ -179,19 +177,18 @@ func (h *ImageHandler) UpdateImage(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
 	err = h.imageUseCase.UpdateImage(ctx, &req)
 	if err != nil {
 		if errors.Is(err, ports.ErrImageNotFound) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "image not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "Image not found")
 		}
-
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{})
+	return c.JSON(http.StatusOK, map[string]string{"message": "Image updated successfully"})
 }
 
 func (h *ImageHandler) DeleteImage(c echo.Context) error {
@@ -202,11 +199,10 @@ func (h *ImageHandler) DeleteImage(c echo.Context) error {
 	err := h.imageUseCase.DeleteImage(ctx, id)
 	if err != nil {
 		if errors.Is(err, ports.ErrImageNotFound) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "image not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "Image not found")
 		}
-
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "image deleted successfully"})
+	return c.JSON(http.StatusOK, map[string]string{"message": "Image deleted successfully"})
 }

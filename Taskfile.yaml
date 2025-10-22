@@ -5,6 +5,10 @@ tasks:
     desc: Run the API server
     cmd: go run ./cmd/api
 
+  worker:up:
+    desc: Run the worker
+    cmd: go run ./cmd/worker
+
   # Database tasks
   db:up:
     desc: Start PostgreSQL database
@@ -24,7 +28,7 @@ tasks:
 
   minio:create-bucket:
     desc: Create MinIO bucket
-    cmd: docker-compose exec minio mc mb minioadmin/sorahenkan
+    cmd: docker-compose exec minio mc mb minioadmin/images
 
   migrate:up:
     desc: Run all database migrations

@@ -27,11 +27,12 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 	e := echo.New()
 
 	e.HideBanner = true
+	
+	// Set custom error handler
+	e.HTTPErrorHandler = GlobalErrorHandler
+	
 	e.Use(slogecho.New(logger))
 	e.Use(middleware.Recover())
-	// e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-	// 	Timeout: 5 * time.Second,
-	// }))
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: httpSettings.CORS.Origins,

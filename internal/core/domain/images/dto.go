@@ -13,8 +13,8 @@ type ListImagesResponse struct {
 }
 
 type CreateImageRequest struct {
-	ImageURL        string   `json:"image_url" validate:"required,url"`
-	Transformations []string `json:"transformations" validate:"required,dive,oneof=resize crop rotate grayscale"`
+	ImageURL            string              `json:"image_url" validate:"required,url"`
+	ScaleTransformation ScaleTransformation `json:"scale" validate:"required"`
 }
 
 type CreateImageResponse struct {
@@ -26,10 +26,10 @@ type DeleteImageRequest struct {
 }
 
 type ProcessImageRequest struct {
-	ID               string `validate:"required,uuid"`
-	OriginalImageURL string `validate:"required,url"`
-	StorageKey       string
-	Transformations  []string
+	ID                  string `validate:"required,uuid"`
+	OriginalImageURL    string `validate:"required,url"`
+	StorageKey          string
+	ScaleTransformation ScaleTransformation `validate:"required"`
 }
 
 type UpdateImageRequest struct {

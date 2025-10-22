@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/ThreeDotsLabs/watermill v1.5.1
 	github.com/ThreeDotsLabs/watermill-aws v1.0.1
-	github.com/aws/aws-sdk-go v1.49.6
+	github.com/aws/aws-sdk-go-v2 v1.39.3
 	github.com/aws/aws-sdk-go-v2/config v1.31.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.6
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.42.9
@@ -39,7 +39,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.39.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.4 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.10 // indirect
@@ -60,7 +59,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -87,6 +85,7 @@ require (
 	github.com/sagikazarmark/locafero v0.11.0 // indirect
 	github.com/samber/lo v1.51.0 // indirect
 	github.com/samber/slog-common v0.19.0 // indirect
+	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect

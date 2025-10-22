@@ -72,12 +72,20 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 	))
 	defer span.End()
 
+	// Validate request
+	if err := ValidateStruct(req); err != nil {
+		slog.ErrorContext(ctx, "validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
 	imageEntity := images.Image{
-		ID:               uuid.New(),
-		OriginalImageURL: req.ImageURL,
-		CreatedAt:        time.Now(),
-		Status:           "pending",
-		UpdatedAt:        time.Now(),
+		ID:                  uuid.New(),
+		OriginalImageURL:    req.ImageURL,
+		ScaleTransformation: req.ScaleTransformation,
+		CreatedAt:           time.Now(),
+		Status:              "pending",
+		UpdatedAt:           time.Now(),
 	}
 
 	err := u.imageRepository.CreateNewImage(ctx, &imageEntity)
@@ -87,9 +95,16 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 		return nil, err
 	}
 
-	payload, err := json.Marshal(imageEntity)
+	processReq := &images.ProcessImageRequest{
+		ID:                  imageEntity.ID.String(),
+		OriginalImageURL:    imageEntity.OriginalImageURL,
+		StorageKey:          imageEntity.ObjectStorageImageKey,
+		ScaleTransformation: imageEntity.ScaleTransformation,
+	}
+
+	payload, err := json.Marshal(processReq)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to marshal image", slog.Any("err", err))
+		slog.ErrorContext(ctx, "failed to marshal process image request", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
@@ -126,6 +141,13 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 	ctx, span := tracer.Start(ctx, "ImageUseCase.UpdateImage", trace.WithAttributes(attribute.String("image.id", req.ID)))
 	defer span.End()
 
+	// Validate request
+	if err := ValidateStruct(req); err != nil {
+		slog.ErrorContext(ctx, "validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
 	imageEntity, err := u.imageRepository.FindImageByID(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
@@ -134,6 +156,7 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 	}
 
 	imageEntity.ScaleTransformation = req.ScaleTransformation
+	imageEntity.UpdatedAt = time.Now()
 
 	err = u.imageRepository.UpdateImage(ctx, imageEntity)
 	if err != nil {
@@ -142,9 +165,16 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
-	payload, err := json.Marshal(imageEntity)
+	processReq := &images.ProcessImageRequest{
+		ID:                  imageEntity.ID.String(),
+		OriginalImageURL:    imageEntity.OriginalImageURL,
+		StorageKey:          imageEntity.ObjectStorageImageKey,
+		ScaleTransformation: imageEntity.ScaleTransformation,
+	}
+
+	payload, err := json.Marshal(processReq)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to marshal image", slog.Any("err", err))
+		slog.ErrorContext(ctx, "failed to marshal process image request", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
 		return err
 	}
@@ -199,6 +229,13 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 	))
 	defer span.End()
 
+	// Validate request
+	if err := ValidateStruct(req); err != nil {
+		slog.ErrorContext(ctx, "validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
 	imageEntity, err := u.imageRepository.FindImageByID(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
@@ -208,14 +245,24 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 
 	if req.StorageKey == "" {
 		slog.WarnContext(ctx, "image is not stored yet, fetching image")
-		storageKey, err := u.fetchAndStoreImage(ctx, req)
+		imageData, err := u.fetchAndStoreImage(ctx, req)
 		if err != nil {
 			slog.ErrorContext(ctx, "failed to fetch and store image", slog.Any("err", err))
 			telemetry.RegisterSpanError(span, err)
 			return err
 		}
 
-		req.StorageKey = storageKey
+		req.StorageKey = imageData.ObjectStorageImageKey
+		imageEntity.MimeType = imageData.MimeType
+		imageEntity.ObjectStorageImageKey = imageData.ObjectStorageImageKey
+
+		// Update image entity with storage information
+		err = u.imageRepository.UpdateImage(ctx, imageEntity)
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to update image with storage info", slog.Any("err", err))
+			telemetry.RegisterSpanError(span, err)
+			return err
+		}
 	}
 
 	imageData, err := u.objectStorer.Get(ctx, req.StorageKey, u.imagesBucket)
@@ -225,16 +272,24 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		return err
 	}
 
-	imageProcessed, err := u.imageScaler.Scale(ctx, imageData, 100, 100)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to scale image", slog.Any("err", err))
-		telemetry.RegisterSpanError(span, err)
-		return err
+	var imageProcessed io.Reader
+	imageProcessed = imageData
+
+	if req.ScaleTransformation.Enabled {
+		scaledBytes, err := u.imageScaler.Scale(ctx, imageData, req.ScaleTransformation.Width, req.ScaleTransformation.Height)
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to scale image", slog.Any("err", err))
+			telemetry.RegisterSpanError(span, err)
+			return err
+		}
+
+		slog.InfoContext(ctx, "image scaled successfully", slog.String("image_id", req.ID))
+		imageProcessed = bytes.NewReader(scaledBytes)
 	}
 
 	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String()
 
-	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, bytes.NewBuffer(imageProcessed))
+	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, imageProcessed)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to store transformed image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
@@ -264,6 +319,13 @@ func (u *ImageUseCase) ListImages(ctx context.Context, req *images.ListImagesReq
 	))
 	defer span.End()
 
+	// Validate request
+	if err := ValidateStruct(req); err != nil {
+		slog.ErrorContext(ctx, "validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
 	resp, err := u.imageRepository.FindAllImages(ctx, req)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to list images", slog.Any("err", err))
@@ -274,7 +336,7 @@ func (u *ImageUseCase) ListImages(ctx context.Context, req *images.ListImagesReq
 	return resp, nil
 }
 
-func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.ProcessImageRequest) (string, error) {
+func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.ProcessImageRequest) (*images.Image, error) {
 	ctx, span := tracer.Start(ctx, "ImageUseCase.fetchAndStoreImage", trace.WithAttributes(
 		attribute.String("image.original_url", req.OriginalImageURL),
 	))
@@ -284,14 +346,14 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to create image request", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(imageRequets)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -300,7 +362,7 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		err = fmt.Errorf("received non-OK HTTP status: %s", resp.Status)
 		slog.ErrorContext(ctx, "received non-OK HTTP status", slog.Int("status_code", resp.StatusCode))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
 
 	contentTypeHeader := resp.Header.Get("Content-Type")
@@ -310,31 +372,34 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		err = fmt.Errorf("disallowed MIME type: %s", mimeType)
 		slog.ErrorContext(ctx, "disallowed MIME type", slog.String("mime_type", mimeType))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
-
-	id := uuid.New()
 
 	bodyData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf("failed to read response body: %w", err)
 		slog.ErrorContext(ctx, "failed to read response body", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
 
-	rawImageKey := rawImagePath + "/" + id.String()
+	rawImageKey := rawImagePath + "/" + req.ID
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to store image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return "", err
+		return nil, err
 	}
 
-	slog.InfoContext(ctx, "image stored successfully", slog.String("image_id", id.String()), slog.String("raw_image_key", rawImageKey))
+	slog.InfoContext(ctx, "image stored successfully", slog.String("image_id", req.ID), slog.String("raw_image_key", rawImageKey))
 
-	return rawImageKey, nil
+	imageData := &images.Image{
+		ObjectStorageImageKey: rawImageKey,
+		MimeType:              mimeType,
+	}
+
+	return imageData, nil
 }
 
 func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (chan *images.Image, func() error, error) {
