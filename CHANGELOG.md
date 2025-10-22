@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.0.0...v1.1.0) (2025-10-22)
+
+### Features
+
+* add docker image publishing to releases ([da697c4](https://github.com/talDoFlemis/sora-henkan/commit/da697c450b269eeb7685c6eb71440b6f35c6b366))
+
 ## 1.0.0 (2025-10-22)
 
 ### Features
