@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/taldoflemis/sora-henkan/internal/ports"
+	"github.com/taldoflemis/sora-henkan/internal/core/ports"
 )
 
 type MinioObjectStorer struct{}

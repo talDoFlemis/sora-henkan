@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/davidbyttow/govips/v2/vips"
-	"github.com/taldoflemis/sora-henkan/internal/ports"
+	"github.com/taldoflemis/sora-henkan/internal/core/ports"
 )
 
 type VipsImageProcessor struct{}
