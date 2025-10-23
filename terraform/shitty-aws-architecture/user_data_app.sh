@@ -17,7 +17,7 @@ chmod +x /usr/local/bin/docker-compose
 mkdir -p /opt/sora-henkan
 
 # Create docker-compose file for the application
-cat > /opt/sora-henkan/docker-compose.yaml <<EOF
+cat >/opt/sora-henkan/docker-compose.yaml <<EOF
 services:
   migrate:
     image: ${DOCKER_IMAGE_MIGRATE}
@@ -28,6 +28,7 @@ services:
       MIGRATE_DATABASE_USER: ${DB_USERNAME}
       MIGRATE_DATABASE_PASSWORD: ${DB_PASSWORD}
       MIGRATE_DATABASE_NAME: ${DB_NAME}
+      MIGRATE_DATABASE_SSLMODE: require
     command:
       - "/app/migrate"
       - "-direction=up"
@@ -42,6 +43,7 @@ services:
       WORKER_DATABASE_USER: ${DB_USERNAME}
       WORKER_DATABASE_PASSWORD: ${DB_PASSWORD}
       WORKER_DATABASE_NAME: ${DB_NAME}
+      WORKER_DATABASE_SSLMODE: require
       WORKER_OBJECTSTORER_ENDPOINT: ${S3_BUCKET_NAME}
       WORKER_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
@@ -60,6 +62,7 @@ services:
       API_DATABASE_USER: ${DB_USERNAME}
       API_DATABASE_PASSWORD: ${DB_PASSWORD}
       API_DATABASE_NAME: ${DB_NAME}
+      API_DATABASE_SSLMODE: require
       API_OBJECTSTORER_ENDPOINT: ${S3_BUCKET_NAME}
       API_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
