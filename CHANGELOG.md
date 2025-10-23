@@ -1,3 +1,10 @@
+## [1.4.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.3.0...v1.4.0) (2025-10-23)
+
+### Features
+
+* add frontend ([d3b145b](https://github.com/talDoFlemis/sora-henkan/commit/d3b145b65e405f4e1eee469d5fb33c7d918ee01b))
+* add frontend to ec2 ([e74a1ac](https://github.com/talDoFlemis/sora-henkan/commit/e74a1ac2cf05ff98d5b1ba74c304a1d482d20ee9))
+
 ## [1.3.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.2.0...v1.3.0) (2025-10-23)
 
 ### Features
