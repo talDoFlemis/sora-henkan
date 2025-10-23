@@ -113,6 +113,15 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # API port access (for direct ALB access without domain)
+  ingress {
+    description = "API port from internet"
+    from_port   = 42069
+    to_port     = 42069
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Allow all outbound traffic
   egress {
     description = "All outbound traffic"

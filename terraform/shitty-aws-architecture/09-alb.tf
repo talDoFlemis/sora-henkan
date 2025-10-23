@@ -74,7 +74,7 @@ resource "aws_lb_target_group" "api" {
   )
 }
 
-# ALB Listener for HTTP
+# ALB Listener for HTTP (Port 80) - Frontend
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app.arn
   port              = "80"
@@ -87,8 +87,23 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# Listener Rule: Forward /api/* to API target group
-resource "aws_lb_listener_rule" "api" {
+# ALB Listener for API port (42069)
+resource "aws_lb_listener" "api_port" {
+  load_balancer_arn = aws_lb.app.arn
+  port              = "42069"
+  protocol          = "HTTP"
+
+  # Default action forwards to API
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+}
+
+# Listener Rule: Forward API domain to API target group (only if domain is set)
+resource "aws_lb_listener_rule" "api_host" {
+  count = var.api_domain != "" ? 1 : 0
+
   listener_arn = aws_lb_listener.http.arn
   priority     = 100
 
@@ -98,8 +113,27 @@ resource "aws_lb_listener_rule" "api" {
   }
 
   condition {
-    path_pattern {
-      values = ["/api/*"]
+    host_header {
+      values = [var.api_domain]
+    }
+  }
+}
+
+# Listener Rule: Forward frontend domain to Frontend target group (only if domain is set)
+resource "aws_lb_listener_rule" "frontend_host" {
+  count = var.frontend_domain != "" ? 1 : 0
+
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 200
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend.arn
+  }
+
+  condition {
+    host_header {
+      values = [var.frontend_domain]
     }
   }
 }

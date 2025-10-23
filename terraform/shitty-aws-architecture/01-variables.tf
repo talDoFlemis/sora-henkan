@@ -202,6 +202,19 @@ variable "use_localstack" {
   default     = false
 }
 
+# Domain Variables
+variable "frontend_domain" {
+  description = "Domain name for frontend service (e.g., sorahenkan.flemis.cloud). Leave empty for port-based routing only."
+  type        = string
+  default     = "sorahenkan.flemis.cloud"
+}
+
+variable "api_domain" {
+  description = "Domain name for API service (e.g., api.sorahenkan.flemis.cloud). Leave empty for port-based routing only."
+  type        = string
+  default     = "api-sorahenkan.flemis.cloud"
+}
+
 # Tags
 variable "common_tags" {
   description = "Common tags to apply to all resources"

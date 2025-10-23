@@ -33,9 +33,24 @@ output "load_balancer_dns" {
   value       = aws_lb.app.dns_name
 }
 
-output "load_balancer_url" {
-  description = "URL of the Application Load Balancer"
-  value       = "http://${aws_lb.app.dns_name}"
+output "load_balancer_frontend_url" {
+  description = "Frontend URL (port-based access)"
+  value       = "http://${aws_lb.app.dns_name}:80"
+}
+
+output "load_balancer_api_url" {
+  description = "API URL (port-based access)"
+  value       = "http://${aws_lb.app.dns_name}:42069"
+}
+
+output "frontend_domain_url" {
+  description = "Frontend domain URL (if configured)"
+  value       = var.frontend_domain != "" ? "https://${var.frontend_domain}" : "Not configured - use port-based access"
+}
+
+output "api_domain_url" {
+  description = "API domain URL (if configured)"
+  value       = var.api_domain != "" ? "https://${var.api_domain}" : "Not configured - use port-based access"
 }
 
 output "autoscaling_group_name" {
@@ -132,4 +147,31 @@ output "rds_port" {
 output "rds_database_name" {
   description = "RDS database name"
   value       = aws_db_instance.main.db_name
+}
+
+# Access Instructions
+output "access_instructions" {
+  description = "Instructions for accessing your application"
+  value       = <<-EOT
+  
+  ====================================
+  APPLICATION ACCESS
+  ====================================
+  
+  PORT-BASED ACCESS (direct to ALB):
+  Frontend: http://${aws_lb.app.dns_name}:80
+  API:      http://${aws_lb.app.dns_name}:42069
+  
+  ${var.frontend_domain != "" || var.api_domain != "" ? "DOMAIN-BASED ACCESS (via Cloudflare):" : ""}
+  ${var.frontend_domain != "" ? "Frontend: https://${var.frontend_domain}" : ""}
+  ${var.api_domain != "" ? "API:      https://${var.api_domain}" : ""}
+  
+  ${var.frontend_domain != "" || var.api_domain != "" ? "====================================\nCLOUDFLARE DNS CONFIGURATION\n====================================\n\nAdd these CNAME records in Cloudflare:" : ""}
+  ${var.frontend_domain != "" ? "\nFrontend Domain:\nName:    ${replace(var.frontend_domain, ".flemis.cloud", "")}\nType:    CNAME\nContent: ${aws_lb.app.dns_name}\nProxy:   ON (Proxied - Orange Cloud)\nTTL:     Auto" : ""}
+  ${var.api_domain != "" ? "\nAPI Domain:\nName:    ${replace(var.api_domain, ".flemis.cloud", "")}\nType:    CNAME\nContent: ${aws_lb.app.dns_name}\nProxy:   ON (Proxied - Orange Cloud)\nTTL:     Auto" : ""}
+  
+  ${var.frontend_domain != "" || var.api_domain != "" ? "\nSSL/TLS Settings in Cloudflare:\nGo to SSL/TLS → Overview\nSet mode to: Flexible\n\nBenefits:\n- Free SSL/TLS from Cloudflare\n- CDN and caching\n- DDoS protection\n- Analytics" : "\nTo enable domain-based routing:\n- Set frontend_domain variable to your frontend domain\n- Set api_domain variable to your API domain\n- Add corresponding CNAME records in Cloudflare"}
+  
+  ====================================
+  EOT
 }
