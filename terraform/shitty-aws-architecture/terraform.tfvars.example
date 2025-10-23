@@ -1,0 +1,61 @@
+# Example Terraform Variables File
+# Copy this file to terraform.tfvars and update with your values
+
+# AWS Configuration
+aws_region = "us-east-1"
+project_name = "sora-henkan"
+environment = "dev"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+public_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24"]
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# EC2 Configuration
+otel_instance_type = "t3.small"
+app_instance_type = "t3.medium"
+key_pair_name = "your-key-pair-name" # Create this in AWS EC2 console
+
+# Auto Scaling Configuration
+asg_min_size = 1
+asg_max_size = 3
+asg_desired_capacity = 1
+scale_up_cpu_threshold = 70
+scale_down_cpu_threshold = 25
+scale_up_cooldown = 60
+scale_down_cooldown = 300
+
+# S3 Configuration
+image_bucket_name = "sora-henkan-images"
+
+# SQS Configuration
+sqs_queue_name = "sora-henkan-image-queue"
+sqs_visibility_timeout = 300
+sqs_message_retention = 1209600
+
+# Database Configuration (for docker-compose in EC2)
+db_username = "sorahenkan"
+db_password = "change_me_in_production" # Change this!
+db_name = "sorahenkan"
+
+# RDS Configuration
+db_engine_version = "16.3"
+db_instance_class = "db.t3.micro" # Minimum instance class
+db_allocated_storage = 20
+db_backup_retention_period = 7
+db_multi_az = false # Set to true for production
+db_deletion_protection = false # Set to true for production
+db_skip_final_snapshot = true # Set to false for production
+
+# LocalStack Configuration (for local development)
+use_localstack = false # Set to true for local development with LocalStack
+localstack_endpoint = "http://localhost:4566"
+
+# Common Tags
+common_tags = {
+  Project = "sora-henkan"
+  ManagedBy = "Terraform"
+  Environment = "dev"
+  Owner = "your-name"
+}
