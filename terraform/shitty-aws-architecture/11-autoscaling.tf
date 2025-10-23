@@ -1,9 +1,12 @@
 # Auto Scaling Group (using private subnets)
 resource "aws_autoscaling_group" "app" {
-  name                = "${var.project_name}-asg-${var.environment}"
-  vpc_zone_identifier = aws_subnet.private[*].id
-  target_group_arns   = [aws_lb_target_group.app.arn]
-  health_check_type   = "ELB"
+  name                      = "${var.project_name}-asg-${var.environment}"
+  vpc_zone_identifier       = aws_subnet.private[*].id
+  target_group_arns         = [
+    aws_lb_target_group.frontend.arn,
+    aws_lb_target_group.api.arn
+  ]
+  health_check_type         = "ELB"
   health_check_grace_period = 300
   
   min_size         = var.asg_min_size
