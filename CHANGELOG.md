@@ -1,3 +1,16 @@
+## [1.2.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.1.0...v1.2.0) (2025-10-23)
+
+### Features
+
+* add base terraform ([82fd1ed](https://github.com/talDoFlemis/sora-henkan/commit/82fd1ed933fd2bc7a2abf99b11b3a3c21fe6f2dd))
+* add lb between frontenzo and back ([df68876](https://github.com/talDoFlemis/sora-henkan/commit/df68876d61cad4028a840d8c5b91ecdd922c0c06))
+* add migrate dockerfile ([6a99b13](https://github.com/talDoFlemis/sora-henkan/commit/6a99b138afaaa100afdc9fd4ce6cf05c00a6c406))
+
+### Bug Fixes
+
+* add require ssl mode for rds deploy ([9e940c6](https://github.com/talDoFlemis/sora-henkan/commit/9e940c6ebd56e618570c53ec5310eea1078bab3d))
+* bad templanting and otel collector with bad logs to cloudwatch ([eb5dcb3](https://github.com/talDoFlemis/sora-henkan/commit/eb5dcb3c839f5cf0fc17f201e81719a5801ea1a7))
+
 ## [1.1.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.0.0...v1.1.0) (2025-10-22)
 
 ### Features
