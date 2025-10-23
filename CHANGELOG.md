@@ -1,3 +1,13 @@
+## [1.3.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.2.0...v1.3.0) (2025-10-23)
+
+### Features
+
+* add handler per port and port ([83ee2b3](https://github.com/talDoFlemis/sora-henkan/commit/83ee2b3e33d31ac6d9ebf0cb977157adb0cd56ba))
+
+### Bug Fixes
+
+* **settings:** ssl mode using underscore ([ad56c87](https://github.com/talDoFlemis/sora-henkan/commit/ad56c87168e99747e6d04e5d06ba999d8cb27e3f))
+
 ## [1.2.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.1.0...v1.2.0) (2025-10-23)
 
 ### Features
