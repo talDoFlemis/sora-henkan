@@ -3,7 +3,6 @@ resource "aws_launch_template" "app" {
   name_prefix   = "${var.project_name}-app-lt-${var.environment}"
   image_id      = data.aws_ami.amazon_linux_2.id
   instance_type = var.app_instance_type
-  # key_name is not required - can use AWS Systems Manager Session Manager for access
 
   iam_instance_profile {
     name = data.aws_iam_instance_profile.lab_profile.name

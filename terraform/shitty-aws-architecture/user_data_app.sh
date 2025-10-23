@@ -13,11 +13,6 @@ systemctl enable docker
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-# Get instance metadata
-OTEL_ENDPOINT="${OTEL_COLLECTOR_ENDPOINT}"
-DB_HOST="${DB_HOST}"
-DB_PORT="${DB_PORT}"
-
 # Create application directory
 mkdir -p /opt/sora-henkan
 
@@ -28,8 +23,8 @@ services:
     image: ${DOCKER_IMAGE_MIGRATE}
     container_name: migrate
     environment:
-      MIGRATE_DATABASE_HOST: \$DB_HOST
-      MIGRATE_DATABASE_PORT: \$DB_PORT
+      MIGRATE_DATABASE_HOST: ${DB_HOST}
+      MIGRATE_DATABASE_PORT: ${DB_PORT}
       MIGRATE_DATABASE_USER: ${DB_USERNAME}
       MIGRATE_DATABASE_PASSWORD: ${DB_PASSWORD}
       MIGRATE_DATABASE_NAME: ${DB_NAME}
@@ -42,15 +37,15 @@ services:
     image: ${DOCKER_IMAGE_WORKER}
     container_name: worker
     environment:
-      WORKER_DATABASE_HOST: \$DB_HOST
-      WORKER_DATABASE_PORT: \$DB_PORT
+      WORKER_DATABASE_HOST: ${DB_HOST}
+      WORKER_DATABASE_PORT: ${DB_PORT}
       WORKER_DATABASE_USER: ${DB_USERNAME}
       WORKER_DATABASE_PASSWORD: ${DB_PASSWORD}
       WORKER_DATABASE_NAME: ${DB_NAME}
       WORKER_OBJECTSTORER_ENDPOINT: ${S3_BUCKET_NAME}
-      WORKER_WATERMILL_BROKER_AWS_ENDPOINT: ${SQS_QUEUE_URL}
+      WORKER_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
-      WORKER_OPENTELEMETRY_ENDPOINT: \$OTEL_ENDPOINT
+      WORKER_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -60,15 +55,15 @@ services:
     image: ${DOCKER_IMAGE_API}
     container_name: api
     environment:
-      API_DATABASE_HOST: \$DB_HOST
-      API_DATABASE_PORT: \$DB_PORT
+      API_DATABASE_HOST: ${DB_HOST}
+      API_DATABASE_PORT: ${DB_PORT}
       API_DATABASE_USER: ${DB_USERNAME}
       API_DATABASE_PASSWORD: ${DB_PASSWORD}
       API_DATABASE_NAME: ${DB_NAME}
       API_OBJECTSTORER_ENDPOINT: ${S3_BUCKET_NAME}
-      API_WATERMILL_BROKER_AWS_ENDPOINT: ${SQS_QUEUE_URL}
+      API_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
-      API_OPENTELEMETRY_ENDPOINT: \$OTEL_ENDPOINT
+      API_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
     ports:
       - "42069:42069"
     depends_on:

@@ -17,7 +17,7 @@ chmod +x /usr/local/bin/docker-compose
 mkdir -p /opt/otel-collector
 
 # Create OTEL Collector configuration
-cat > /opt/otel-collector/otel-collector-config.yaml <<'EOF'
+cat > /opt/otel-collector/otel-collector-config.yaml <<EOF
 receivers:
   otlp:
     protocols:
@@ -45,7 +45,7 @@ exporters:
     log_group_name: "/otel/metrics"
     log_stream_name: "otel-collector-metrics"
     namespace: "sora-henkan"
-  cloudwatchlogs:
+  awscloudwatchlogs:
     region: ${AWS_REGION}
     log_group_name: "/otel/logs"
     log_stream_name: "otel-collector-logs"
@@ -71,7 +71,7 @@ service:
 EOF
 
 # Create docker-compose file for OTEL collector
-cat > /opt/otel-collector/docker-compose.yaml <<'EOF'
+cat > /opt/otel-collector/docker-compose.yaml <<EOF
 services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
