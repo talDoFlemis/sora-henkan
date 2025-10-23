@@ -119,10 +119,10 @@ type DatabaseSettings struct {
 	Password               string `mapstructure:"password" validate:"required"`
 	Database               string `mapstructure:"database" validate:"required"`
 	Schema                 string `mapstructure:"schema"`
-	SSLMode                string `mapstructure:"ssl_mode" validate:"oneof=disable require verify-ca verify-full"`
-	MaxOpenConns           int    `mapstructure:"max_open_conns" validate:"gte=1"`
-	MaxIdleConns           int    `mapstructure:"max_idle_conns" validate:"gte=1"`
-	ConnMaxLifetimeMinutes int    `mapstructure:"conn_max_lifetime_minutes" validate:"gte=1"`
+	SSLMode                string `mapstructure:"ssl-mode" validate:"oneof=disable require verify-ca verify-full"`
+	MaxOpenConns           int    `mapstructure:"max-open-conns" validate:"gte=1"`
+	MaxIdleConns           int    `mapstructure:"max-idle-conns" validate:"gte=1"`
+	ConnMaxLifetimeMinutes int    `mapstructure:"conn-max-lifetime-minutes" validate:"gte=1"`
 }
 
 // BuildConnectionString builds a PostgreSQL connection string from the settings
