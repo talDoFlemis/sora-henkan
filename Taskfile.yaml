@@ -1,5 +1,9 @@
 version: "3"
 
+includes:
+  taskfile: ./frontend/Taskfile.yaml
+  dir: ./frontend
+
 tasks:
   api:run:
     desc: Run the API server
@@ -24,6 +28,14 @@ tasks:
   worker:down:
     desc: Stop the worker
     cmd: docker compose down worker
+
+  frontend:up:
+    desc: Run the frontend
+    cmd: docker compose up -d frontend --build
+
+  frontend:down:
+    desc: Stop the frontend
+    cmd: docker compose down frontend
 
   # Database tasks
   db:up:

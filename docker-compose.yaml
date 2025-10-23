@@ -1,4 +1,15 @@
 services:
+  frontend:
+    build:
+      dockerfile: ../docker/front.Dockerfile
+      context: ./frontend/
+    environment:
+      VITE_API_URL: tubias:42069
+    ports:
+      - 8080:8080
+    networks:
+      - sora-henkan-network
+
   worker:
     build:
       dockerfile: ./docker/shared.Dockerfile
