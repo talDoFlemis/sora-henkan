@@ -41,6 +41,21 @@ services:
     networks:
       - sora-henkan-network
 
+  migrate:
+    build:
+      dockerfile: ./docker/migrate.Dockerfile
+      context: .
+    environment:
+      MIGRATE_DATABASE_HOST: postgres
+    command:
+      - "/app/migrate"
+      - "-direction=up"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sora-henkan-network
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -82,7 +97,7 @@ services:
   localstack:
     image: localstack/localstack
     environment:
-      - SERVICES=sqs
+      - SERVICES=sqs,ec2,rds,s3,alb,iam
       - AWS_DEFAULT_REGION=us-east-1
       - EDGE_PORT=4566
     ports:
