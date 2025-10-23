@@ -23,6 +23,7 @@ resource "aws_launch_template" "app" {
     DOCKER_IMAGE_MIGRATE    = "ghcr.io/taldoflemis/sora-henkan/migrate:latest"
     DOCKER_IMAGE_WORKER     = "ghcr.io/taldoflemis/sora-henkan/worker:latest"
     DOCKER_IMAGE_API        = "ghcr.io/taldoflemis/sora-henkan/api:latest"
+    DOCKER_IMAGE_FRONTEND   = "ghcr.io/taldoflemis/sora-henkan/frontend:latest"
   }))
 
   block_device_mappings {

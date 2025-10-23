@@ -74,11 +74,11 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
-  frontenzo:
-    image: traefik/whoami
-    container_name: frontenzo
+  frontend:
+    image: ${DOCKER_IMAGE_FRONTEND}
+    container_name: frontend
     ports:
-      - "80:80"
+      - "80:8080"
     depends_on:
       - api
     restart: unless-stopped
