@@ -51,7 +51,24 @@ jobs:
     if: needs.release.outputs.new_release_published == 'true'
     strategy:
       matrix:
-        service: [api, worker, migrate]
+        service: [api, worker, migrate, frontend]
+        include:
+          - service: api
+            dockerfile: ./docker/shared.Dockerfile
+            context: .
+            build-args: "package_name=api"
+          - service: worker
+            dockerfile: ./docker/shared.Dockerfile
+            context: .
+            build-args: "package_name=worker"
+          - service: migrate
+            dockerfile: ./docker/migrate.Dockerfile
+            context: .
+            build-args: ""
+          - service: frontend
+            dockerfile: ./docker/front.Dockerfile
+            context: ./frontend
+            build-args: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,10 +99,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./docker/shared.Dockerfile
-          build-args: |
-            package_name=${{ matrix.service }}
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build-args }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
