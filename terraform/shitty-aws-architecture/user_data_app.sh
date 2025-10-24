@@ -97,7 +97,7 @@ services:
     image: ${DOCKER_IMAGE_FRONTEND}
     container_name: frontend
     environment:
-      VITE_API_URL: ${API_URL}
+      VITE_API_URL: $${API_URL}
     ports:
       - "80:8080"
     depends_on:
