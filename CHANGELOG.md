@@ -1,3 +1,9 @@
+## [1.4.6](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.5...v1.4.6) (2025-10-24)
+
+### Bug Fixes
+
+* **settings:** disable anonymous ([25a32b4](https://github.com/talDoFlemis/sora-henkan/commit/25a32b435c5b19fd4393e1f2f0792f5894354e69))
+
 ## [1.4.5](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.4...v1.4.5) (2025-10-24)
 
 ### Bug Fixes
