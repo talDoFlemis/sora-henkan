@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.7.0...v1.7.1) (2025-10-24)
+
+### Bug Fixes
+
+* add image processor bucket name variable to interpolate ([9d4afc3](https://github.com/talDoFlemis/sora-henkan/commit/9d4afc36eb8254b6c5064d22e518803f361e66eb))
+
 ## [1.7.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.6.1...v1.7.0) (2025-10-24)
 
 ### Features
