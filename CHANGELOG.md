@@ -1,3 +1,9 @@
+## [1.11.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.11.0...v1.11.1) (2025-10-24)
+
+### Bug Fixes
+
+* **user_data_otel:** bad jaeger image ([7a6b592](https://github.com/talDoFlemis/sora-henkan/commit/7a6b5929fea20209f17b97f0cfc6a60ee0b114f1))
+
 ## [1.11.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.10.0...v1.11.0) (2025-10-24)
 
 ### Features
