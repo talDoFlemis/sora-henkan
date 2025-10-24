@@ -1,3 +1,14 @@
+## [1.7.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.6.1...v1.7.0) (2025-10-24)
+
+### Features
+
+* add CI/CD to frontend and go apps ([d9c9540](https://github.com/talDoFlemis/sora-henkan/commit/d9c9540b048d3f824e2d50a2940b79c11cdbdb21))
+* add format to frontend ([521d9eb](https://github.com/talDoFlemis/sora-henkan/commit/521d9eb5ab71209051c033d7f448f25880490231))
+
+### Documentation
+
+* add README ([807e4d5](https://github.com/talDoFlemis/sora-henkan/commit/807e4d5fbb5733d5f3431254325533b17417988e))
+
 ## [1.6.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.6.0...v1.6.1) (2025-10-24)
 
 ### Bug Fixes
