@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.5.0...v1.6.0) (2025-10-24)
+
+### Features
+
+* inject vite api url ([eabdbc7](https://github.com/talDoFlemis/sora-henkan/commit/eabdbc7716f66b3351b3f5667132449b70a4122d))
+
 ## [1.5.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.7...v1.5.0) (2025-10-24)
 
 ### Features
