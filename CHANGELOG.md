@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.8.0...v1.9.0) (2025-10-24)
+
+### Features
+
+* add mime type extension to save image ([60bb1ad](https://github.com/talDoFlemis/sora-henkan/commit/60bb1ade43c8403d65142ef48e0e830c39ca82e4))
+
 ## [1.8.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.7.1...v1.8.0) (2025-10-24)
 
 ### Features
