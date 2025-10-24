@@ -1,3 +1,9 @@
+## [1.19.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.18.0...v1.19.0) (2025-10-24)
+
+### Features
+
+* **ami_builder_data:** add always run cloud init and containers limits and requests ([7f93d21](https://github.com/talDoFlemis/sora-henkan/commit/7f93d21e98308d1d054bc175c133e31ae9af7241))
+
 ## [1.18.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.17.0...v1.18.0) (2025-10-24)
 
 ### Features
