@@ -1,3 +1,12 @@
+## [1.10.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.9.0...v1.10.0) (2025-10-24)
+
+### Features
+
+* add jaeger target group ([01521ca](https://github.com/talDoFlemis/sora-henkan/commit/01521cacf0b6e9f92c2ec3cd3c11b3da7e0ce915))
+* **router:** add logger after running otel thing ([74385fd](https://github.com/talDoFlemis/sora-henkan/commit/74385fd356936781ee7d164018b1fe87b8113b64))
+* **s3:** add cors policy to allow all origins ([9d40820](https://github.com/talDoFlemis/sora-henkan/commit/9d40820a0a94f8857acd55acaffe846ead4a0bee))
+* **user_data_otel:** add jaeger ([9bc1d53](https://github.com/talDoFlemis/sora-henkan/commit/9bc1d53530418bdec3b1c637b535e499fd7e52cc))
+
 ## [1.9.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.8.0...v1.9.0) (2025-10-24)
 
 ### Features
