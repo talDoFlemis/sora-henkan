@@ -1,3 +1,9 @@
+## [1.4.7](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.6...v1.4.7) (2025-10-24)
+
+### Bug Fixes
+
+* pad access and secret template ([1fc08db](https://github.com/talDoFlemis/sora-henkan/commit/1fc08db885143349a5c77b6411db1ea9123227c2))
+
 ## [1.4.6](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.5...v1.4.6) (2025-10-24)
 
 ### Bug Fixes
