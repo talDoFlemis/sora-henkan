@@ -74,6 +74,34 @@ resource "aws_lb_target_group" "api" {
   )
 }
 
+# Target Group for Jaeger (Port 16686)
+resource "aws_lb_target_group" "jaeger" {
+  name     = "${var.project_name}-tg-jaeger-${var.environment}"
+  port     = 16686
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+    interval            = 30
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+  }
+
+  deregistration_delay = 30
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-tg-jaeger-${var.environment}"
+    }
+  )
+}
+
 # ALB Listener for HTTP (Port 80) - Frontend
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app.arn
@@ -97,6 +125,19 @@ resource "aws_lb_listener" "api_port" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.api.arn
+  }
+}
+
+# ALB Listener for Jaeger port (16686)
+resource "aws_lb_listener" "jaeger_port" {
+  load_balancer_arn = aws_lb.app.arn
+  port              = "16686"
+  protocol          = "HTTP"
+
+  # Default action forwards to Jaeger
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.jaeger.arn
   }
 }
 
