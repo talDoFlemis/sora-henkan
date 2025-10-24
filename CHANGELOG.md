@@ -1,3 +1,9 @@
+## [1.17.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.2...v1.17.0) (2025-10-24)
+
+### Features
+
+* add worker healthcheck endpoint to alb, sg e user_data to handle scaling if down ([646dfbd](https://github.com/talDoFlemis/sora-henkan/commit/646dfbdad431e3cac9694ec3a008aab9adc22fe0))
+
 ## [1.16.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.1...v1.16.2) (2025-10-24)
 
 ### Bug Fixes
