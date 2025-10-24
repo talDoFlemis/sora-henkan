@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.0...v1.4.1) (2025-10-24)
+
+### Bug Fixes
+
+* **settings:** cannot interpolat e object storage env variables ([a869413](https://github.com/talDoFlemis/sora-henkan/commit/a869413f2605b69d26bab98a01a8b829fdbd7e92))
+
 ## [1.4.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.3.0...v1.4.0) (2025-10-23)
 
 ### Features
