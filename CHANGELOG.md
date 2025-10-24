@@ -1,3 +1,9 @@
+## [1.16.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.0...v1.16.1) (2025-10-24)
+
+### Bug Fixes
+
+* **user_data_ami_builder:** just do a docker compose pull ([b5cbd63](https://github.com/talDoFlemis/sora-henkan/commit/b5cbd6342f274ee42920ecb54d3ab8d8dba3a531))
+
 ## [1.16.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.15.0...v1.16.0) (2025-10-24)
 
 ### Features
