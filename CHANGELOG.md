@@ -1,3 +1,9 @@
+## [1.16.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.1...v1.16.2) (2025-10-24)
+
+### Bug Fixes
+
+* **script.js:** use inline urls ([56bc8e7](https://github.com/talDoFlemis/sora-henkan/commit/56bc8e71fa617b06cb793531357ef0632752b9e5))
+
 ## [1.16.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.0...v1.16.1) (2025-10-24)
 
 ### Bug Fixes
