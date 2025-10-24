@@ -1,3 +1,9 @@
+## [1.12.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.11.1...v1.12.0) (2025-10-24)
+
+### Features
+
+* **sg:** add jaeger ui to alb security group ([b9b1f5b](https://github.com/talDoFlemis/sora-henkan/commit/b9b1f5b4cc6958de767eb466dacca34f7bc183d4))
+
 ## [1.11.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.11.0...v1.11.1) (2025-10-24)
 
 ### Bug Fixes
