@@ -85,8 +85,8 @@ type ImageProcessorSettings struct {
 
 type ObjectStorerSettings struct {
 	Endpoint        string `mapstructure:"endpoint" validate:"required"`
-	AccessKeyID     string `mapstructure:"access-key-id" validate:"required"`
-	SecretAccessKey string `mapstructure:"secret-access-key" validate:"required"`
+	AccessKeyID     string `mapstructure:"access-key-id"`
+	SecretAccessKey string `mapstructure:"secret-access-key"`
 	UseSSL          bool   `mapstructure:"use-ssl"`
 	Region          string `mapstructure:"region"`
 }
@@ -94,9 +94,14 @@ type ObjectStorerSettings struct {
 // NewMinioClient creates a new MinIO client from the settings
 func (o *ObjectStorerSettings) NewMinioClient(ctx context.Context) (*minio.Client, error) {
 	// Initialize MinIO client
-	creds := credentials.NewStaticV4(o.AccessKeyID, o.SecretAccessKey, "")
-	if strings.Contains(o.Endpoint, ".amazonaws.com") {
+	var creds *credentials.Credentials
+	
+	// Use IAM credentials if connecting to AWS S3 or if credentials are empty
+	if strings.Contains(o.Endpoint, ".amazonaws.com") || (o.AccessKeyID == "" && o.SecretAccessKey == "") {
+		slog.InfoContext(ctx, "Using IAM for connecting to s3")
 		creds = credentials.NewIAM("")
+	} else {
+		creds = credentials.NewStaticV4(o.AccessKeyID, o.SecretAccessKey, "")
 	}
 
 	minioClient, err := minio.New(o.Endpoint, &minio.Options{

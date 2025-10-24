@@ -37,6 +37,7 @@ services:
   worker:
     image: ${DOCKER_IMAGE_WORKER}
     container_name: worker
+    network_mode: host
     environment:
       WORKER_DATABASE_HOST: ${DB_HOST}
       WORKER_DATABASE_PORT: ${DB_PORT}
@@ -46,6 +47,8 @@ services:
       WORKER_DATABASE_SSLMODE: require
       WORKER_OBJECTSTORER_ENDPOINT: s3.${AWS_REGION}.amazonaws.com
       WORKER_OBJECTSTORER_USESSL: true
+      WORKER_OBJECTSTORER_ACCESS-KEY-ID: ""
+      WORKER_OBJECTSTORER_SECRET-ACCESS-KEY: ""
       WORKER_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
       WORKER_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
@@ -57,6 +60,7 @@ services:
   api:
     image: ${DOCKER_IMAGE_API}
     container_name: api
+    network_mode: host
     environment:
       API_DATABASE_HOST: ${DB_HOST}
       API_DATABASE_PORT: ${DB_PORT}
@@ -66,11 +70,11 @@ services:
       API_DATABASE_SSLMODE: require
       API_OBJECTSTORER_ENDPOINT: s3.${AWS_REGION}.amazonaws.com
       API_OBJECTSTORER_USESSL: true
+      API_OBJECTSTORER_ACCESS-KEY-ID: ""
+      API_OBJECTSTORER_SECRET-ACCESS-KEY: ""
       API_WATERMILL_BROKER_AWS_ENDPOINT: "" # Use default AWS endpoint
       AWS_REGION: ${AWS_REGION}
       API_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
-    ports:
-      - "42069:42069"
     depends_on:
       migrate:
         condition: service_completed_successfully
