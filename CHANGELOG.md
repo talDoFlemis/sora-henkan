@@ -1,3 +1,9 @@
+## [1.4.4](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.3...v1.4.4) (2025-10-24)
+
+### Bug Fixes
+
+* enabled opentelemetry on ec2 ([a00329d](https://github.com/talDoFlemis/sora-henkan/commit/a00329dd0f09020d6f8eaf96f48a477caafd1416))
+
 ## [1.4.3](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.2...v1.4.3) (2025-10-24)
 
 ### Bug Fixes
