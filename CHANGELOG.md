@@ -1,3 +1,15 @@
+## [1.13.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.12.0...v1.13.0) (2025-10-24)
+
+### Features
+
+* add cloudwatch-agent to ec2 instances ([7ea74b9](https://github.com/talDoFlemis/sora-henkan/commit/7ea74b91f002588780f23d446dea021e71d7b5a1))
+* add target group attachment of jaeger to alb ([0e50a37](https://github.com/talDoFlemis/sora-henkan/commit/0e50a3791e100a8a06c9f3f1691d1adc9fb27a6d))
+* **sg:** add ingress for jaeger ui from LB ([37cc333](https://github.com/talDoFlemis/sora-henkan/commit/37cc3339677b7dbf02c47f06533c935e30096b18))
+
+### Bug Fixes
+
+* **autoscaling:** remove jaeger from autoscaling group ([d9402f3](https://github.com/talDoFlemis/sora-henkan/commit/d9402f3f2d3fa4651f073e3a9657ee946c2092b8))
+
 ## [1.12.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.11.1...v1.12.0) (2025-10-24)
 
 ### Features
