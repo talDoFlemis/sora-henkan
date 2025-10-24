@@ -75,7 +75,7 @@ type OpenTelemetrySettings struct {
 }
 
 type ImageProcessorSettings struct {
-	BucketName string `mapstructure:"bucket_name" validate:"required"`
+	BucketName string `mapstructure:"bucket-name" validate:"required"`
 }
 
 type ObjectStorerSettings struct {
@@ -215,8 +215,8 @@ type (
 )
 
 type WatermillBrokerSettings struct {
-	Kind       string                      `mapstructure:"kind" validate:"required,oneof=sns nats"`
-	AWS        AWSSettings                 `mapstructure:"aws" validate:"required_if=Kind sns"`
+	Kind       string                      `mapstructure:"kind" validate:"required,oneof=sqs nats"`
+	AWS        AWSSettings                 `mapstructure:"aws" validate:"required_if=Kind sqs"`
 	Publisher  WatermillPublisherSettings  `mapstructure:"publisher" validate:"omitempty"`
 	Subscriber WatermillSubscriberSettings `mapstructure:"subscriber" validate:"omitempty"`
 }
@@ -227,7 +227,7 @@ func (broker *WatermillBrokerSettings) NewPublisher() (message.Publisher, error)
 	var publisher message.Publisher
 
 	switch broker.Kind {
-	case "sns":
+	case "sqs":
 		endpointResolver, err := broker.AWS.GetEndpointResolver()
 		if err != nil {
 			return nil, err
@@ -267,7 +267,7 @@ func (broker *WatermillBrokerSettings) NewSubscriber() (message.Subscriber, erro
 	var subscriber message.Subscriber
 
 	switch broker.Kind {
-	case "sns":
+	case "sqs":
 		endpointResolver, err := broker.AWS.GetEndpointResolver()
 		if err != nil {
 			return nil, err

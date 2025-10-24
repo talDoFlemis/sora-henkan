@@ -16,7 +16,7 @@ database:
   conn-max-lifetime-minutes: 5
 
 image-processor:
-  bucket_name: images
+  bucket-name: images
 
 object-storer:
   endpoint: localhost:9000
@@ -28,7 +28,7 @@ object-storer:
 watermill:
   image-topic: images
   broker:
-    kind: sns
+    kind: sqs
     publisher:
     subscriber:
     aws:
