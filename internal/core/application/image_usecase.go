@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime"
 	"net/http"
 	"strings"
 	"time"
@@ -287,7 +288,15 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		imageProcessed = bytes.NewReader(scaledBytes)
 	}
 
-	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String()
+	extensions, err := mime.ExtensionsByType(imageEntity.MimeType)
+	if err != nil || len(extensions) == 0 {
+		err = fmt.Errorf("failed to get file extension for MIME type: %s", imageEntity.MimeType)
+		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", imageEntity.MimeType))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
+	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + extensions[0]
 
 	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, imageProcessed)
 	if err != nil {
@@ -382,8 +391,15 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
+	extensions, err := mime.ExtensionsByType(mimeType)
+	if err != nil || len(extensions) == 0 {
+		err = fmt.Errorf("failed to get file extension for MIME type: %s", mimeType)
+		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", mimeType))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
 
-	rawImageKey := rawImagePath + "/" + req.ID
+	rawImageKey := rawImagePath + "/" + req.ID + extensions[0]
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
 	if err != nil {
