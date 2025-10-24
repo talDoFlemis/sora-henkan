@@ -39,6 +39,7 @@ services:
     container_name: worker
     network_mode: host
     environment:
+      WORKER_APP_NAME: worker
       WORKER_DATABASE_HOST: ${DB_HOST}
       WORKER_DATABASE_PORT: ${DB_PORT}
       WORKER_DATABASE_USER: ${DB_USERNAME}
@@ -64,6 +65,7 @@ services:
     container_name: api
     network_mode: host
     environment:
+      API_APP_NAME: api
       API_DATABASE_HOST: ${DB_HOST}
       API_DATABASE_PORT: ${DB_PORT}
       API_DATABASE_USER: ${DB_USERNAME}

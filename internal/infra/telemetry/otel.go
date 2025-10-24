@@ -43,7 +43,7 @@ func SetupOTelSDK(
 		resource.WithAttributes(
 			semconv.ServiceNameKey.String(appSettings.Name),
 			semconv.ServiceVersionKey.String(appSettings.Version),
-			semconv.ServiceNamespaceKey.String("box-box"),
+			semconv.ServiceNamespaceKey.String("sora-henkan"),
 		),
 		resource.WithTelemetrySDK(),
 		resource.WithContainer(),
