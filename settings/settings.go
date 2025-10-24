@@ -94,8 +94,13 @@ type ObjectStorerSettings struct {
 // NewMinioClient creates a new MinIO client from the settings
 func (o *ObjectStorerSettings) NewMinioClient(ctx context.Context) (*minio.Client, error) {
 	// Initialize MinIO client
+	creds := credentials.NewStaticV4(o.AccessKeyID, o.SecretAccessKey, "")
+	if strings.Contains(o.Endpoint, ".amazonaws.com") {
+		creds = credentials.NewIAM("")
+	}
+
 	minioClient, err := minio.New(o.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(o.AccessKeyID, o.SecretAccessKey, ""),
+		Creds:  creds,
 		Secure: o.UseSSL,
 		Region: o.Region,
 	})
