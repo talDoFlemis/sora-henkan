@@ -44,13 +44,13 @@ variable "availability_zones" {
 variable "otel_instance_type" {
   description = "Instance type for OTEL collector EC2"
   type        = string
-  default     = "t3.small"
+  default     = "t3.medium"
 }
 
 variable "app_instance_type" {
   description = "Instance type for application EC2"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.micro"
 }
 
 # Note: SSH key pair not required
@@ -220,7 +220,7 @@ variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
   default = {
-    Project     = "sora-henkan"
-    ManagedBy   = "Terraform"
+    Project   = "sora-henkan"
+    ManagedBy = "Terraform"
   }
 }
