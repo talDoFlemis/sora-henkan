@@ -34,8 +34,8 @@ watermill:
     aws:
       anonymous: true
       endpoint: http://localhost:4566
-      access_key: ""
-      secret_key: ""
+      access-key: ""
+      secret-key: ""
       region: us-east-1
 
 http:

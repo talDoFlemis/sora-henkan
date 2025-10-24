@@ -163,8 +163,8 @@ type AWSSettings struct {
 	// AccessKeyID and SecretAccessKey are used for explicit key-based authentication.
 	// If both are empty, the application should assume an implicit credential
 	// mechanism (e.g., EC2 IAM role, ECS task role, EKS Service Account).
-	AccessKey string `mapstructure:"access_key"`
-	SecretKey string `mapstructure:"secret_key"`
+	AccessKey string `mapstructure:"access-key"`
+	SecretKey string `mapstructure:"secret-key"`
 	Region    string `json:"region"`
 	Anonymous bool   `mapstructure:"anonymous"`
 }
