@@ -1,3 +1,10 @@
+## [1.11.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.10.0...v1.11.0) (2025-10-24)
+
+### Features
+
+* add jaeger lb url to alb ([cd73a54](https://github.com/talDoFlemis/sora-henkan/commit/cd73a545d3e933bd7d383132e6fb1160c3c01c62))
+* **s3:** make bucket public ([79bd830](https://github.com/talDoFlemis/sora-henkan/commit/79bd830896e9347d60ea2a9de746f20158e4219a))
+
 ## [1.10.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.9.0...v1.10.0) (2025-10-24)
 
 ### Features
