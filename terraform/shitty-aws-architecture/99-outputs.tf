@@ -43,6 +43,11 @@ output "load_balancer_api_url" {
   value       = "http://${aws_lb.app.dns_name}:42069"
 }
 
+output "load_balancer_jaeger_url" {
+  description = "Jaeger UI URL (port-based access)"
+  value       = "http://${aws_lb.app.dns_name}:16686"
+}
+
 output "frontend_domain_url" {
   description = "Frontend domain URL (if configured)"
   value       = var.frontend_domain != "" ? "https://${var.frontend_domain}" : "Not configured - use port-based access"
