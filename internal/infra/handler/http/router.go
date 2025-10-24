@@ -30,6 +30,7 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 
 	// Set custom error handler
 	e.HTTPErrorHandler = GlobalErrorHandler
+	e.IPExtractor = CloudFlareExtractClientIPfunc
 
 	e.Use(otelecho.Middleware(appSettings.Name,
 		otelecho.WithMetricAttributeFn(func(r *http.Request) []attribute.KeyValue {
