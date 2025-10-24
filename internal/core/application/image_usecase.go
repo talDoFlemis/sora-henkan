@@ -267,7 +267,7 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 
 	imageData, err := u.objectStorer.Get(ctx, req.StorageKey, u.imagesBucket)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get image", slog.Any("err", err))
+		slog.ErrorContext(ctx, "failed to get image", slog.Any("err", err), slog.String("bucket-name", u.imagesBucket))
 		telemetry.RegisterSpanError(span, err)
 		return err
 	}
@@ -291,7 +291,7 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 
 	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, imageProcessed)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to store transformed image", slog.Any("err", err))
+		slog.ErrorContext(ctx, "failed to store transformed image", slog.Any("err", err), slog.String("bucket-name", u.imagesBucket))
 		telemetry.RegisterSpanError(span, err)
 		return err
 	}
@@ -387,7 +387,7 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to store image", slog.Any("err", err))
+		slog.ErrorContext(ctx, "failed to store image", slog.Any("err", err), slog.String("bucket-name", u.imagesBucket))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
