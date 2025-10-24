@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.7.1...v1.8.0) (2025-10-24)
+
+### Features
+
+* **image_usecase:** add bucket name log ([5fa1db6](https://github.com/talDoFlemis/sora-henkan/commit/5fa1db6269bf1b6559452e8d367afab38a37bc50))
+
 ## [1.7.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.7.0...v1.7.1) (2025-10-24)
 
 ### Bug Fixes
