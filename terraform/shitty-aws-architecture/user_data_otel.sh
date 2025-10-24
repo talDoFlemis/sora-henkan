@@ -37,7 +37,6 @@ processors:
 
 exporters:
   logging:
-    loglevel: debug
   awsxray:
     region: ${AWS_REGION}
   awsemf:
@@ -49,13 +48,17 @@ exporters:
     region: ${AWS_REGION}
     log_group_name: "/otel/logs"
     log_stream_name: "otel-collector-logs"
+  otlp/jaeger:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, awsxray]
+      exporters: [logging, otlp/jaeger]
     
     metrics:
       receivers: [otlp]
@@ -65,7 +68,7 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging]
+      exporters: [logging, awscloudwatchlogs]
   
   extensions: []
 EOF
@@ -86,6 +89,16 @@ services:
     restart: unless-stopped
     environment:
       - AWS_REGION=${AWS_REGION}
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:2.10.0
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14268:14268" # Jaeger collector
+    restart: unless-stopped
 EOF
 
 cd /opt/otel-collector
