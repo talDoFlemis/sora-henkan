@@ -1,3 +1,10 @@
+## [1.16.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.15.0...v1.16.0) (2025-10-24)
+
+### Features
+
+* add ami image builder ([01f9832](https://github.com/talDoFlemis/sora-henkan/commit/01f9832b3e6d878ae3759c1ae49635a9e01f6277))
+* use ami to launch new instances ([ad22f7e](https://github.com/talDoFlemis/sora-henkan/commit/ad22f7e09f68d8f3d3af6b7ddd91f8625a546d52))
+
 ## [1.15.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.14.0...v1.15.0) (2025-10-24)
 
 ### Features
