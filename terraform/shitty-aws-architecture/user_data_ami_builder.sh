@@ -50,6 +50,7 @@ services:
     network_mode: host
     environment:
       WORKER_APP_NAME: worker
+      WORKER_HTTP_PORT: 8081
       WORKER_DATABASE_HOST: ${DB_HOST}
       WORKER_DATABASE_PORT: ${DB_PORT}
       WORKER_DATABASE_USER: ${DB_USERNAME}

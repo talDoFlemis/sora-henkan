@@ -7,7 +7,7 @@ resource "aws_lb" "app" {
   subnets            = aws_subnet.public[*].id
 
   enable_deletion_protection = false
-  enable_http2              = true
+  enable_http2               = true
 
   tags = merge(
     var.common_tags,
@@ -102,6 +102,35 @@ resource "aws_lb_target_group" "jaeger" {
   )
 }
 
+# Target Group for Worker (Port 8081)
+resource "aws_lb_target_group" "worker" {
+  name     = "${var.project_name}-tg-worker-${var.environment}"
+  port     = 8081
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+    interval            = 15
+    path                = "/healthz"
+    protocol            = "HTTP"
+    port                = "8081"
+    matcher             = "200"
+  }
+
+  deregistration_delay = 30
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-tg-worker-${var.environment}"
+    }
+  )
+}
+
 # ALB Listener for HTTP (Port 80) - Frontend
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app.arn
@@ -138,6 +167,19 @@ resource "aws_lb_listener" "jaeger_port" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.jaeger.arn
+  }
+}
+
+# ALB Listener for Worker port (8081)
+resource "aws_lb_listener" "worker_port" {
+  load_balancer_arn = aws_lb.app.arn
+  port              = "8081"
+  protocol          = "HTTP"
+
+  # Default action forwards to Worker
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.worker.arn
   }
 }
 

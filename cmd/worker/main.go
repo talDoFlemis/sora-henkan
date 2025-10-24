@@ -5,15 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	wotelfloss "github.com/dentech-floss/watermill-opentelemetry-go-extra/pkg/opentelemetry"
 	healthgo "github.com/hellofresh/health-go/v5"
+	"github.com/labstack/echo/v4"
 	"github.com/taldoflemis/sora-henkan/internal/core/application"
 	"github.com/taldoflemis/sora-henkan/internal/core/domain/images"
 	imageProcessor "github.com/taldoflemis/sora-henkan/internal/infra/adapter/image_processor"
@@ -28,6 +31,7 @@ type WorkerSettings struct {
 	App            settings.AppSettings            `mapstructure:"app" validate:"required"`
 	Database       settings.DatabaseSettings       `mapstructure:"database" validate:"required"`
 	OpenTelemetry  settings.OpenTelemetrySettings  `mapstructure:"opentelemetry" validate:"required"`
+	HTTP           settings.HTTPSettings           `mapstructure:"http" validate:"required"`
 	ImageProcessor settings.ImageProcessorSettings `mapstructure:"image-processor" validate:"required"`
 	ObjectStorer   settings.ObjectStorerSettings   `mapstructure:"object-storer" validate:"required"`
 	Watermill      settings.WatermillSettings      `mapstructure:"watermill" validate:"required"`
@@ -112,7 +116,41 @@ func main() {
 		return
 	}
 
-	_ = health // Health is initialized but can be used for worker health checks if needed
+	// Start health check HTTP server
+	e := echo.New()
+	e.HidePort = true
+	e.HideBanner = true
+
+	e.GET("/healthz", func(c echo.Context) error {
+		check := health.Measure(c.Request().Context())
+
+		statusCode := http.StatusOK
+		if check.Status != healthgo.StatusOK {
+			statusCode = http.StatusServiceUnavailable
+		}
+
+		return c.JSON(statusCode, check)
+	})
+
+	healthServer := &http.Server{
+		Addr:    settings.HTTP.IP + ":" + settings.HTTP.Port,
+		Handler: e,
+	}
+
+	go func() {
+		slog.InfoContext(ctx, "Starting health check server", slog.String("addr", healthServer.Addr))
+		if err := healthServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.ErrorContext(ctx, "health check server failed", slog.Any("err", err))
+		}
+	}()
+
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := healthServer.Shutdown(shutdownCtx); err != nil {
+			slog.ErrorContext(ctx, "failed to shutdown health check server", slog.Any("err", err))
+		}
+	}()
 
 	slog.InfoContext(ctx, "Setting up Watermill")
 

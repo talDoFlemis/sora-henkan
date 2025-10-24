@@ -80,6 +80,15 @@ resource "aws_security_group" "app_server" {
     security_groups = [aws_security_group.alb.id]
   }
 
+  # Worker healthcheck port
+  ingress {
+    description     = "Worker healthcheck from ALB"
+    from_port       = 8081
+    to_port         = 8081
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
   # Allow all outbound traffic
   egress {
     description = "All outbound traffic"
