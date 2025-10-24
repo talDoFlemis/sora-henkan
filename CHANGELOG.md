@@ -1,3 +1,9 @@
+## [1.4.5](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.4...v1.4.5) (2025-10-24)
+
+### Bug Fixes
+
+* **alb:** health endpoint for api is wrong ([f079be9](https://github.com/talDoFlemis/sora-henkan/commit/f079be95cbcf74945422ad9ca748f2b6885424fa))
+
 ## [1.4.4](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.3...v1.4.4) (2025-10-24)
 
 ### Bug Fixes
