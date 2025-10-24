@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.1...v1.4.2) (2025-10-24)
+
+### Bug Fixes
+
+* **settings:** use NewIAM if on aws s3 in minio client ([90b967f](https://github.com/talDoFlemis/sora-henkan/commit/90b967f6bbe8758cd55a8c8cf2244a5999287e17))
+
 ## [1.4.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.0...v1.4.1) (2025-10-24)
 
 ### Bug Fixes
