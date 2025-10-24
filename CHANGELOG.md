@@ -1,3 +1,15 @@
+## [1.15.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.14.0...v1.15.0) (2025-10-24)
+
+### Features
+
+* add animes.json images ([9a0e8b2](https://github.com/talDoFlemis/sora-henkan/commit/9a0e8b23dd49741555eb77ee265f129acfd1ebd9))
+* add load test script ([08288fe](https://github.com/talDoFlemis/sora-henkan/commit/08288fee75b8a8e750007d13077177d2373a80ef))
+
+### Bug Fixes
+
+* **user_data_otel:** change logging to debug ([76fe50e](https://github.com/talDoFlemis/sora-henkan/commit/76fe50e628be8084564496b9f3a1231ebe95a4f7))
+* **user_data:** missing -y to cloudwatch agent ([80afaed](https://github.com/talDoFlemis/sora-henkan/commit/80afaed0169b615bcc7c7b2c4493fdf298e75cb3))
+
 ## [1.14.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.13.0...v1.14.0) (2025-10-24)
 
 ### Features
