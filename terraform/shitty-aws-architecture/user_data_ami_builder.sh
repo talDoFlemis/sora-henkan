@@ -1,3 +1,22 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
+#cloud-config
+cloud_final_modules:
+- [scripts-user, always]
+
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
 #!/bin/bash
 set -e
 
@@ -67,10 +86,19 @@ services:
       AWS_REGION: ${AWS_REGION}
       WORKER_OPENTELEMETRY_ENABLED: true
       WORKER_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
+      GOMEMLIMIT: 700MiB
+      GOGC: 50
     depends_on:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 700M
+        reservations:
+          memory: 50M
 
   api:
     image: ${DOCKER_IMAGE_API}
@@ -94,10 +122,19 @@ services:
       AWS_REGION: ${AWS_REGION}
       API_OPENTELEMETRY_ENABLED: true
       API_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
+      GOMEMLIMIT: 200MiB
+      GOGC: 50
     depends_on:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 200M
+        reservations:
+          memory: 50M
 
   frontend:
     image: ${DOCKER_IMAGE_FRONTEND}
@@ -109,6 +146,13 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100M
+        reservations:
+          memory: 50M
 EOF
 
 # Start the application
