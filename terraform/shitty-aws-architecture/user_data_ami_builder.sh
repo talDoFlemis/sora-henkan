@@ -112,6 +112,6 @@ EOF
 
 # Start the application
 cd /opt/sora-henkan
-docker-compose up -d --pull always
+docker-compose pull
 
 echo "Application setup completed"
