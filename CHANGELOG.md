@@ -1,3 +1,9 @@
+## [1.4.3](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.2...v1.4.3) (2025-10-24)
+
+### Bug Fixes
+
+* **ec2:** make host mode for handling IAM minio access ([59c66ae](https://github.com/talDoFlemis/sora-henkan/commit/59c66aee811b8213b08ee935f88a0e71e8c9a694))
+
 ## [1.4.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.1...v1.4.2) (2025-10-24)
 
 ### Bug Fixes
