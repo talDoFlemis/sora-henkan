@@ -16,6 +16,13 @@ chmod +x /usr/local/bin/docker-compose
 # Create application directory
 mkdir -p /opt/sora-henkan
 
+# Determine API URL based on whether API_DOMAIN is set
+if [ -n "${API_DOMAIN}" ]; then
+  API_URL="https://${API_DOMAIN}"
+else
+  API_URL="http://${ALB_DNS_NAME}:42069"
+fi
+
 # Create docker-compose file for the application
 cat >/opt/sora-henkan/docker-compose.yaml <<EOF
 services:
@@ -89,6 +96,8 @@ services:
   frontend:
     image: ${DOCKER_IMAGE_FRONTEND}
     container_name: frontend
+    environment:
+      VITE_API_URL: ${API_URL}
     ports:
       - "80:8080"
     depends_on:

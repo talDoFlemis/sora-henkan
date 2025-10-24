@@ -24,6 +24,8 @@ resource "aws_launch_template" "app" {
     DOCKER_IMAGE_WORKER     = "ghcr.io/taldoflemis/sora-henkan/worker:latest"
     DOCKER_IMAGE_API        = "ghcr.io/taldoflemis/sora-henkan/api:latest"
     DOCKER_IMAGE_FRONTEND   = "ghcr.io/taldoflemis/sora-henkan/frontend:latest"
+    API_DOMAIN              = var.api_domain
+    ALB_DNS_NAME            = aws_lb.app.dns_name
   }))
 
   block_device_mappings {
