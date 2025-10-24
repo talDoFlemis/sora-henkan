@@ -1,3 +1,9 @@
+## [1.18.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.17.0...v1.18.0) (2025-10-24)
+
+### Features
+
+* expose worker health endpoint on alb ([0647ab1](https://github.com/talDoFlemis/sora-henkan/commit/0647ab16b44f1c9b0ed2b9bcf4d14d0b3fd90fb1))
+
 ## [1.17.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.16.2...v1.17.0) (2025-10-24)
 
 ### Features
