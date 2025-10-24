@@ -1,3 +1,13 @@
+## [1.5.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.7...v1.5.0) (2025-10-24)
+
+### Features
+
+* change namespace and app names ([a195cb7](https://github.com/talDoFlemis/sora-henkan/commit/a195cb7869f98437385a11b89dae749ee8658a80))
+
+### Bug Fixes
+
+* add aws region resolution ([3da2376](https://github.com/talDoFlemis/sora-henkan/commit/3da237610bb569acdc0e2a867b14c64a955e7797))
+
 ## [1.4.7](https://github.com/talDoFlemis/sora-henkan/compare/v1.4.6...v1.4.7) (2025-10-24)
 
 ### Bug Fixes
