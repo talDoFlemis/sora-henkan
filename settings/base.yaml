@@ -20,9 +20,9 @@ image-processor:
 
 object-storer:
   endpoint: localhost:9000
-  access_key_id: minioadmin
-  secret_access_key: minioadmin
-  use_ssl: false
+  access-key-id: minioadmin
+  secret-access-key: minioadmin
+  use-ssl: false
   region: us-east-1
 
 watermill:

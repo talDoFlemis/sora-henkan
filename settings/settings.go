@@ -85,9 +85,9 @@ type ImageProcessorSettings struct {
 
 type ObjectStorerSettings struct {
 	Endpoint        string `mapstructure:"endpoint" validate:"required"`
-	AccessKeyID     string `mapstructure:"access_key_id" validate:"required"`
-	SecretAccessKey string `mapstructure:"secret_access_key" validate:"required"`
-	UseSSL          bool   `mapstructure:"use_ssl"`
+	AccessKeyID     string `mapstructure:"access-key-id" validate:"required"`
+	SecretAccessKey string `mapstructure:"secret-access-key" validate:"required"`
+	UseSSL          bool   `mapstructure:"use-ssl"`
 	Region          string `mapstructure:"region"`
 }
 
