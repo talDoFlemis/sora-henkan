@@ -1,3 +1,9 @@
+## [1.14.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.13.0...v1.14.0) (2025-10-24)
+
+### Features
+
+* add cloudflare client ip extractor ([92d98da](https://github.com/talDoFlemis/sora-henkan/commit/92d98daf082535c142c36e0b9cea8d515e4b1f60))
+
 ## [1.13.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.12.0...v1.13.0) (2025-10-24)
 
 ### Features
