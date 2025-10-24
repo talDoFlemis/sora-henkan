@@ -93,7 +93,7 @@ services:
       - jaeger
 
   jaeger:
-    image: jaegertracing/all-in-one:2.10.0
+    image: jaegertracing/jaeger:2.11.0
     container_name: jaeger
     ports:
       - "16686:16686" # Jaeger UI
