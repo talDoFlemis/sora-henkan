@@ -39,7 +39,7 @@ processors:
     limit_mib: 512
 
 exporters:
-  logging:
+  debug:
   awsxray:
     region: ${AWS_REGION}
   awsemf:
@@ -61,18 +61,18 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, otlp/jaeger]
-    
+      exporters: [debug, otlp/jaeger]
+
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, awsemf]
+      exporters: [debug, awsemf]
 
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, awscloudwatchlogs]
-  
+      exporters: [debug, awscloudwatchlogs]
+
   extensions: []
 EOF
 
