@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.6.0...v1.6.1) (2025-10-24)
+
+### Bug Fixes
+
+* duple interpolation ([7ee5a3a](https://github.com/talDoFlemis/sora-henkan/commit/7ee5a3ab617e3a33b04b3a2d652e9e52ba5d48be))
+
 ## [1.6.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.5.0...v1.6.0) (2025-10-24)
 
 ### Features
