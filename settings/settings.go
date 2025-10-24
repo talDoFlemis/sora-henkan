@@ -46,11 +46,6 @@ type HTTPSettings struct {
 	Timeout int          `mapstructure:"timeout" validate:"gte=1"`
 }
 
-type ObservabilitySettings struct {
-	Enabled  bool   `mapstructure:"enabled"`
-	Endpoint string `mapstructure:"endpoint" validate:"required_if=Enabled true,url"`
-}
-
 type OpenTelemetryLogSettings struct {
 	TimeoutInSec  int64 `mapstructure:"timeout"`
 	IntervalInSec int64 `mapstructure:"interval"`
