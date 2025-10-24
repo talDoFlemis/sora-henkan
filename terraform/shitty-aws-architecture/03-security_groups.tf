@@ -22,6 +22,14 @@ resource "aws_security_group" "otel_collector" {
     security_groups = [aws_security_group.app_server.id]
   }
 
+  ingress {
+    description     = "Jaeger UI from LB"
+    from_port       = 16686
+    to_port         = 16686
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
   # OTEL Collector health check - only from VPC
   ingress {
     description = "Health check from VPC"
