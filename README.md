@@ -9,7 +9,13 @@ Sora Henkan is a powerful and scalable image processing service designed to hand
 - **Real-time Updates:** Subscribe to real-time progress updates for image processing jobs via Server-Sent Events (SSE).
 - **Cloud-Native:** Designed to run on the cloud with infrastructure-as-code for AWS.
 - **Local Development:** A complete Docker Compose setup for easy local development and testing.
-- **Observability:** Integrated OpenTelemetry for tracing and metrics.
+- **Observability:** Integrated OpenTelemetry for tracing and metrics with Jaeger for distributed tracing visualization.
+- **API Documentation:** Swagger/OpenAPI 3.0 documentation for easy API exploration and testing.
+- **Health Monitoring:** Comprehensive health check endpoints for both API and worker services.
+- **AMI-Based Deployment:** Fast instance launches using pre-built Amazon Machine Images.
+- **Load Testing:** Built-in load testing capabilities for performance validation.
+- **CloudWatch Integration:** AWS CloudWatch agent integration for detailed monitoring and logging.
+- **CDN Support:** Cloudflare client IP extraction for accurate request tracking behind CDN.
 
 ## Architecture
 
@@ -88,6 +94,8 @@ graph TD
 5.  **MinIO/S3:** An object storage service used to store the original and processed images.
 6.  **LocalStack/AWS SQS:** A message queue used to decouple the API server from the worker, enabling asynchronous processing.
 7.  **Terraform:** Infrastructure as Code (IaC) to provision the necessary AWS resources, including VPC, EC2, RDS, S3, and SQS.
+8.  **Jaeger:** Distributed tracing system for monitoring and troubleshooting microservices-based architectures.
+9.  **CloudWatch Agent:** AWS monitoring and observability service for collecting metrics and logs from EC2 instances.
 
 ## Getting Started
 
@@ -127,6 +135,7 @@ graph TD
 The services will be available at:
 -   **Frontend:** `http://localhost:8080`
 -   **API Server:** `http://localhost:42069`
+-   **API Documentation (Swagger UI):** `http://localhost:42069/swagger/index.html`
 -   **MinIO Console:** `http://localhost:9001`
 
 ## Technology Stack
@@ -143,9 +152,10 @@ The services will be available at:
 -   **Infrastructure:**
     -   **Containerization:** Docker, Docker Compose
     -   **IaC:** Terraform
-    -   **Cloud:** AWS (EC2, RDS, S3, SQS, ALB)
+    -   **Cloud:** AWS (EC2, RDS, S3, SQS, ALB, CloudWatch)
     -   **CI/CD:** GitHub Actions (not yet implemented)
--   **Observability:** OpenTelemetry
+-   **Observability:** OpenTelemetry, Jaeger
+-   **Load Testing:** k6
 
 ## Project Structure
 
@@ -171,6 +181,17 @@ The services will be available at:
 -   `GET /v1/images/:id`: Get details for a specific image processing job.
 -   `GET /v1/images/sse`: Get real-time updates for all jobs.
 -   `GET /v1/images/:id/sse`: Get real-time updates for a specific job.
+-   `GET /health`: API server health check endpoint.
+-   `GET /swagger/*`: Swagger UI for interactive API documentation (OpenAPI 3.0).
+
+### API Documentation
+
+The API is fully documented using OpenAPI 3.0 specification. You can explore and test the API interactively using Swagger UI:
+
+- **Local development:** `http://localhost:42069/swagger/index.html`
+- **Regenerate API documentation:** `task swagger:generate`
+
+The OpenAPI specification file is located at `docs/openapi.yaml`.
 
 ### Example Request
 
@@ -191,6 +212,78 @@ The application is configured using YAML files located in the `settings/` direct
 
 For example, to change the database host for the API, you can set the `API_DATABASE_HOST` environment variable.
 
+## Load Testing
+
+The project includes a load testing script using k6 located in the `loadgenerator/` directory. This allows you to test the performance and scalability of the image processing service.
+
+To run load tests:
+
+```sh
+cd loadgenerator
+docker build -t sora-henkan-loadgen .
+docker run --rm sora-henkan-loadgen
+```
+
+The load test script (`script.js`) includes a set of anime image URLs and simulates realistic user traffic patterns.
+
+## Observability
+
+### Distributed Tracing with Jaeger
+
+The application integrates Jaeger for distributed tracing, allowing you to visualize request flows across the API and worker services. In AWS deployments, Jaeger UI is exposed through the Application Load Balancer.
+
+### CloudWatch Integration
+
+For AWS deployments, the CloudWatch agent collects metrics and logs from EC2 instances, providing comprehensive monitoring and alerting capabilities.
+
+### OpenTelemetry
+
+All services are instrumented with OpenTelemetry for standardized observability, including:
+- Request tracing
+- Performance metrics
+- Custom application metrics
+
 ## Deployment
 
 The infrastructure for this project is defined using Terraform in the `terraform/shitty-aws-architecture/` directory. The Terraform code provisions all the necessary resources on AWS to run the application in a scalable and resilient manner.
+
+### Key Deployment Features
+
+- **AMI-Based Instances:** Uses pre-built Amazon Machine Images for faster instance launches and consistent deployments
+- **Auto Scaling:** Automatic scaling for both API and worker instances based on load
+- **Health Checks:** Comprehensive health monitoring for both API and worker services through ALB
+- **Application Load Balancer:** Routes traffic to API instances and provides access to Jaeger UI
+- **Monitoring:** Integrated CloudWatch agent for metrics and logs collection
+- **Optimized Costs:** Instance type optimizations and resource management to reduce AWS costs
+
+## Recent Changes (Since v1.7.0)
+
+### New Features
+
+- **Swagger/OpenAPI 3.0 Documentation** (v1.21.0, v1.22.0): Complete API documentation with interactive Swagger UI
+- **Better Orchestration** (v1.22.0): Improved container orchestration and deployment workflows
+- **AMI Image Builder** (v1.16.0): Pre-built Amazon Machine Images for faster instance launches and deployments
+- **Worker Health Endpoints** (v1.17.0, v1.18.0): Comprehensive health check endpoints for worker services exposed on ALB
+- **Load Testing Framework** (v1.15.0): Built-in k6 load testing scripts with anime image dataset
+- **Jaeger Integration** (v1.10.0-v1.13.0): Distributed tracing with Jaeger UI accessible through ALB
+- **CloudWatch Agent** (v1.13.0): AWS CloudWatch integration for enhanced monitoring and logging
+- **Cloudflare Support** (v1.14.0): Client IP extraction for accurate request tracking behind Cloudflare CDN
+- **MIME Type Handling** (v1.9.0): Proper MIME type detection and extension mapping for saved images
+- **S3 Enhancements** (v1.10.0, v1.11.0): Public bucket access and CORS policy configuration
+
+### Infrastructure Improvements
+
+- **AMI Builder EC2** (v1.16.0): Automated AMI creation for consistent instance deployments
+- **Container Resource Limits** (v1.19.0): Proper resource requests and limits for containerized services
+- **Cloud-Init Integration** (v1.19.0): Always-run cloud-init scripts for instance configuration
+- **Cost Optimizations** (v1.20.0): Reduced costs by removing unnecessary services and optimizing instance types
+- **NAT Gateway Sequencing** (v1.20.0): Proper dependency management for OpenTelemetry collector instances
+
+### Bug Fixes and Optimizations
+
+- **OpenTelemetry Logging** (v1.20.0): Removed AWS EMF exporter to reduce costs
+- **Load Test Script** (v1.16.2): Updated to use inline URLs for better reliability
+- **Instance Scaling** (v1.17.0): Improved handling of worker instance scaling and health checks
+- **Docker Compose Optimization** (v1.16.1): Streamlined AMI builder to use docker compose pull
+
+For a complete changelog, see [CHANGELOG.md](CHANGELOG.md).
