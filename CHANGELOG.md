@@ -1,3 +1,9 @@
+## [1.24.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.0...v1.24.1) (2025-10-27)
+
+### Bug Fixes
+
+* **swagger_handler:** use embed to server openapi spec ([89120c6](https://github.com/talDoFlemis/sora-henkan/commit/89120c6daf7cef2d2c456f50c439885c92f34f83))
+
 ## [1.24.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.23.0...v1.24.0) (2025-10-27)
 
 ### Features
