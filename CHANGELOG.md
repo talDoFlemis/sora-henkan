@@ -1,3 +1,9 @@
+## [1.22.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.21.0...v1.22.0) (2025-10-27)
+
+### Features
+
+* add better orchestration ([377ec87](https://github.com/talDoFlemis/sora-henkan/commit/377ec87aa086156326f971123ebdda95e0301de5))
+
 ## [1.21.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.20.0...v1.21.0) (2025-10-27)
 
 ### Features
