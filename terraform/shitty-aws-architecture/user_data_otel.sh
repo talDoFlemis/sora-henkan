@@ -9,9 +9,6 @@ yum install -y docker
 systemctl start docker
 systemctl enable docker
 
-# Install cloudwatch agent
-yum install -y amazon-cloudwatch-agent
-
 # Install Docker Compose
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
@@ -66,7 +63,8 @@ service:
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [debug, awsemf]
+      # exporters: [debug, awsemf]
+      exporters: [debug]
 
     logs:
       receivers: [otlp]
