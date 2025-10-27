@@ -1,3 +1,9 @@
+## [1.24.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.23.0...v1.24.0) (2025-10-27)
+
+### Features
+
+* add servers to openapi spec ([69d25b6](https://github.com/talDoFlemis/sora-henkan/commit/69d25b6060b9801113f85ee095997b0c01b22f6a))
+
 ## [1.23.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.22.0...v1.23.0) (2025-10-27)
 
 ### Features
