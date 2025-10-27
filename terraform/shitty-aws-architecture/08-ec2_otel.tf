@@ -21,7 +21,7 @@ resource "aws_instance" "otel_collector" {
   subnet_id              = aws_subnet.private[0].id
   vpc_security_group_ids = [aws_security_group.otel_collector.id]
   iam_instance_profile   = data.aws_iam_instance_profile.lab_profile.name
-  # key_name is not required - can use AWS Systems Manager Session Manager for access
+  depends_on = [aws_nat_gateway.main]
 
   user_data = templatefile("${path.module}/user_data_otel.sh", {
     AWS_REGION = var.aws_region
