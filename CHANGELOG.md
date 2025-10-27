@@ -1,3 +1,14 @@
+## [1.20.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.19.0...v1.20.0) (2025-10-27)
+
+### Features
+
+* **ec2-otel:** wait for nat gateway before creating ([f123b4a](https://github.com/talDoFlemis/sora-henkan/commit/f123b4a3ba0e7665d4affc7ce74bc2e65048e192))
+* **user_data_otel:** always rerun script on startup ([ed3403c](https://github.com/talDoFlemis/sora-henkan/commit/ed3403c74216d7c1de538dc77a99b1164136bbf2))
+
+### Bug Fixes
+
+* **ec2_otel:** remove awsemf to reduce costs ([4df37e2](https://github.com/talDoFlemis/sora-henkan/commit/4df37e2c68b162943cf9b88a77ff323ceb64c6c2))
+
 ## [1.19.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.18.0...v1.19.0) (2025-10-24)
 
 ### Features
