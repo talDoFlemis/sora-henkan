@@ -4,11 +4,14 @@ definitions:
     properties:
       image_url:
         type: string
-      scale:
-        $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation'
+      transformations:
+        items:
+          $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest'
+        minItems: 1
+        type: array
     required:
     - image_url
-    - scale
+    - transformations
     type: object
   github_com_taldoflemis_sora-henkan_internal_core_domain_images.CreateImageResponse:
     properties:
@@ -29,10 +32,12 @@ definitions:
         type: string
       original_image_url:
         type: string
-      scale_transformation:
-        $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation'
       status:
         type: string
+      transformations:
+        items:
+          $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest'
+        type: array
       transformed_image_key:
         type: string
       updated_at:
@@ -51,26 +56,26 @@ definitions:
       page:
         type: integer
     type: object
-  github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation:
+  github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest:
     properties:
-      enabled:
-        type: boolean
-      height:
-        minimum: 1
-        type: integer
-      width:
-        minimum: 1
-        type: integer
+      config:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
     type: object
   github_com_taldoflemis_sora-henkan_internal_core_domain_images.UpdateImageRequest:
     properties:
       id:
         type: string
-      scaleTransformation:
-        $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation'
+      transformations:
+        items:
+          $ref: '#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest'
+        minItems: 1
+        type: array
     required:
     - id
-    - scaleTransformation
+    - transformations
     type: object
   health.Check:
     properties:

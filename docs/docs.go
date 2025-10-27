@@ -393,14 +393,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "image_url",
-                "scale"
+                "transformations"
             ],
             "properties": {
                 "image_url": {
                     "type": "string"
                 },
-                "scale": {
-                    "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation"
+                "transformations": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest"
+                    }
                 }
             }
         },
@@ -433,11 +437,14 @@ const docTemplate = `{
                 "original_image_url": {
                     "type": "string"
                 },
-                "scale_transformation": {
-                    "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation"
-                },
                 "status": {
                     "type": "string"
+                },
+                "transformations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest"
+                    }
                 },
                 "transformed_image_key": {
                     "type": "string"
@@ -467,19 +474,15 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation": {
+        "github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest": {
             "type": "object",
             "properties": {
-                "enabled": {
-                    "type": "boolean"
+                "config": {
+                    "type": "object",
+                    "additionalProperties": true
                 },
-                "height": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "width": {
-                    "type": "integer",
-                    "minimum": 1
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -487,14 +490,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "scaleTransformation"
+                "transformations"
             ],
             "properties": {
                 "id": {
                     "type": "string"
                 },
-                "scaleTransformation": {
-                    "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.ScaleTransformation"
+                "transformations": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_taldoflemis_sora-henkan_internal_core_domain_images.TransformationRequest"
+                    }
                 }
             }
         },

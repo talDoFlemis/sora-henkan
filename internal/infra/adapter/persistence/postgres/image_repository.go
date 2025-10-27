@@ -20,28 +20,26 @@ var tracer = otel.Tracer("")
 
 // imageModel represents the database persistence model for images
 type imageModel struct {
-	ID                     uuid.UUID       `db:"id"`
-	OriginalImageURL       string          `db:"original_image_url"`
-	ObjectStorageImageKey  string          `db:"object_storage_image_key"`
-	MimeType               string          `db:"mime_type"`
-	Status                 string          `db:"status"`
-	TransformedImageKey    string          `db:"transformed_image_key"`
-	Checksum               string          `db:"checksum"`
-	TransformationsApplied json.RawMessage `db:"transformations_applied"`
-	UpdatedAt              time.Time       `db:"updated_at"`
-	CreatedAt              time.Time       `db:"created_at"`
-}
-
-type transformationsApplied struct {
-	ScaleTransformation images.ScaleTransformation `json:"scale_transformation"`
+	ID                    uuid.UUID       `db:"id"`
+	OriginalImageURL      string          `db:"original_image_url"`
+	ObjectStorageImageKey string          `db:"object_storage_image_key"`
+	MimeType              string          `db:"mime_type"`
+	Status                string          `db:"status"`
+	TransformedImageKey   string          `db:"transformed_image_key"`
+	Checksum              string          `db:"checksum"`
+	Transformations       json.RawMessage `db:"transformations"`
+	UpdatedAt             time.Time       `db:"updated_at"`
+	CreatedAt             time.Time       `db:"created_at"`
 }
 
 // toDomain converts a persistence model to domain model
 func (m *imageModel) toDomain() (*images.Image, error) {
-	var transformations transformationsApplied
-	err := json.Unmarshal(m.TransformationsApplied, &transformations)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal transformations: %w", err)
+	var transformations images.TransformationList
+	if len(m.Transformations) > 0 && string(m.Transformations) != "null" {
+		err := json.Unmarshal(m.Transformations, &transformations)
+		if err != nil {
+			return nil, fmt.Errorf("failed to unmarshal transformations: %w", err)
+		}
 	}
 
 	return &images.Image{
@@ -52,7 +50,7 @@ func (m *imageModel) toDomain() (*images.Image, error) {
 		Status:                m.Status,
 		TransformedImageKey:   m.TransformedImageKey,
 		Checksum:              m.Checksum,
-		ScaleTransformation:   transformations.ScaleTransformation,
+		Transformations:       transformations,
 		UpdatedAt:             m.UpdatedAt,
 		CreatedAt:             m.CreatedAt,
 	}, nil
@@ -60,26 +58,22 @@ func (m *imageModel) toDomain() (*images.Image, error) {
 
 // fromDomain converts a domain model to persistence model
 func fromDomain(img *images.Image) (*imageModel, error) {
-	transformationsApplied := transformationsApplied{
-		ScaleTransformation: img.ScaleTransformation,
-	}
-
-	json, err := json.Marshal(transformationsApplied)
+	transformationsJSON, err := json.Marshal(img.Transformations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal transformations: %w", err)
 	}
 
 	return &imageModel{
-		ID:                     img.ID,
-		OriginalImageURL:       img.OriginalImageURL,
-		ObjectStorageImageKey:  img.ObjectStorageImageKey,
-		MimeType:               img.MimeType,
-		Status:                 img.Status,
-		TransformedImageKey:    img.TransformedImageKey,
-		Checksum:               img.Checksum,
-		TransformationsApplied: json,
-		UpdatedAt:              img.UpdatedAt,
-		CreatedAt:              img.CreatedAt,
+		ID:                    img.ID,
+		OriginalImageURL:      img.OriginalImageURL,
+		ObjectStorageImageKey: img.ObjectStorageImageKey,
+		MimeType:              img.MimeType,
+		Status:                img.Status,
+		TransformedImageKey:   img.TransformedImageKey,
+		Checksum:              img.Checksum,
+		Transformations:       transformationsJSON,
+		UpdatedAt:             img.UpdatedAt,
+		CreatedAt:             img.CreatedAt,
 	}, nil
 }
 
@@ -109,7 +103,7 @@ func (p *PostgresImageRepository) CreateNewImage(ctx context.Context, image *ima
 	query := `
 		INSERT INTO images (
 			id, original_image_url, object_storage_image_key, mime_type, status,
-			transformed_image_key, checksum, transformations_applied, updated_at, created_at
+			transformed_image_key, checksum, transformations, updated_at, created_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 		)
@@ -123,7 +117,7 @@ func (p *PostgresImageRepository) CreateNewImage(ctx context.Context, image *ima
 		model.Status,
 		model.TransformedImageKey,
 		model.Checksum,
-		model.TransformationsApplied,
+		model.Transformations,
 		model.UpdatedAt,
 		model.CreatedAt,
 	)
@@ -171,7 +165,7 @@ func (p *PostgresImageRepository) FindAllImages(ctx context.Context, req *images
 
 	query := `
 		SELECT id, original_image_url, object_storage_image_key, mime_type, status,
-		       transformed_image_key, checksum, transformations_applied, updated_at, created_at
+		       transformed_image_key, checksum, transformations, updated_at, created_at
 		FROM images
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2
@@ -195,7 +189,7 @@ func (p *PostgresImageRepository) FindAllImages(ctx context.Context, req *images
 			&model.Status,
 			&model.TransformedImageKey,
 			&model.Checksum,
-			&model.TransformationsApplied,
+			&model.Transformations,
 			&model.UpdatedAt,
 			&model.CreatedAt,
 		)
@@ -253,7 +247,7 @@ func (p *PostgresImageRepository) FindImageByID(ctx context.Context, id string) 
 
 	query := `
 		SELECT id, original_image_url, object_storage_image_key, mime_type, status,
-		       transformed_image_key, checksum, transformations_applied, updated_at, created_at
+		       transformed_image_key, checksum, transformations, updated_at, created_at
 		FROM images
 		WHERE id = $1
 	`
@@ -267,7 +261,7 @@ func (p *PostgresImageRepository) FindImageByID(ctx context.Context, id string) 
 		&model.Status,
 		&model.TransformedImageKey,
 		&model.Checksum,
-		&model.TransformationsApplied,
+		&model.Transformations,
 		&model.UpdatedAt,
 		&model.CreatedAt,
 	)
@@ -307,7 +301,7 @@ func (p *PostgresImageRepository) UpdateImage(ctx context.Context, image *images
 		    status = $5,
 		    transformed_image_key = $6,
 		    checksum = $7,
-		    transformations_applied = $8,
+		    transformations = $8,
 		    updated_at = $9
 		WHERE id = $1
 	`
@@ -320,7 +314,7 @@ func (p *PostgresImageRepository) UpdateImage(ctx context.Context, image *images
 		model.Status,
 		model.TransformedImageKey,
 		model.Checksum,
-		model.TransformationsApplied,
+		model.Transformations,
 		time.Now(),
 	)
 	if err != nil {

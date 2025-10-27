@@ -38,32 +38,32 @@ var (
 )
 
 type ImageUseCase struct {
-	imageRepository ports.ImageRepository
-	imageScaler     ports.ImageScaler
-	objectStorer    ports.ObjectStorer
-	imagesBucket    string
-	publisher       message.Publisher
-	subscriber      message.Subscriber
-	imageTopic      string
+	imageRepository   ports.ImageRepository
+	pipelineProcessor ports.ImagePipelineProcessor
+	objectStorer      ports.ObjectStorer
+	imagesBucket      string
+	publisher         message.Publisher
+	subscriber        message.Subscriber
+	imageTopic        string
 }
 
 func NewImageUseCase(
 	publisher message.Publisher,
 	subscriber message.Subscriber,
 	imageRepository ports.ImageRepository,
-	imageScaler ports.ImageScaler,
+	pipelineProcessor ports.ImagePipelineProcessor,
 	objectStorer ports.ObjectStorer,
 	imagesBucket string,
 	imageTopic string,
 ) *ImageUseCase {
 	return &ImageUseCase{
-		publisher:       publisher,
-		subscriber:      subscriber,
-		imageRepository: imageRepository,
-		imageScaler:     imageScaler,
-		imagesBucket:    imagesBucket,
-		objectStorer:    objectStorer,
-		imageTopic:      imageTopic,
+		publisher:         publisher,
+		subscriber:        subscriber,
+		imageRepository:   imageRepository,
+		pipelineProcessor: pipelineProcessor,
+		imagesBucket:      imagesBucket,
+		objectStorer:      objectStorer,
+		imageTopic:        imageTopic,
 	}
 }
 
@@ -80,13 +80,20 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 		return nil, err
 	}
 
+	// Validate transformations
+	if err := u.pipelineProcessor.ValidateTransformations(ctx, req.Transformations); err != nil {
+		slog.ErrorContext(ctx, "transformation validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
 	imageEntity := images.Image{
-		ID:                  uuid.New(),
-		OriginalImageURL:    req.ImageURL,
-		ScaleTransformation: req.ScaleTransformation,
-		CreatedAt:           time.Now(),
-		Status:              "pending",
-		UpdatedAt:           time.Now(),
+		ID:               uuid.New(),
+		OriginalImageURL: req.ImageURL,
+		Transformations:  images.TransformationList(req.Transformations),
+		CreatedAt:        time.Now(),
+		Status:           "pending",
+		UpdatedAt:        time.Now(),
 	}
 
 	err := u.imageRepository.CreateNewImage(ctx, &imageEntity)
@@ -97,10 +104,10 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 	}
 
 	processReq := &images.ProcessImageRequest{
-		ID:                  imageEntity.ID.String(),
-		OriginalImageURL:    imageEntity.OriginalImageURL,
-		StorageKey:          imageEntity.ObjectStorageImageKey,
-		ScaleTransformation: imageEntity.ScaleTransformation,
+		ID:               imageEntity.ID.String(),
+		OriginalImageURL: imageEntity.OriginalImageURL,
+		StorageKey:       imageEntity.ObjectStorageImageKey,
+		Transformations:  req.Transformations,
 	}
 
 	payload, err := json.Marshal(processReq)
@@ -138,6 +145,20 @@ func (u *ImageUseCase) GetImage(ctx context.Context, id string) (*images.Image, 
 	return storedImage, nil
 }
 
+func (u *ImageUseCase) ValidateTransformations(ctx context.Context, transformations []images.TransformationRequest) error {
+	ctx, span := tracer.Start(ctx, "ImageUseCase.ValidateTransformations")
+	defer span.End()
+
+	err := u.pipelineProcessor.ValidateTransformations(ctx, transformations)
+	if err != nil {
+		slog.ErrorContext(ctx, "transformation validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
+	return nil
+}
+
 func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageRequest) error {
 	ctx, span := tracer.Start(ctx, "ImageUseCase.UpdateImage", trace.WithAttributes(attribute.String("image.id", req.ID)))
 	defer span.End()
@@ -149,6 +170,13 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
+	// Validate transformations
+	if err := u.pipelineProcessor.ValidateTransformations(ctx, req.Transformations); err != nil {
+		slog.ErrorContext(ctx, "transformation validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
 	imageEntity, err := u.imageRepository.FindImageByID(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
@@ -156,7 +184,7 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
-	imageEntity.ScaleTransformation = req.ScaleTransformation
+	imageEntity.Transformations = images.TransformationList(req.Transformations)
 	imageEntity.UpdatedAt = time.Now()
 
 	err = u.imageRepository.UpdateImage(ctx, imageEntity)
@@ -167,10 +195,10 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 	}
 
 	processReq := &images.ProcessImageRequest{
-		ID:                  imageEntity.ID.String(),
-		OriginalImageURL:    imageEntity.OriginalImageURL,
-		StorageKey:          imageEntity.ObjectStorageImageKey,
-		ScaleTransformation: imageEntity.ScaleTransformation,
+		ID:               imageEntity.ID.String(),
+		OriginalImageURL: imageEntity.OriginalImageURL,
+		StorageKey:       imageEntity.ObjectStorageImageKey,
+		Transformations:  req.Transformations,
 	}
 
 	payload, err := json.Marshal(processReq)
@@ -237,6 +265,13 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		return err
 	}
 
+	// Validate transformations
+	if err := u.pipelineProcessor.ValidateTransformations(ctx, req.Transformations); err != nil {
+		slog.ErrorContext(ctx, "transformation validation failed", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
+	}
+
 	imageEntity, err := u.imageRepository.FindImageByID(ctx, req.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
@@ -273,20 +308,17 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		return err
 	}
 
-	var imageProcessed io.Reader
-	imageProcessed = imageData
+	var imageProcessed []byte
 
-	if req.ScaleTransformation.Enabled {
-		scaledBytes, err := u.imageScaler.Scale(ctx, imageData, req.ScaleTransformation.Width, req.ScaleTransformation.Height)
-		if err != nil {
-			slog.ErrorContext(ctx, "failed to scale image", slog.Any("err", err))
-			telemetry.RegisterSpanError(span, err)
-			return err
-		}
-
-		slog.InfoContext(ctx, "image scaled successfully", slog.String("image_id", req.ID))
-		imageProcessed = bytes.NewReader(scaledBytes)
+	processedBytes, err := u.pipelineProcessor.ProcessPipeline(ctx, imageData, req.Transformations)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to process image transformations", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return err
 	}
+
+	slog.InfoContext(ctx, "image processed successfully", slog.String("image_id", req.ID), slog.Int("transformations", len(req.Transformations)))
+	imageProcessed = processedBytes
 
 	extensions, err := mime.ExtensionsByType(imageEntity.MimeType)
 	if err != nil || len(extensions) == 0 {
@@ -298,7 +330,7 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 
 	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + extensions[0]
 
-	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, imageProcessed)
+	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, bytes.NewReader(imageProcessed))
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to store transformed image", slog.Any("err", err), slog.String("bucket-name", u.imagesBucket))
 		telemetry.RegisterSpanError(span, err)

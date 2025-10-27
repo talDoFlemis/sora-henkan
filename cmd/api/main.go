@@ -141,7 +141,14 @@ func main() {
 	prefixedGroup := router.GetGroup()
 
 	// Create adapters
-	imageScaler := imageProcessor.NewVipsImageProcessor()
+	transformerFactory := imageProcessor.NewTransformerFactory(
+		imageProcessor.NewVipsResizeTransformer(),
+		imageProcessor.NewVipsGrayscaleTransformer(),
+		imageProcessor.NewVipsTrimTransformer(),
+		imageProcessor.NewVipsBlurTransformer(),
+		imageProcessor.NewVipsRotateTransformer(),
+	)
+	pipelineProcessor := imageProcessor.NewPipeline(transformerFactory)
 	objectStorerAdapter := objectStorer.NewMinioObjectStorer(minioClient)
 	imageRepository := postgres.NewPostgresImageRepository(pgxpool)
 
@@ -150,7 +157,7 @@ func main() {
 		publisher,
 		subscriber,
 		imageRepository,
-		imageScaler,
+		pipelineProcessor,
 		objectStorerAdapter,
 		settings.ImageProcessor.BucketName,
 		settings.Watermill.ImageTopic,

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS images (
     status VARCHAR(50) NOT NULL,
     transformed_image_key TEXT,
     checksum VARCHAR(64),
-    transformations_applied JSONB DEFAULT '[]'::jsonb,
+    transformations JSONB DEFAULT '[]'::jsonb,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -16,3 +16,4 @@ CREATE TABLE IF NOT EXISTS images (
 CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_images_status ON images(status);
 CREATE INDEX IF NOT EXISTS idx_images_checksum ON images(checksum);
+CREATE INDEX IF NOT EXISTS idx_images_transformations ON images USING gin(transformations);
