@@ -1,7 +1,7 @@
 # EC2 Instance for AMI Builder
 resource "aws_instance" "ami_builder" {
   ami           = data.aws_ami.amazon_linux_2.id
-  instance_type = var.app_instance_type
+  instance_type = "t2.micro"
 
   iam_instance_profile = data.aws_iam_instance_profile.lab_profile.name
 
