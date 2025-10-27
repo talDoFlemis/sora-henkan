@@ -1,3 +1,13 @@
+## [1.23.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.22.0...v1.23.0) (2025-10-27)
+
+### Features
+
+* add openapi 3 swagger ([f6c9fff](https://github.com/talDoFlemis/sora-henkan/commit/f6c9fff112c21bfc484488be9bcefcc7bdf0f4fc))
+
+### Documentation
+
+* update README ([0fb8074](https://github.com/talDoFlemis/sora-henkan/commit/0fb80749c9ccb44dbdedb7d6d6570e753cd049dd))
+
 ## [1.22.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.21.0...v1.22.0) (2025-10-27)
 
 ### Features
