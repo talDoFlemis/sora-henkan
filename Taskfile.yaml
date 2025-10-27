@@ -77,3 +77,11 @@ tasks:
   clean:
     desc: Clean build artifacts
     cmd: rm -rf bin/
+
+  swagger:generate:
+    desc: Generate Swagger documentation
+    cmd: swag init -g ./cmd/api/main.go -o ./docs --parseDependency --parseInternal
+
+  swagger:format:
+    desc: Format Swagger documentation
+    cmd: swag fmt

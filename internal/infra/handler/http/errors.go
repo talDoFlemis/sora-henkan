@@ -84,7 +84,7 @@ func HandleValidationError(c echo.Context, validationErrs validator.ValidationEr
 // getValidationMessage returns a human-readable error message based on the validation tag
 func getValidationMessage(err validator.FieldError) string {
 	field := err.Field()
-	
+
 	switch err.Tag() {
 	case "required":
 		return field + " is required"
@@ -122,7 +122,7 @@ func getValueString(value interface{}) string {
 	if value == nil {
 		return ""
 	}
-	
+
 	// Don't expose sensitive values
 	return ""
 }

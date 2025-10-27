@@ -35,6 +35,20 @@ func (h *ImageHandler) RegisterRoute(g *echo.Group) {
 	imageHandlerGroup.DELETE("/:id", h.DeleteImage)
 }
 
+// ListImages godoc
+//
+//	@Summary		List images
+//	@Description	Get a paginated list of images
+//	@Tags			images
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"		default(1)	minimum(1)
+//	@Param			limit	query		int	false	"Items per page"	default(10)	minimum(1)	maximum(100)
+//	@Success		200		{object}	images.ListImagesResponse
+//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
+//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
+//	@Failure		500		{object}	map[string]interface{}	"Internal server error"
+//	@Router			/v1/images/ [get]
 func (h *ImageHandler) ListImages(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -53,6 +67,15 @@ func (h *ImageHandler) ListImages(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// GetAllImagesRealtimeUpdates godoc
+//
+//	@Summary		Stream all images updates
+//	@Description	Server-Sent Events stream for all images updates
+//	@Tags			images
+//	@Produce		text/event-stream
+//	@Success		200	{object}	images.Image			"Stream of image updates"
+//	@Failure		500	{object}	map[string]interface{}	"Streaming unsupported"
+//	@Router			/v1/images/sse [get]
 func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 	ctx := context.Background()
 	fluser, ok := c.Response().Writer.(http.Flusher)
@@ -92,6 +115,17 @@ func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 	}
 }
 
+// GetImageRealtimeUpdate godoc
+//
+//	@Summary		Stream single image updates
+//	@Description	Server-Sent Events stream for a specific image updates
+//	@Tags			images
+//	@Produce		text/event-stream
+//	@Param			id	path		string					true	"Image ID (UUID)"
+//	@Success		200	{object}	images.Image			"Stream of image updates"
+//	@Failure		404	{object}	map[string]interface{}	"Image not found"
+//	@Failure		500	{object}	map[string]interface{}	"Streaming unsupported"
+//	@Router			/v1/images/{id}/sse [get]
 func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 	ctx := context.Background()
 	flusher, ok := c.Response().Writer.(http.Flusher)
@@ -138,6 +172,18 @@ func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 	}
 }
 
+// GetImage godoc
+//
+//	@Summary		Get image by ID
+//	@Description	Retrieve a single image by its ID
+//	@Tags			images
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Image ID (UUID)"
+//	@Success		200	{object}	images.Image
+//	@Failure		404	{object}	map[string]interface{}	"Image not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Router			/v1/images/{id} [get]
 func (h *ImageHandler) GetImage(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -154,6 +200,19 @@ func (h *ImageHandler) GetImage(c echo.Context) error {
 	return c.JSON(http.StatusOK, image)
 }
 
+// CreateImage godoc
+//
+//	@Summary		Create a new image
+//	@Description	Create a new image processing request
+//	@Tags			images
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		images.CreateImageRequest	true	"Create image request"
+//	@Success		201		{object}	images.CreateImageResponse
+//	@Failure		400		{object}	map[string]interface{}		"Invalid request body"
+//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
+//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Router			/v1/images/ [post]
 func (h *ImageHandler) CreateImage(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := images.CreateImageRequest{}
@@ -171,6 +230,20 @@ func (h *ImageHandler) CreateImage(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// UpdateImage godoc
+//
+//	@Summary		Update an image
+//	@Description	Update image transformation settings
+//	@Tags			images
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		images.UpdateImageRequest	true	"Update image request"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	map[string]interface{}	"Invalid request body"
+//	@Failure		404		{object}	map[string]interface{}	"Image not found"
+//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
+//	@Failure		500		{object}	map[string]interface{}	"Internal server error"
+//	@Router			/v1/images/ [put]
 func (h *ImageHandler) UpdateImage(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := images.UpdateImageRequest{}
@@ -191,6 +264,18 @@ func (h *ImageHandler) UpdateImage(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Image updated successfully"})
 }
 
+// DeleteImage godoc
+//
+//	@Summary		Delete an image
+//	@Description	Delete an image by its ID
+//	@Tags			images
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Image ID (UUID)"
+//	@Success		200	{object}	map[string]string
+//	@Failure		404	{object}	map[string]interface{}	"Image not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Router			/v1/images/{id} [delete]
 func (h *ImageHandler) DeleteImage(c echo.Context) error {
 	ctx := c.Request().Context()
 

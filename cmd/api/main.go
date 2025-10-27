@@ -18,6 +18,22 @@ import (
 	"github.com/taldoflemis/sora-henkan/settings"
 )
 
+//	@title			Sora Henkan API
+//	@version		0.1.0
+//	@description	Image processing and transformation service
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.email	support@sorahenkan.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@host		localhost:42069
+//	@BasePath	/
+
+//	@schemes	http https
+
 type APISettings struct {
 	App            settings.AppSettings            `mapstructure:"app" validate:"required"`
 	Database       settings.DatabaseSettings       `mapstructure:"database" validate:"required"`
@@ -145,6 +161,9 @@ func main() {
 	healthHandler.RegisterRoute(prefixedGroup)
 	imageHandler := http.NewImageHandler(imageUseCase)
 	imageHandler.RegisterRoute(prefixedGroup)
+
+	// Register Swagger UI (conditionally based on settings)
+	router.RegisterSwagger()
 
 	errChan := make(chan error, 1)
 	go func() {

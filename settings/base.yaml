@@ -43,6 +43,7 @@ http:
   prefix: "/"
   ip: 0.0.0.0
   timeout: 5
+  swagger-ui-enabled: true
   cors:
     origins:
       - "https://*"

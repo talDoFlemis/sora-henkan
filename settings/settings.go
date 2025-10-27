@@ -39,11 +39,12 @@ type CORSSettings struct {
 }
 
 type HTTPSettings struct {
-	Port    string       `mapstructure:"port" validate:"required,numeric"`
-	Prefix  string       `mapstructure:"prefix" validate:"required"`
-	IP      string       `mapstructure:"ip" validate:"required,ip"`
-	CORS    CORSSettings `mapstructure:"cors" validate:"required"`
-	Timeout int          `mapstructure:"timeout" validate:"gte=1"`
+	Port             string       `mapstructure:"port" validate:"required,numeric"`
+	Prefix           string       `mapstructure:"prefix" validate:"required"`
+	IP               string       `mapstructure:"ip" validate:"required,ip"`
+	CORS             CORSSettings `mapstructure:"cors" validate:"required"`
+	Timeout          int          `mapstructure:"timeout" validate:"gte=1"`
+	SwaggerUIEnabled bool         `mapstructure:"swagger-ui-enabled"`
 }
 
 type OpenTelemetryLogSettings struct {
@@ -90,7 +91,7 @@ type ObjectStorerSettings struct {
 func (o *ObjectStorerSettings) NewMinioClient(ctx context.Context) (*minio.Client, error) {
 	// Initialize MinIO client
 	var creds *credentials.Credentials
-	
+
 	// Use IAM credentials if connecting to AWS S3 or if credentials are empty
 	if strings.Contains(o.Endpoint, ".amazonaws.com") || (o.AccessKeyID == "" && o.SecretAccessKey == "") {
 		slog.InfoContext(ctx, "Using IAM for connecting to s3")

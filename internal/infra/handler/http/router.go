@@ -65,6 +65,14 @@ func (r *Router) GetGroup() *echo.Group {
 	return r.e.Group(r.httpSettings.Prefix)
 }
 
+func (r *Router) RegisterSwagger() {
+	if r.httpSettings.SwaggerUIEnabled {
+		slog.Info("Swagger UI enabled, registering swagger handler")
+		swaggerHandler := NewSwaggerHandler()
+		swaggerHandler.RegisterRoute(r.e)
+	}
+}
+
 func (r *Router) Start() error {
 	slog.Info("listening for requests", slog.String("ip", r.httpSettings.IP), slog.String("port", r.httpSettings.Port))
 	address := r.httpSettings.IP + ":" + r.httpSettings.Port
