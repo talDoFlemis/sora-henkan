@@ -86,7 +86,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       WORKER_OPENTELEMETRY_ENABLED: true
       WORKER_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
-      GOMEMLIMIT: 700MiB
+      GOMEMLIMIT: 500MiB
       GOGC: 50
     depends_on:
       migrate:
@@ -96,7 +96,7 @@ services:
       resources:
         limits:
           cpus: '1.5'
-          memory: 700M
+          memory: 500M
         reservations:
           memory: 50M
 
