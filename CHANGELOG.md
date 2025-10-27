@@ -1,3 +1,9 @@
+## [1.21.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.20.0...v1.21.0) (2025-10-27)
+
+### Features
+
+* add swagger ([8fe41d3](https://github.com/talDoFlemis/sora-henkan/commit/8fe41d3a8ae8f32e71400beec7c5987160ef0667))
+
 ## [1.20.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.19.0...v1.20.0) (2025-10-27)
 
 ### Features
