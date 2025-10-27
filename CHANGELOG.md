@@ -1,3 +1,9 @@
+## [1.24.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.1...v1.24.2) (2025-10-27)
+
+### Bug Fixes
+
+* **errors:** validation throwing internal server error ([ef45e53](https://github.com/talDoFlemis/sora-henkan/commit/ef45e533b63ee4f8d4831e18d42f154a8150e6e9))
+
 ## [1.24.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.0...v1.24.1) (2025-10-27)
 
 ### Bug Fixes
