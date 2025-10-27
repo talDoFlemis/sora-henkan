@@ -12,10 +12,10 @@ info:
   termsOfService: http://swagger.io/terms/
 
 servers:
-  - url: http://localhost:42069
-    description: Development server
-  - url: https://localhost:42069
-    description: Development server (HTTPS)
+  - url: /
+    description: Current Server
+  - url: https://api-sorahenkan.flemis.cloud
+    description: Production Server
 
 tags:
   - name: health
