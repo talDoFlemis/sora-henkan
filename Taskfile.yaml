@@ -78,10 +78,7 @@ tasks:
     desc: Clean build artifacts
     cmd: rm -rf bin/
 
-  swagger:generate:
-    desc: Generate Swagger documentation
-    cmd: swag init -g ./cmd/api/main.go -o ./docs --parseDependency --parseInternal
 
-  swagger:format:
-    desc: Format Swagger documentation
-    cmd: swag fmt
+  openapi:generate:
+    desc: Generate Go server code from OpenAPI 3.0 spec
+    cmd: oapi-codegen -config oapi-codegen.yaml docs/openapi.yaml

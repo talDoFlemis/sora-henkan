@@ -7,10 +7,12 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/taldoflemis/sora-henkan/internal/core/application"
 	"github.com/taldoflemis/sora-henkan/internal/core/domain/images"
 	"github.com/taldoflemis/sora-henkan/internal/core/ports"
+	"github.com/taldoflemis/sora-henkan/pkg/http/api"
 )
 
 type ImageHandler struct {
@@ -35,20 +37,6 @@ func (h *ImageHandler) RegisterRoute(g *echo.Group) {
 	imageHandlerGroup.DELETE("/:id", h.DeleteImage)
 }
 
-// ListImages godoc
-//
-//	@Summary		List images
-//	@Description	Get a paginated list of images
-//	@Tags			images
-//	@Accept			json
-//	@Produce		json
-//	@Param			page	query		int	false	"Page number"		default(1)	minimum(1)
-//	@Param			limit	query		int	false	"Items per page"	default(10)	minimum(1)	maximum(100)
-//	@Success		200		{object}	images.ListImagesResponse
-//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
-//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
-//	@Failure		500		{object}	map[string]interface{}	"Internal server error"
-//	@Router			/v1/images/ [get]
 func (h *ImageHandler) ListImages(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -64,18 +52,27 @@ func (h *ImageHandler) ListImages(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	// Convert domain images to API images
+	apiImages := make([]api.Image, 0, len(resp.Data))
+	for _, domainImage := range resp.Data {
+		apiImage, err := api.ConvertDomainImageToAPI(&domainImage)
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to convert image", slog.String("error", err.Error()))
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to convert images")
+		}
+		apiImages = append(apiImages, *apiImage)
+	}
+
+	apiResp := api.ListImagesResponse{
+		Page:  resp.Page,
+		Limit: resp.Limit,
+		Count: resp.Count,
+		Data:  apiImages,
+	}
+
+	return c.JSON(http.StatusOK, apiResp)
 }
 
-// GetAllImagesRealtimeUpdates godoc
-//
-//	@Summary		Stream all images updates
-//	@Description	Server-Sent Events stream for all images updates
-//	@Tags			images
-//	@Produce		text/event-stream
-//	@Success		200	{object}	images.Image			"Stream of image updates"
-//	@Failure		500	{object}	map[string]interface{}	"Streaming unsupported"
-//	@Router			/v1/images/sse [get]
 func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 	ctx := context.Background()
 	fluser, ok := c.Response().Writer.(http.Flusher)
@@ -100,7 +97,14 @@ func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 			slog.InfoContext(ctx, "client closed connection")
 			return nil
 		case update := <-imageUpdates:
-			data, err := json.Marshal(update)
+			// Convert domain image to API image
+			apiImage, err := api.ConvertDomainImageToAPI(update)
+			if err != nil {
+				slog.ErrorContext(ctx, "failed to convert image for SSE", slog.String("error", err.Error()))
+				continue
+			}
+
+			data, err := json.Marshal(apiImage)
 			if err != nil {
 				slog.ErrorContext(ctx, "marshal order for SSE", slog.String("error", err.Error()))
 				continue
@@ -115,17 +119,6 @@ func (h *ImageHandler) GetAllImagesRealtimeUpdates(c echo.Context) error {
 	}
 }
 
-// GetImageRealtimeUpdate godoc
-//
-//	@Summary		Stream single image updates
-//	@Description	Server-Sent Events stream for a specific image updates
-//	@Tags			images
-//	@Produce		text/event-stream
-//	@Param			id	path		string					true	"Image ID (UUID)"
-//	@Success		200	{object}	images.Image			"Stream of image updates"
-//	@Failure		404	{object}	map[string]interface{}	"Image not found"
-//	@Failure		500	{object}	map[string]interface{}	"Streaming unsupported"
-//	@Router			/v1/images/{id}/sse [get]
 func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 	ctx := context.Background()
 	flusher, ok := c.Response().Writer.(http.Flusher)
@@ -157,7 +150,14 @@ func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 			slog.InfoContext(ctx, "client closed connection")
 			return nil
 		case update := <-imageUpdates:
-			data, err := json.Marshal(update)
+			// Convert domain image to API image
+			apiImage, err := api.ConvertDomainImageToAPI(update)
+			if err != nil {
+				slog.ErrorContext(ctx, "failed to convert image for SSE", slog.String("error", err.Error()))
+				continue
+			}
+
+			data, err := json.Marshal(apiImage)
 			if err != nil {
 				slog.ErrorContext(ctx, "marshal order for SSE", slog.String("error", err.Error()))
 				continue
@@ -172,18 +172,6 @@ func (h *ImageHandler) GetImageRealtimeUpdate(c echo.Context) error {
 	}
 }
 
-// GetImage godoc
-//
-//	@Summary		Get image by ID
-//	@Description	Retrieve a single image by its ID
-//	@Tags			images
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"Image ID (UUID)"
-//	@Success		200	{object}	images.Image
-//	@Failure		404	{object}	map[string]interface{}	"Image not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
-//	@Router			/v1/images/{id} [get]
 func (h *ImageHandler) GetImage(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -197,63 +185,64 @@ func (h *ImageHandler) GetImage(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, image)
+	// Convert domain image to API image
+	apiImage, err := api.ConvertDomainImageToAPI(image)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to convert image")
+	}
+
+	return c.JSON(http.StatusOK, apiImage)
 }
 
-// CreateImage godoc
-//
-//	@Summary		Create a new image
-//	@Description	Create a new image processing request
-//	@Tags			images
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		images.CreateImageRequest	true	"Create image request"
-//	@Success		201		{object}	images.CreateImageResponse
-//	@Failure		400		{object}	map[string]interface{}		"Invalid request body"
-//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
-//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
-//	@Router			/v1/images/ [post]
 func (h *ImageHandler) CreateImage(c echo.Context) error {
 	ctx := c.Request().Context()
-	req := images.CreateImageRequest{}
+	req := api.CreateImageRequest{}
 
 	err := c.Bind(&req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
-	resp, err := h.imageUseCase.CreateImageRequest(ctx, &req)
+	// Convert API request to domain request
+	domainReq, err := api.ConvertAPICreateImageRequestToDomain(&req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	resp, err := h.imageUseCase.CreateImageRequest(ctx, domainReq)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, resp)
+	// Convert response - parse string UUID to uuid.UUID
+	id, err := uuid.Parse(resp.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to parse image ID")
+	}
+
+	apiResp := api.CreateImageResponse{
+		Id: id,
+	}
+
+	return c.JSON(http.StatusCreated, apiResp)
 }
 
-// UpdateImage godoc
-//
-//	@Summary		Update an image
-//	@Description	Update image transformation settings
-//	@Tags			images
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		images.UpdateImageRequest	true	"Update image request"
-//	@Success		200		{object}	map[string]string
-//	@Failure		400		{object}	map[string]interface{}	"Invalid request body"
-//	@Failure		404		{object}	map[string]interface{}	"Image not found"
-//	@Failure		422		{object}	ValidationErrorResponse		"Validation failed"
-//	@Failure		500		{object}	map[string]interface{}	"Internal server error"
-//	@Router			/v1/images/ [put]
 func (h *ImageHandler) UpdateImage(c echo.Context) error {
 	ctx := c.Request().Context()
-	req := images.UpdateImageRequest{}
+	req := api.UpdateImageRequest{}
 
 	err := c.Bind(&req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
-	err = h.imageUseCase.UpdateImage(ctx, &req)
+	// Convert API request to domain request
+	domainReq, err := api.ConvertAPIUpdateImageRequestToDomain(&req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = h.imageUseCase.UpdateImage(ctx, domainReq)
 	if err != nil {
 		if errors.Is(err, ports.ErrImageNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Image not found")
@@ -261,21 +250,10 @@ func (h *ImageHandler) UpdateImage(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "Image updated successfully"})
+	message := "Image updated successfully"
+	return c.JSON(http.StatusOK, api.MessageResponse{Message: &message})
 }
 
-// DeleteImage godoc
-//
-//	@Summary		Delete an image
-//	@Description	Delete an image by its ID
-//	@Tags			images
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"Image ID (UUID)"
-//	@Success		200	{object}	map[string]string
-//	@Failure		404	{object}	map[string]interface{}	"Image not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
-//	@Router			/v1/images/{id} [delete]
 func (h *ImageHandler) DeleteImage(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -289,5 +267,6 @@ func (h *ImageHandler) DeleteImage(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "Image deleted successfully"})
+	message := "Image deleted successfully"
+	return c.JSON(http.StatusOK, api.MessageResponse{Message: &message})
 }

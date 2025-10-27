@@ -21,14 +21,6 @@ func (h *HealthHandler) RegisterRoute(g *echo.Group) {
 	g.GET("healthz", h.Handle)
 }
 
-// HealthCheck godoc
-//
-//	@Summary	Check the health of the service
-//	@Tags		health
-//	@Produce	json
-//	@Success	200	{object}	healthgo.Check	"Service is healthy"
-//	@Failure	503	{object}	healthgo.Check	"Service is unavailable"
-//	@Router		/healthz [get]
 func (h *HealthHandler) Handle(c echo.Context) error {
 	check := h.health.Measure(c.Request().Context())
 
