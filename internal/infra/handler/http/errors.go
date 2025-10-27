@@ -28,35 +28,35 @@ func GlobalErrorHandler(err error, c echo.Context) {
 		return
 	}
 
+	he, ok := err.(*echo.HTTPError)
+	if !ok {
+		// Default to 500 Internal Server Error
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "Internal server error",
+			"error":   err.Error(),
+		})
+	}
+
 	// Handle validation errors
-	if validationErrs, ok := err.(validator.ValidationErrors); ok {
+	if validationErrs, ok := he.Unwrap().(validator.ValidationErrors); ok {
 		HandleValidationError(c, validationErrs)
 		return
 	}
 
 	// Handle Echo HTTP errors
-	if he, ok := err.(*echo.HTTPError); ok {
-		code := he.Code
-		message := he.Message
+	code := he.Code
+	message := he.Message
 
-		// If message is a string, use it directly
-		if msg, ok := message.(string); ok {
-			c.JSON(code, map[string]interface{}{
-				"message": msg,
-			})
-			return
-		}
-
-		// Otherwise use the message as is
-		c.JSON(code, message)
+	// If message is a string, use it directly
+	if msg, ok := message.(string); ok {
+		c.JSON(code, map[string]interface{}{
+			"message": msg,
+		})
 		return
 	}
 
-	// Default to 500 Internal Server Error
-	c.JSON(http.StatusInternalServerError, map[string]interface{}{
-		"message": "Internal server error",
-		"error":   err.Error(),
-	})
+	// Otherwise use the message as is
+	c.JSON(code, message)
 }
 
 // HandleValidationError converts validator errors to 422 response

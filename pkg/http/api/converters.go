@@ -182,16 +182,16 @@ func ConvertDomainImageToAPI(domainImage *images.Image) (*Image, error) {
 	}
 
 	return &Image{
-		Id:                     &domainImage.ID,
-		OriginalImageUrl:       &domainImage.OriginalImageURL,
-		ObjectStorageImageKey:  &domainImage.ObjectStorageImageKey,
-		TransformedImageKey:    &domainImage.TransformedImageKey,
-		MimeType:               &domainImage.MimeType,
-		Checksum:               &domainImage.Checksum,
-		Status:                 &domainImage.Status,
-		Transformations:        &apiTransformations,
-		CreatedAt:              &domainImage.CreatedAt,
-		UpdatedAt:              &domainImage.UpdatedAt,
+		Id:                    &domainImage.ID,
+		OriginalImageUrl:      &domainImage.OriginalImageURL,
+		ObjectStorageImageKey: &domainImage.ObjectStorageImageKey,
+		TransformedImageKey:   &domainImage.TransformedImageKey,
+		MimeType:              &domainImage.MimeType,
+		Checksum:              &domainImage.Checksum,
+		Status:                &domainImage.Status,
+		Transformations:       &apiTransformations,
+		CreatedAt:             &domainImage.CreatedAt,
+		UpdatedAt:             &domainImage.UpdatedAt,
 	}, nil
 }
 

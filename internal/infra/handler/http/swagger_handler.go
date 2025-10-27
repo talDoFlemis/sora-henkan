@@ -28,11 +28,11 @@ func (h *SwaggerHandler) ServeSwaggerUI(c echo.Context) error {
 			scalargo.WithTitle("Sora Henkan API Documentation"),
 		),
 	)
-	
+
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to generate documentation")
 	}
-	
+
 	return c.HTML(http.StatusOK, htmlContent)
 }
 
