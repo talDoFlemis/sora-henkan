@@ -1,3 +1,9 @@
+## [1.26.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.26.0...v1.26.1) (2025-10-28)
+
+### Bug Fixes
+
+* Remove background gradient from loading and error states in image detail page ([72cca6a](https://github.com/talDoFlemis/sora-henkan/commit/72cca6abf48d0122b4c2ef86a81c9cc8871fc0a4))
+
 ## [1.26.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.25.0...v1.26.0) (2025-10-28)
 
 ### Features
