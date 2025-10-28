@@ -1,3 +1,9 @@
+## [1.26.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.25.0...v1.26.0) (2025-10-28)
+
+### Features
+
+* Enhance gallery and image detail pages with improved UI and functionality ([92933c0](https://github.com/talDoFlemis/sora-henkan/commit/92933c0b86341344727a12a6367870bbcfdbf553))
+
 ## [1.25.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.2...v1.25.0) (2025-10-28)
 
 ### Features
