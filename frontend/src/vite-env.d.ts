@@ -8,6 +8,7 @@ type ImportMetaEnv = {
   DEV: boolean
   PROD: boolean
   VITE_API_URL: string
+  VITE_AWS_BUCKET_ENDPOINT: string
   // @user-defined-start
   /*
    *  You can use this section to explicitly extend the type definition of `import.meta.env`
