@@ -1,3 +1,9 @@
+## [1.25.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.2...v1.25.0) (2025-10-28)
+
+### Features
+
+* add UI components for input, label, select, slider, and tabs ([bfb9136](https://github.com/talDoFlemis/sora-henkan/commit/bfb9136311a37ebc0e201f70ede0fd7bbde77579))
+
 ## [1.24.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.24.1...v1.24.2) (2025-10-27)
 
 ### Bug Fixes
