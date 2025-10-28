@@ -112,7 +112,7 @@ export function ImageDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className=" flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading image details...</p>
@@ -123,7 +123,7 @@ export function ImageDetailPage() {
 
   if (!image) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className=" flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
           <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Image Not Found</h2>
@@ -145,7 +145,7 @@ export function ImageDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
