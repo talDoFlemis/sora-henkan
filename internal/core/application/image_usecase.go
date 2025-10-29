@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"mime"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -27,9 +29,19 @@ var tracer = otel.Tracer("")
 
 // Allowed MIME types for images
 var allowedMIMETypes = map[string]bool{
-	"image/jpeg": true,
-	"image/png":  true,
-	"image/gif":  true,
+	"image/jpeg":          true,
+	"image/png":           true,
+	"image/gif":           true,
+	"image/webp":          true,
+	"image/tiff":          true,
+	"image/svg+xml":       true, // SVG
+	"application/pdf":     true, // PDF
+	"image/x-icon":        true, // ICO
+	"image/heif":          true, // HEIF/HEIC (Requires libheif)
+	"image/heic":          true, // HEIF/HEIC (Requires libheif)
+	"image/heif-sequence": true,
+	"image/heic-sequence": true,
+	"image/avif":          true, // AVIF (Requires libheif/libaom)
 }
 
 var (
@@ -285,6 +297,24 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		if err != nil {
 			slog.ErrorContext(ctx, "failed to fetch and store image", slog.Any("err", err))
 			telemetry.RegisterSpanError(span, err)
+
+			// Check if this is a non-retryable error (4xx status code)
+			var nonRetryableErr *images.NonRetryableError
+			if errors.As(err, &nonRetryableErr) {
+				// Update image status to failed
+				imageEntity.Status = "failed"
+				imageEntity.ErrorMessage = nonRetryableErr.Error()
+				imageEntity.UpdatedAt = time.Now()
+
+				if updateErr := u.imageRepository.UpdateImage(ctx, imageEntity); updateErr != nil {
+					slog.ErrorContext(ctx, "failed to update image status to failed", slog.Any("err", updateErr))
+					// Return the original non-retryable error
+				}
+
+				// Return the non-retryable error so the worker can ACK the message
+				return err
+			}
+
 			return err
 		}
 
@@ -320,15 +350,8 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 	slog.InfoContext(ctx, "image processed successfully", slog.String("image_id", req.ID), slog.Int("transformations", len(req.Transformations)))
 	imageProcessed = processedBytes
 
-	extensions, err := mime.ExtensionsByType(imageEntity.MimeType)
-	if err != nil || len(extensions) == 0 {
-		err = fmt.Errorf("failed to get file extension for MIME type: %s", imageEntity.MimeType)
-		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", imageEntity.MimeType))
-		telemetry.RegisterSpanError(span, err)
-		return err
-	}
-
-	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + extensions[0]
+	extension := strings.Split(imageEntity.ObjectStorageImageKey, ".")[1]
+	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + "." + extension
 
 	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, bytes.NewReader(imageProcessed))
 	if err != nil {
@@ -394,24 +417,25 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return nil, err
+		return nil, images.NewNonRetryableError(err)
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		// If status code is between 400 and 500 (client errors), mark as failed and don't retry
+		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			err = fmt.Errorf("client error HTTP status: %s", resp.Status)
+			slog.ErrorContext(ctx, "received client error HTTP status", slog.Int("status_code", resp.StatusCode))
+			telemetry.RegisterSpanError(span, err)
+
+			// Return a special error type that indicates this should not be retried
+			return nil, images.NewNonRetryableError(err)
+		}
+
+		// For other errors (5xx), return a regular error that will be retried
 		err = fmt.Errorf("received non-OK HTTP status: %s", resp.Status)
 		slog.ErrorContext(ctx, "received non-OK HTTP status", slog.Int("status_code", resp.StatusCode))
-		telemetry.RegisterSpanError(span, err)
-		return nil, err
-	}
-
-	contentTypeHeader := resp.Header.Get("Content-Type")
-	mimeType := strings.ToLower(strings.Split(contentTypeHeader, ";")[0])
-
-	if !allowedMIMETypes[mimeType] {
-		err = fmt.Errorf("disallowed MIME type: %s", mimeType)
-		slog.ErrorContext(ctx, "disallowed MIME type", slog.String("mime_type", mimeType))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
@@ -423,15 +447,34 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
-	extensions, err := mime.ExtensionsByType(mimeType)
-	if err != nil || len(extensions) == 0 {
-		err = fmt.Errorf("failed to get file extension for MIME type: %s", mimeType)
-		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", mimeType))
+
+	mimeType := http.DetectContentType(bodyData)
+	if !allowedMIMETypes[mimeType] {
+		err = fmt.Errorf("disallowed MIME type: %s", mimeType)
+		slog.ErrorContext(ctx, "disallowed MIME type", slog.String("mime_type", mimeType))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
 
-	rawImageKey := rawImagePath + "/" + req.ID + extensions[0]
+	slog.DebugContext(ctx, "Checking for file extension of MIME type or by .extension file request", slog.String("mimetype", mimeType), slog.String("image.url", req.OriginalImageURL))
+
+	extension := GetFileExtensionFromUrl(req.OriginalImageURL)
+	if extension == "" {
+		slog.DebugContext(ctx, "No file extension found in URL, determining from MIME type", slog.String("image.url", req.OriginalImageURL))
+		extensions, err := mime.ExtensionsByType(mimeType)
+		if err != nil || len(extensions) == 0 {
+			err = fmt.Errorf("failed to get file extension for MIME type: %s", mimeType)
+			slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", mimeType))
+			telemetry.RegisterSpanError(span, err)
+			return nil, err
+		}
+
+		extension = extensions[0]
+	}
+
+	slog.InfoContext(ctx, "Determined file extension", slog.String("extension", extension))
+
+	rawImageKey := rawImagePath + "/" + req.ID + extension
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
 	if err != nil {
@@ -454,7 +497,7 @@ func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (c
 	ctx, span := tracer.Start(ctx, "ImageUseCase.GetImageRealtimeUpdate", trace.WithAttributes(attribute.String("image.id", id)))
 	defer span.End()
 
-	_, err := u.imageRepository.FindImageByID(ctx, id)
+	currentImage, err := u.imageRepository.FindImageByID(ctx, id)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
@@ -471,9 +514,13 @@ func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (c
 		return nil, nil, err
 	}
 
-	imagesChan := make(chan *images.Image, len(ch))
+	imagesChan := make(chan *images.Image, len(ch)+1)
 
 	go func() {
+		// Send the current state first
+		imagesChan <- currentImage
+
+		// Then listen for updates
 		for msg := range ch {
 			image := images.Image{}
 
@@ -503,6 +550,17 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 	ctx, span := tracer.Start(ctx, "ImageUseCase.GetAllImagesUpdates")
 	defer span.End()
 
+	// Fetch all current images first
+	allImagesResp, err := u.imageRepository.FindAllImages(ctx, &images.ListImagesRequest{
+		Page:  1,
+		Limit: 10,
+	})
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to fetch all images", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, nil, err
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 
 	ch, err := u.subscriber.Subscribe(ctx, u.imageTopic)
@@ -513,9 +571,15 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 		return nil, nil, err
 	}
 
-	imagesChan := make(chan *images.Image, len(ch))
+	imagesChan := make(chan *images.Image, len(ch)+len(allImagesResp.Data))
 
 	go func() {
+		// Send all current images first
+		for i := range allImagesResp.Data {
+			imagesChan <- &allImagesResp.Data[i]
+		}
+
+		// Then listen for updates
 		for msg := range ch {
 			image := images.Image{}
 
@@ -534,4 +598,16 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 		cancel()
 		return nil
 	}, nil
+}
+
+func GetFileExtensionFromUrl(rawUrl string) string {
+	u, err := url.Parse(rawUrl)
+	if err != nil {
+		return ""
+	}
+	pos := strings.LastIndex(u.Path, ".")
+	if pos == -1 {
+		return ""
+	}
+	return "." + u.Path[pos+1 : len(u.Path)]
 }

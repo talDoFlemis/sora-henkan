@@ -376,6 +376,8 @@ components:
           type: string
         status:
           type: string
+        error_message:
+          type: string
         transformations:
           type: array
           items:
