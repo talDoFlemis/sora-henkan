@@ -1,3 +1,9 @@
+## [1.28.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.27.0...v1.28.0) (2025-10-29)
+
+### Features
+
+* **shared.Dockerfile:** add libheif to dockerfile for heif processing ([13c7f0c](https://github.com/talDoFlemis/sora-henkan/commit/13c7f0c782060da0fbc3e13a73f5d36f440e133a))
+
 ## [1.27.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.26.1...v1.27.0) (2025-10-29)
 
 ### Features
