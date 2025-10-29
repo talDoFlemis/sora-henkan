@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"mime"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -446,16 +447,6 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		return nil, err
 	}
 
-	contentTypeHeader := resp.Header.Get("Content-Type")
-	mimeType := strings.ToLower(strings.Split(contentTypeHeader, ";")[0])
-
-	if !allowedMIMETypes[mimeType] {
-		err = fmt.Errorf("disallowed MIME type: %s", mimeType)
-		slog.ErrorContext(ctx, "disallowed MIME type", slog.String("mime_type", mimeType))
-		telemetry.RegisterSpanError(span, err)
-		return nil, err
-	}
-
 	bodyData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf("failed to read response body: %w", err)
@@ -463,15 +454,34 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
-	extensions, err := mime.ExtensionsByType(mimeType)
-	if err != nil || len(extensions) == 0 {
-		err = fmt.Errorf("failed to get file extension for MIME type: %s", mimeType)
-		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", mimeType))
+
+	mimeType := http.DetectContentType(bodyData)
+	if !allowedMIMETypes[mimeType] {
+		err = fmt.Errorf("disallowed MIME type: %s", mimeType)
+		slog.ErrorContext(ctx, "disallowed MIME type", slog.String("mime_type", mimeType))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
 
-	rawImageKey := rawImagePath + "/" + req.ID + extensions[0]
+	slog.DebugContext(ctx, "Checking for file extension of MIME type or by .extension file request", slog.String("mimetype", mimeType), slog.String("image.url", req.OriginalImageURL))
+
+	extension := GetFileExtensionFromUrl(req.OriginalImageURL)
+	if extension == "" {
+		slog.DebugContext(ctx, "No file extension found in URL, determining from MIME type", slog.String("image.url", req.OriginalImageURL))
+		extensions, err := mime.ExtensionsByType(mimeType)
+		if err != nil || len(extensions) == 0 {
+			err = fmt.Errorf("failed to get file extension for MIME type: %s", mimeType)
+			slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", mimeType))
+			telemetry.RegisterSpanError(span, err)
+			return nil, err
+		}
+
+		extension = extensions[0]
+	}
+
+	slog.InfoContext(ctx, "Determined file extension", slog.String("extension", extension))
+
+	rawImageKey := rawImagePath + "/" + req.ID + extension
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
 	if err != nil {
@@ -595,4 +605,16 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 		cancel()
 		return nil
 	}, nil
+}
+
+func GetFileExtensionFromUrl(rawUrl string) string {
+	u, err := url.Parse(rawUrl)
+	if err != nil {
+		return ""
+	}
+	pos := strings.LastIndex(u.Path, ".")
+	if pos == -1 {
+		return ""
+	}
+	return u.Path[pos+1 : len(u.Path)]
 }
