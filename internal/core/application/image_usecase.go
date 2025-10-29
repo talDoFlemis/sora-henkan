@@ -28,9 +28,19 @@ var tracer = otel.Tracer("")
 
 // Allowed MIME types for images
 var allowedMIMETypes = map[string]bool{
-	"image/jpeg": true,
-	"image/png":  true,
-	"image/gif":  true,
+	"image/jpeg":          true,
+	"image/png":           true,
+	"image/gif":           true,
+	"image/webp":          true,
+	"image/tiff":          true,
+	"image/svg+xml":       true, // SVG
+	"application/pdf":     true, // PDF
+	"image/x-icon":        true, // ICO
+	"image/heif":          true, // HEIF/HEIC (Requires libheif)
+	"image/heic":          true, // HEIF/HEIC (Requires libheif)
+	"image/heif-sequence": true,
+	"image/heic-sequence": true,
+	"image/avif":          true, // AVIF (Requires libheif/libaom)
 }
 
 var (
