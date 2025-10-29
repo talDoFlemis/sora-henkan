@@ -52,7 +52,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       WORKER_OPENTELEMETRY_ENABLED: true
       WORKER_OPENTELEMETRY_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
-      GOMEMLIMIT: 500MiB
+      GOMEMLIMIT: 700MiB
       GOGC: 50
     depends_on:
       migrate:
@@ -62,7 +62,7 @@ services:
       resources:
         limits:
           cpus: '1.5'
-          memory: 500M
+          memory: 700M
         reservations:
           memory: 50M
 
@@ -124,4 +124,3 @@ EOF
 
 /usr/local/bin/docker-compose up -d --pull always
 echo "Sora Henkan application started"
-
