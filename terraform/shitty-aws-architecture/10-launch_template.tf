@@ -10,7 +10,7 @@ resource "aws_launch_template" "app" {
 
   vpc_security_group_ids = [aws_security_group.app_server.id]
 
-  user_data = templatefile("${path.module}/user_data_app.sh", {
+  user_data = base64encode(templatefile("${path.module}/user_data_app.sh", {
     AWS_REGION              = var.aws_region
     DB_HOST                 = aws_db_instance.main.address
     DB_PORT                 = aws_db_instance.main.port
@@ -27,8 +27,9 @@ resource "aws_launch_template" "app" {
     API_DOMAIN              = var.api_domain
     ALB_DNS_NAME            = aws_lb.app.dns_name
     AWS_BUCKET_ENDPOINT     = "https://${aws_s3_bucket.images.bucket}.s3.${var.aws_region}.amazonaws.com/"
-  })
+  }))
 
+  update_default_version = true
 
   block_device_mappings {
     device_name = "/dev/xvda"
