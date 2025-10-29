@@ -1,3 +1,9 @@
+## [1.30.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.29.0...v1.30.0) (2025-10-29)
+
+### Features
+
+* add checksum from image original url ([cdc98eb](https://github.com/talDoFlemis/sora-henkan/commit/cdc98eb7cd8aac5f0aad436a55f204243c0f3f52))
+
 ## [1.29.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.28.0...v1.29.0) (2025-10-29)
 
 ### Features
