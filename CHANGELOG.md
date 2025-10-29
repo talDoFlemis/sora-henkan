@@ -1,3 +1,9 @@
+## [1.31.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.30.0...v1.31.0) (2025-10-29)
+
+### Features
+
+* add dynamodb to terraform and docker-compose ([2eed599](https://github.com/talDoFlemis/sora-henkan/commit/2eed5990c6bc5f39ca36a161ac6e708e8730aec5))
+
 ## [1.30.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.29.0...v1.30.0) (2025-10-29)
 
 ### Features
