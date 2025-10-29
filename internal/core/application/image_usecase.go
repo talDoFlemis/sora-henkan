@@ -3,9 +3,12 @@ package application
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/crc32"
 	"io"
 	"log/slog"
 	"mime"
@@ -474,6 +477,10 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 
 	slog.InfoContext(ctx, "Determined file extension", slog.String("extension", extension))
 
+	// Calculate CRC32C checksum
+	checksum := calculateCRC32C(bodyData)
+	slog.InfoContext(ctx, "Calculated CRC32C checksum", slog.String("checksum", checksum))
+
 	rawImageKey := rawImagePath + "/" + req.ID + extension
 
 	err = u.objectStorer.Store(ctx, rawImageKey, u.imagesBucket, mimeType, bytes.NewBuffer(bodyData))
@@ -488,6 +495,7 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 	imageData := &images.Image{
 		ObjectStorageImageKey: rawImageKey,
 		MimeType:              mimeType,
+		Checksum:              checksum,
 	}
 
 	return imageData, nil
@@ -609,5 +617,24 @@ func GetFileExtensionFromUrl(rawUrl string) string {
 	if pos == -1 {
 		return ""
 	}
-	return "." + u.Path[pos+1 : len(u.Path)]
+	return "." + u.Path[pos+1:len(u.Path)]
+}
+
+// calculateCRC32C computes the CRC32C checksum of data and returns it as a base64-encoded string
+func calculateCRC32C(data []byte) string {
+	hasher := crc32.New(crc32.MakeTable(crc32.Castagnoli))
+
+	// Write the data to the hasher
+	hasher.Write(data)
+
+	// Get the 32-bit CRC32C checksum
+	checksumUint32 := hasher.Sum32()
+
+	// Convert the uint32 checksum to a byte slice
+	checksumBytes := make([]byte, 4)
+	binary.BigEndian.PutUint32(checksumBytes, checksumUint32)
+
+	// Encode the byte slice to Base64
+	base64Checksum := base64.StdEncoding.EncodeToString(checksumBytes)
+	return base64Checksum
 }

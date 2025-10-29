@@ -192,7 +192,7 @@ func ConvertDomainImageToAPI(domainImage *images.Image) (*Image, error) {
 		Transformations:       &apiTransformations,
 		CreatedAt:             &domainImage.CreatedAt,
 		UpdatedAt:             &domainImage.UpdatedAt,
-		ErrorMessage: &domainImage.ErrorMessage,
+		ErrorMessage:          &domainImage.ErrorMessage,
 	}
 
 	return apiImage, nil
