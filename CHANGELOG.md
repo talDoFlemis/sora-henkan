@@ -1,3 +1,10 @@
+## [1.29.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.28.0...v1.29.0) (2025-10-29)
+
+### Features
+
+* add linting step on frontend workflow ([3730d34](https://github.com/talDoFlemis/sora-henkan/commit/3730d34a0a94f92fea9c91971a03f19350ac4f26))
+* format frontend code ([2794dd2](https://github.com/talDoFlemis/sora-henkan/commit/2794dd2a8e390f4b9a6c79d1ec4a83ed5b646ce3))
+
 ## [1.28.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.27.0...v1.28.0) (2025-10-29)
 
 ### Features
