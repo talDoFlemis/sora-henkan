@@ -154,6 +154,27 @@ output "rds_database_name" {
   value       = aws_db_instance.main.db_name
 }
 
+# DynamoDB Outputs
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table"
+  value       = aws_dynamodb_table.main.name
+}
+
+output "dynamodb_table_arn" {
+  description = "ARN of the DynamoDB table"
+  value       = aws_dynamodb_table.main.arn
+}
+
+output "dynamodb_table_id" {
+  description = "ID of the DynamoDB table"
+  value       = aws_dynamodb_table.main.id
+}
+
+output "dynamodb_vpc_endpoint_id" {
+  description = "ID of the DynamoDB VPC endpoint"
+  value       = aws_vpc_endpoint.dynamodb.id
+}
+
 # Access Instructions
 output "access_instructions" {
   description = "Instructions for accessing your application"

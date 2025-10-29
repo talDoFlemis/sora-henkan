@@ -189,6 +189,114 @@ variable "db_skip_final_snapshot" {
   default     = true
 }
 
+# DynamoDB Variables
+variable "dynamodb_table_name" {
+  description = "Name of the DynamoDB table"
+  type        = string
+  default     = "main-table"
+}
+
+variable "dynamodb_billing_mode" {
+  description = "DynamoDB billing mode (PROVISIONED or PAY_PER_REQUEST)"
+  type        = string
+  default     = "PAY_PER_REQUEST"
+  validation {
+    condition     = contains(["PROVISIONED", "PAY_PER_REQUEST"], var.dynamodb_billing_mode)
+    error_message = "Billing mode must be either PROVISIONED or PAY_PER_REQUEST"
+  }
+}
+
+variable "dynamodb_read_capacity" {
+  description = "Read capacity units (only used if billing_mode is PROVISIONED)"
+  type        = number
+  default     = 5
+}
+
+variable "dynamodb_write_capacity" {
+  description = "Write capacity units (only used if billing_mode is PROVISIONED)"
+  type        = number
+  default     = 5
+}
+
+variable "dynamodb_hash_key" {
+  description = "Hash key (partition key) attribute name"
+  type        = string
+  default     = "id"
+}
+
+variable "dynamodb_hash_key_type" {
+  description = "Hash key attribute type (S, N, or B)"
+  type        = string
+  default     = "S"
+  validation {
+    condition     = contains(["S", "N", "B"], var.dynamodb_hash_key_type)
+    error_message = "Hash key type must be S (String), N (Number), or B (Binary)"
+  }
+}
+
+variable "dynamodb_range_key" {
+  description = "Range key (sort key) attribute name (leave empty if not using range key)"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_range_key_type" {
+  description = "Range key attribute type (S, N, or B)"
+  type        = string
+  default     = "S"
+  validation {
+    condition     = contains(["S", "N", "B"], var.dynamodb_range_key_type)
+    error_message = "Range key type must be S (String), N (Number), or B (Binary)"
+  }
+}
+
+variable "dynamodb_additional_attributes" {
+  description = "Additional attributes for Global Secondary Indexes or Local Secondary Indexes"
+  type = list(object({
+    name = string
+    type = string
+  }))
+  default = []
+}
+
+variable "dynamodb_global_secondary_indexes" {
+  description = "Global Secondary Indexes configuration"
+  type = list(object({
+    name               = string
+    hash_key           = string
+    range_key          = optional(string)
+    projection_type    = string
+    non_key_attributes = optional(list(string))
+    read_capacity      = optional(number)
+    write_capacity     = optional(number)
+  }))
+  default = []
+}
+
+variable "dynamodb_enable_point_in_time_recovery" {
+  description = "Enable point-in-time recovery for DynamoDB table"
+  type        = bool
+  default     = false
+}
+
+variable "dynamodb_enable_encryption" {
+  description = "Enable server-side encryption for DynamoDB table"
+  type        = bool
+  default     = true
+}
+
+variable "dynamodb_ttl_enabled" {
+  description = "Enable TTL for DynamoDB table"
+  type        = bool
+  default     = false
+}
+
+variable "dynamodb_ttl_attribute" {
+  description = "Attribute name for TTL (leave empty to disable TTL)"
+  type        = string
+  default     = ""
+}
+
 # LocalStack Variables
 variable "localstack_endpoint" {
   description = "LocalStack endpoint URL"
