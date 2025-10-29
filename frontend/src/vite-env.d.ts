@@ -24,9 +24,9 @@ interface ImportMeta {
 
   url: string
 
-  readonly hot?: import('vite-envs/types/hot').ViteHotContext
+  readonly hot?: import("vite-envs/types/hot").ViteHotContext
 
   readonly env: ImportMetaEnv
 
-  glob: import('vite-envs/types/importGlob').ImportGlobFunction
+  glob: import("vite-envs/types/importGlob").ImportGlobFunction
 }

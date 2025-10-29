@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react';
-import { api, type Image } from '@/lib/api';
-import { X, ImageIcon } from 'lucide-react';
+import { useEffect, useState } from "react"
+import { api, type Image } from "@/lib/api"
+import { X, ImageIcon } from "lucide-react"
 
 export function AnnouncementBar() {
-  const [latestImage, setLatestImage] = useState<Image | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [latestImage, setLatestImage] = useState<Image | null>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const eventSource = api.streamAllImages((image) => {
-      setLatestImage(image);
-      setVisible(true);
+      setLatestImage(image)
+      setVisible(true)
 
       // Auto hide after 10 seconds
-      setTimeout(() => setVisible(false), 10000);
-    });
+      setTimeout(() => setVisible(false), 10000)
+    })
 
-    return () => eventSource.close();
-  }, []);
+    return () => eventSource.close()
+  }, [])
 
-  if (!visible || !latestImage) return null;
+  if (!visible || !latestImage) return null
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-3 px-4 shadow-lg animate-slide-down">
@@ -27,13 +27,11 @@ export function AnnouncementBar() {
           <ImageIcon className="w-5 h-5 flex-shrink-0 animate-pulse" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-              New image processed:{' '}
-              <span className="font-mono">
-                {latestImage.id.slice(0, 8)}...
-              </span>
+              New image processed:{" "}
+              <span className="font-mono">{latestImage.id.slice(0, 8)}...</span>
             </p>
             <p className="text-xs opacity-90">
-              Status: {latestImage.status} •{' '}
+              Status: {latestImage.status} •{" "}
               {latestImage.transformations.length} transformation(s)
             </p>
           </div>
@@ -47,5 +45,5 @@ export function AnnouncementBar() {
         </button>
       </div>
     </div>
-  );
+  )
 }
