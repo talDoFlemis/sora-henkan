@@ -484,7 +484,7 @@ func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (c
 	ctx, span := tracer.Start(ctx, "ImageUseCase.GetImageRealtimeUpdate", trace.WithAttributes(attribute.String("image.id", id)))
 	defer span.End()
 
-	_, err := u.imageRepository.FindImageByID(ctx, id)
+	currentImage, err := u.imageRepository.FindImageByID(ctx, id)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to find image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
@@ -501,9 +501,13 @@ func (u *ImageUseCase) GetImageRealtimeUpdate(ctx context.Context, id string) (c
 		return nil, nil, err
 	}
 
-	imagesChan := make(chan *images.Image, len(ch))
+	imagesChan := make(chan *images.Image, len(ch)+1)
 
 	go func() {
+		// Send the current state first
+		imagesChan <- currentImage
+
+		// Then listen for updates
 		for msg := range ch {
 			image := images.Image{}
 
@@ -533,6 +537,17 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 	ctx, span := tracer.Start(ctx, "ImageUseCase.GetAllImagesUpdates")
 	defer span.End()
 
+	// Fetch all current images first
+	allImagesResp, err := u.imageRepository.FindAllImages(ctx, &images.ListImagesRequest{
+		Page:  1,
+		Limit: 10,
+	})
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to fetch all images", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, nil, err
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 
 	ch, err := u.subscriber.Subscribe(ctx, u.imageTopic)
@@ -543,9 +558,15 @@ func (u *ImageUseCase) GetAllImagesUpdates(ctx context.Context) (chan *images.Im
 		return nil, nil, err
 	}
 
-	imagesChan := make(chan *images.Image, len(ch))
+	imagesChan := make(chan *images.Image, len(ch)+len(allImagesResp.Data))
 
 	go func() {
+		// Send all current images first
+		for i := range allImagesResp.Data {
+			imagesChan <- &allImagesResp.Data[i]
+		}
+
+		// Then listen for updates
 		for msg := range ch {
 			image := images.Image{}
 
