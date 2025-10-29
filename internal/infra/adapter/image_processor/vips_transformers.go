@@ -72,14 +72,8 @@ func (t *VipsResizeTransformer) Transform(ctx context.Context, image []byte, con
 		scaleX := float64(cfg.Width) / float64(originalWidth)
 		scaleY := float64(cfg.Height) / float64(originalHeight)
 
-		// Use the smaller scale to maintain aspect ratio
-		scale := scaleX
-		if scaleY < scaleX {
-			scale = scaleY
-		}
-
 		// Resize using Lanczos3 interpolation for better upscaling quality
-		err = imageRef.ResizeWithVScale(scale, scale, vips.KernelLanczos3)
+		err = imageRef.ResizeWithVScale(scaleX, scaleY, vips.KernelLanczos3)
 		if err != nil {
 			slog.ErrorContext(ctx, "Failed to resize image with Lanczos3", slog.Any("err", err))
 			return nil, fmt.Errorf("failed to resize image: %w", err)
