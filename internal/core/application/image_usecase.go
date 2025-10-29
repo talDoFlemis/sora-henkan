@@ -413,7 +413,7 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
-		return nil, err
+		return nil, images.NewNonRetryableError(err)
 	}
 
 	defer resp.Body.Close()
