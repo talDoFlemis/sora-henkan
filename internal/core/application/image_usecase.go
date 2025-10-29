@@ -350,15 +350,8 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 	slog.InfoContext(ctx, "image processed successfully", slog.String("image_id", req.ID), slog.Int("transformations", len(req.Transformations)))
 	imageProcessed = processedBytes
 
-	extensions, err := mime.ExtensionsByType(imageEntity.MimeType)
-	if err != nil || len(extensions) == 0 {
-		err = fmt.Errorf("failed to get file extension for MIME type: %s", imageEntity.MimeType)
-		slog.ErrorContext(ctx, "failed to get file extension", slog.String("mime_type", imageEntity.MimeType))
-		telemetry.RegisterSpanError(span, err)
-		return err
-	}
-
-	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + extensions[0]
+	extension := strings.Split(imageEntity.ObjectStorageImageKey, ".")[1]
+	transformedImagePath := transformedImagePath + "/" + imageEntity.ID.String() + "." + extension
 
 	err = u.objectStorer.Store(ctx, transformedImagePath, u.imagesBucket, imageEntity.MimeType, bytes.NewReader(imageProcessed))
 	if err != nil {
@@ -616,5 +609,5 @@ func GetFileExtensionFromUrl(rawUrl string) string {
 	if pos == -1 {
 		return ""
 	}
-	return u.Path[pos+1 : len(u.Path)]
+	return "." + u.Path[pos+1 : len(u.Path)]
 }
