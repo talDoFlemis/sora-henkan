@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -285,6 +286,24 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		if err != nil {
 			slog.ErrorContext(ctx, "failed to fetch and store image", slog.Any("err", err))
 			telemetry.RegisterSpanError(span, err)
+
+			// Check if this is a non-retryable error (4xx status code)
+			var nonRetryableErr *images.NonRetryableError
+			if errors.As(err, &nonRetryableErr) {
+				// Update image status to failed
+				imageEntity.Status = "failed"
+				imageEntity.ErrorMessage = nonRetryableErr.Error()
+				imageEntity.UpdatedAt = time.Now()
+
+				if updateErr := u.imageRepository.UpdateImage(ctx, imageEntity); updateErr != nil {
+					slog.ErrorContext(ctx, "failed to update image status to failed", slog.Any("err", updateErr))
+					// Return the original non-retryable error
+				}
+
+				// Return the non-retryable error so the worker can ACK the message
+				return err
+			}
+
 			return err
 		}
 
@@ -400,6 +419,17 @@ func (u *ImageUseCase) fetchAndStoreImage(ctx context.Context, req *images.Proce
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		// If status code is between 400 and 500 (client errors), mark as failed and don't retry
+		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			err = fmt.Errorf("client error HTTP status: %s", resp.Status)
+			slog.ErrorContext(ctx, "received client error HTTP status", slog.Int("status_code", resp.StatusCode))
+			telemetry.RegisterSpanError(span, err)
+
+			// Return a special error type that indicates this should not be retried
+			return nil, images.NewNonRetryableError(err)
+		}
+
+		// For other errors (5xx), return a regular error that will be retried
 		err = fmt.Errorf("received non-OK HTTP status: %s", resp.Status)
 		slog.ErrorContext(ctx, "received non-OK HTTP status", slog.Int("status_code", resp.StatusCode))
 		telemetry.RegisterSpanError(span, err)
