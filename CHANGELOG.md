@@ -1,3 +1,9 @@
+## [1.32.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.31.0...v1.32.0) (2025-10-30)
+
+### Features
+
+* Integrate DynamoDB logging for API requests and actions, update Terraform configuration for DynamoDB resources ([1056074](https://github.com/talDoFlemis/sora-henkan/commit/1056074c17721e0cdc86a66f9aa2d57c508c1712))
+
 ## [1.31.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.30.0...v1.31.0) (2025-10-29)
 
 ### Features
