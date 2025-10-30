@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -25,6 +26,11 @@ import (
 	"github.com/taldoflemis/sora-henkan/internal/infra/telemetry"
 	"github.com/taldoflemis/sora-henkan/settings"
 	wotel "github.com/voi-oss/watermill-opentelemetry/pkg/opentelemetry"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/taldoflemis/sora-henkan/internal/infra"
 )
 
 type WorkerSettings struct {
@@ -91,6 +97,26 @@ func main() {
 		slog.ErrorContext(ctx, "failed to initialize MinIO client", slog.Any("err", err))
 		return
 	}
+
+	// Load AWS config (add this block if not present)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+			if service == dynamodb.ServiceID {
+				return aws.Endpoint{
+					URL: "http://localstack:4566",
+				}, nil
+			}
+			return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+		})),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider("test", "test", "")),
+	)
+	if err != nil {
+		log.Fatalf("unable to load AWS config: %v", err)
+	}
+
+	// Initialize DynamoDB logger
+	dynamoLogger := infra.NewDynamoDBLogger(cfg, os.Getenv("WORKER_DYNAMODB_LOGS_TABLE"))
 
 	health, err := healthgo.New(
 		healthgo.WithComponent(healthgo.Component{
@@ -187,6 +213,7 @@ func main() {
 		objectStorerAdapter,
 		settings.ImageProcessor.BucketName,
 		settings.Watermill.ImageTopic,
+		dynamoLogger, // Add this
 	)
 
 	slog.InfoContext(ctx, "Setting up Watermill router")

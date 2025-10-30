@@ -20,6 +20,7 @@ services:
       WORKER_DATABASE_HOST: postgres
       WORKER_OBJECTSTORER_ENDPOINT: minio:9000
       WORKER_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
+      DYNAMODB_LOGS_TABLE: api-logs
     ports:
       - 8081:8081
     depends_on:
@@ -42,6 +43,7 @@ services:
       API_DATABASE_HOST: postgres
       API_OBJECTSTORER_ENDPOINT: minio:9000
       API_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
+      DYNAMODB_LOGS_TABLE: api-logs
     depends_on:
       localstack:
         condition: service_healthy
@@ -110,7 +112,7 @@ services:
   localstack:
     image: localstack/localstack
     environment:
-      - SERVICES=sqs,ec2,rds,s3,alb,iam
+      - SERVICES=sqs,ec2,rds,s3,alb,iam,dynamodb
       - AWS_DEFAULT_REGION=us-east-1
       - EDGE_PORT=4566
     ports:

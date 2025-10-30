@@ -154,6 +154,11 @@ output "rds_database_name" {
   value       = aws_db_instance.main.db_name
 }
 
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table for API logs"
+  value       = aws_dynamodb_table.api_logs.name
+}
+
 # Access Instructions
 output "access_instructions" {
   description = "Instructions for accessing your application"

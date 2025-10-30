@@ -224,3 +224,10 @@ variable "common_tags" {
     ManagedBy = "Terraform"
   }
 }
+
+# DynamoDB Variables
+variable "dynamodb_logs_table" {
+  description = "Name of the DynamoDB table for API logs"
+  type        = string
+  default     = "api-logs"
+}

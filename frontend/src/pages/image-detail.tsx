@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { api, type Image, type TransformationRequest } from '@/lib/api';
 import { ImageComparison } from '@/components/image-comparison';
-import { ArrowLeft, Trash2, Edit, Save, X, Plus, Calendar, Image as ImageIcon, Loader2, ExternalLink, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Trash2, Edit, Save, X, Plus, Loader2, ExternalLink, Copy, Check, ImageIcon } from 'lucide-react';
 import { env } from '@/utils/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trash2 as TrashIcon } from 'lucide-react';
 
 export function ImageDetailPage() {

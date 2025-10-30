@@ -26,6 +26,7 @@ provider "aws" {
     cloudwatch     = var.use_localstack ? var.localstack_endpoint : null
     elb            = var.use_localstack ? var.localstack_endpoint : null
     elbv2          = var.use_localstack ? var.localstack_endpoint : null
+    dynamodb       = var.use_localstack ? var.localstack_endpoint : null
   }
 
   # For LocalStack, use dummy credentials

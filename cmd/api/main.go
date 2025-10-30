@@ -3,11 +3,18 @@ package main
 import (
 	"context"
 	"errors"
+	"log"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	healthgo "github.com/hellofresh/health-go/v5"
 	"github.com/taldoflemis/sora-henkan/internal/core/application"
 	imageProcessor "github.com/taldoflemis/sora-henkan/internal/infra/adapter/image_processor"
@@ -16,6 +23,7 @@ import (
 	"github.com/taldoflemis/sora-henkan/internal/infra/handler/http"
 	"github.com/taldoflemis/sora-henkan/internal/infra/telemetry"
 	"github.com/taldoflemis/sora-henkan/settings"
+	"github.com/taldoflemis/sora-henkan/internal/infra"
 )
 
 //	@title			Sora Henkan API
@@ -152,6 +160,26 @@ func main() {
 	objectStorerAdapter := objectStorer.NewMinioObjectStorer(minioClient)
 	imageRepository := postgres.NewPostgresImageRepository(pgxpool)
 
+	// Load AWS config
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+			if service == dynamodb.ServiceID {
+				return aws.Endpoint{
+					URL: "http://localstack:4566",
+				}, nil
+			}
+			return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+		})),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider("test", "test", "")),
+	)
+	if err != nil {
+		log.Fatalf("unable to load AWS config: %v", err)
+	}
+
+	// Initialize DynamoDB logger
+	dynamoLogger := infra.NewDynamoDBLogger(cfg, os.Getenv("DYNAMODB_LOGS_TABLE"))
+
 	// Create usecases
 	imageUseCase := application.NewImageUseCase(
 		publisher,
@@ -161,6 +189,7 @@ func main() {
 		objectStorerAdapter,
 		settings.ImageProcessor.BucketName,
 		settings.Watermill.ImageTopic,
+		dynamoLogger, // Add this
 	)
 
 	// Register handlers
@@ -171,6 +200,13 @@ func main() {
 
 	// Register Swagger UI (conditionally based on settings)
 	router.RegisterSwagger()
+
+	// Create Echo instance
+	e := echo.New()
+
+	// Add logging middleware
+	e.Use(middleware.Logger())
+	e.Use(DynamoDBLoggingMiddleware(dynamoLogger))
 
 	errChan := make(chan error, 1)
 	go func() {
@@ -193,4 +229,30 @@ func main() {
 
 	slog.InfoContext(ctx, "App stopped gracefully")
 	retcode = 0
+}
+
+// DynamoDBLoggingMiddleware logs requests to DynamoDB
+func DynamoDBLoggingMiddleware(logger *infra.DynamoDBLogger) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			err := next(c)
+			if err != nil {
+				c.Error(err)
+			}
+
+			// Log after response
+			go func() {
+				logger.LogRequest(
+					context.Background(),
+					c.Request().Method,
+					c.Request().URL.Path,
+					c.Request().UserAgent(),
+					c.RealIP(),
+					c.Response().Status,
+				)
+			}()
+
+			return err
+		}
+	}
 }

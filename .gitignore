@@ -14,6 +14,11 @@ go.sum # If you want to ignore go.sum (generally not recommended for reproducibl
 # Dependency vendor directory (if not using Go Modules, or explicitly managing vendor)
 vendor/
 
+# Environment variable files
+.env
+.env.local
+.env.*.local
+
 # Editor/IDE specific files
 .idea/
 .vscode/
@@ -25,3 +30,4 @@ Thumbs.db # Windows specific
 # Log files and temporary files
 *.log
 tmp/
+node_modules/

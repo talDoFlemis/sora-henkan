@@ -18,6 +18,7 @@ import (
 	"github.com/taldoflemis/sora-henkan/internal/core/domain/images"
 	"github.com/taldoflemis/sora-henkan/internal/core/ports"
 	"github.com/taldoflemis/sora-henkan/internal/infra/telemetry"
+	"github.com/taldoflemis/sora-henkan/internal/infra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -45,6 +46,7 @@ type ImageUseCase struct {
 	publisher         message.Publisher
 	subscriber        message.Subscriber
 	imageTopic        string
+	logger *infra.DynamoDBLogger
 }
 
 func NewImageUseCase(
@@ -55,6 +57,7 @@ func NewImageUseCase(
 	objectStorer ports.ObjectStorer,
 	imagesBucket string,
 	imageTopic string,
+	logger *infra.DynamoDBLogger,
 ) *ImageUseCase {
 	return &ImageUseCase{
 		publisher:         publisher,
@@ -64,6 +67,7 @@ func NewImageUseCase(
 		imagesBucket:      imagesBucket,
 		objectStorer:      objectStorer,
 		imageTopic:        imageTopic,
+		logger: logger,
 	}
 }
 
@@ -102,6 +106,9 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
 	}
+
+	// Log action
+	go u.logger.LogAction(context.Background(), "create_image", fmt.Sprintf("Created image with ID: %s", imageEntity.ID.String()))
 
 	processReq := &images.ProcessImageRequest{
 		ID:               imageEntity.ID.String(),
@@ -194,6 +201,9 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
+	// Log action
+	go u.logger.LogAction(context.Background(), "update_image", fmt.Sprintf("Updated image with ID: %s", req.ID))
+
 	processReq := &images.ProcessImageRequest{
 		ID:               imageEntity.ID.String(),
 		OriginalImageURL: imageEntity.OriginalImageURL,
@@ -230,6 +240,9 @@ func (u *ImageUseCase) DeleteImage(ctx context.Context, id string) error {
 		telemetry.RegisterSpanError(span, err)
 		return err
 	}
+
+	// Log action
+	go u.logger.LogAction(context.Background(), "delete_image", fmt.Sprintf("Deleted image with ID: %s", id))
 
 	err = u.objectStorer.Delete(ctx, rawImagePath+"/"+id, u.imagesBucket)
 	if err != nil {
