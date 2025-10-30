@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/taldoflemis/sora-henkan/settings"
 )
@@ -18,6 +19,8 @@ func NewPool(ctx context.Context, cfg settings.DatabaseSettings) (*pgxpool.Pool,
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse database URL: %w", err)
 	}
+
+	config.ConnConfig.Tracer = otelpgx.NewTracer()
 
 	// Configure connection pool
 	config.MaxConns = int32(cfg.MaxOpenConns)
@@ -36,6 +39,10 @@ func NewPool(ctx context.Context, cfg settings.DatabaseSettings) (*pgxpool.Pool,
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("unable to ping database: %w", err)
+	}
+
+	if err := otelpgx.RecordStats(pool); err != nil {
+		return nil, fmt.Errorf("unable to record database stats: %w", err)
 	}
 
 	return pool, nil

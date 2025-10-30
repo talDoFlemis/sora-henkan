@@ -292,11 +292,23 @@ func handlePendingImage(msg *message.Message, imageUseCase *application.ImageUse
 
 	// Process the image
 	if err := imageUseCase.ProcessImage(ctx, &processReq); err != nil {
+		// Check if this is a non-retryable error (e.g., 4xx HTTP status)
+		var nonRetryableErr *images.NonRetryableError
+		if errors.As(err, &nonRetryableErr) {
+			slog.WarnContext(ctx, "non-retryable error occurred, ACKing message",
+				slog.String("image_id", processReq.ID),
+				slog.Any("err", err),
+			)
+			// ACK the message to prevent retries
+			msg.Ack()
+			return nil
+		}
+
 		slog.ErrorContext(ctx, "failed to process image",
 			slog.String("image_id", processReq.ID),
 			slog.Any("err", err),
 		)
-		// Return error to nack the message
+		// Return error to nack the message for retryable errors
 		return err
 	}
 

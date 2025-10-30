@@ -19,6 +19,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -28,6 +33,9 @@ jobs:
 
     - name: Install dependencies
       run: pnpm install
+
+    - name: Lint
+      run: pnpm lint
 
     - name: Check formatting
       run: pnpm format:check

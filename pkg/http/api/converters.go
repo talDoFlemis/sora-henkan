@@ -181,7 +181,7 @@ func ConvertDomainImageToAPI(domainImage *images.Image) (*Image, error) {
 		return nil, err
 	}
 
-	return &Image{
+	apiImage := &Image{
 		Id:                    &domainImage.ID,
 		OriginalImageUrl:      &domainImage.OriginalImageURL,
 		ObjectStorageImageKey: &domainImage.ObjectStorageImageKey,
@@ -192,7 +192,10 @@ func ConvertDomainImageToAPI(domainImage *images.Image) (*Image, error) {
 		Transformations:       &apiTransformations,
 		CreatedAt:             &domainImage.CreatedAt,
 		UpdatedAt:             &domainImage.UpdatedAt,
-	}, nil
+		ErrorMessage:          &domainImage.ErrorMessage,
+	}
+
+	return apiImage, nil
 }
 
 // ConvertAPICreateImageRequestToDomain converts API CreateImageRequest to domain CreateImageRequest

@@ -115,8 +115,11 @@ services:
       - SERVICES=sqs,ec2,rds,s3,alb,iam,dynamodb
       - AWS_DEFAULT_REGION=us-east-1
       - EDGE_PORT=4566
+      - DYNAMODB_SHARE_DB=1
     ports:
       - "4566-4597:4566-4597"
+    volumes:
+      - ./localstack-init.sh:/etc/localstack/init/ready.d/init.sh
     networks:
       - sora-henkan-network
     healthcheck:

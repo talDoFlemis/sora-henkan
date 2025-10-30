@@ -27,6 +27,7 @@ type imageModel struct {
 	Status                string          `db:"status"`
 	TransformedImageKey   string          `db:"transformed_image_key"`
 	Checksum              string          `db:"checksum"`
+	ErrorMessage          string          `db:"error_message"`
 	Transformations       json.RawMessage `db:"transformations"`
 	UpdatedAt             time.Time       `db:"updated_at"`
 	CreatedAt             time.Time       `db:"created_at"`
@@ -50,6 +51,7 @@ func (m *imageModel) toDomain() (*images.Image, error) {
 		Status:                m.Status,
 		TransformedImageKey:   m.TransformedImageKey,
 		Checksum:              m.Checksum,
+		ErrorMessage:          m.ErrorMessage,
 		Transformations:       transformations,
 		UpdatedAt:             m.UpdatedAt,
 		CreatedAt:             m.CreatedAt,
@@ -71,6 +73,7 @@ func fromDomain(img *images.Image) (*imageModel, error) {
 		Status:                img.Status,
 		TransformedImageKey:   img.TransformedImageKey,
 		Checksum:              img.Checksum,
+		ErrorMessage:          img.ErrorMessage,
 		Transformations:       transformationsJSON,
 		UpdatedAt:             img.UpdatedAt,
 		CreatedAt:             img.CreatedAt,
@@ -103,9 +106,9 @@ func (p *PostgresImageRepository) CreateNewImage(ctx context.Context, image *ima
 	query := `
 		INSERT INTO images (
 			id, original_image_url, object_storage_image_key, mime_type, status,
-			transformed_image_key, checksum, transformations, updated_at, created_at
+			transformed_image_key, checksum, error_message, transformations, updated_at, created_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 		)
 	`
 
@@ -117,6 +120,7 @@ func (p *PostgresImageRepository) CreateNewImage(ctx context.Context, image *ima
 		model.Status,
 		model.TransformedImageKey,
 		model.Checksum,
+		model.ErrorMessage,
 		model.Transformations,
 		model.UpdatedAt,
 		model.CreatedAt,
@@ -165,7 +169,7 @@ func (p *PostgresImageRepository) FindAllImages(ctx context.Context, req *images
 
 	query := `
 		SELECT id, original_image_url, object_storage_image_key, mime_type, status,
-		       transformed_image_key, checksum, transformations, updated_at, created_at
+		       transformed_image_key, checksum, error_message, transformations, updated_at, created_at
 		FROM images
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2
@@ -189,6 +193,7 @@ func (p *PostgresImageRepository) FindAllImages(ctx context.Context, req *images
 			&model.Status,
 			&model.TransformedImageKey,
 			&model.Checksum,
+			&model.ErrorMessage,
 			&model.Transformations,
 			&model.UpdatedAt,
 			&model.CreatedAt,
@@ -247,7 +252,7 @@ func (p *PostgresImageRepository) FindImageByID(ctx context.Context, id string) 
 
 	query := `
 		SELECT id, original_image_url, object_storage_image_key, mime_type, status,
-		       transformed_image_key, checksum, transformations, updated_at, created_at
+		       transformed_image_key, checksum, error_message, transformations, updated_at, created_at
 		FROM images
 		WHERE id = $1
 	`
@@ -261,6 +266,7 @@ func (p *PostgresImageRepository) FindImageByID(ctx context.Context, id string) 
 		&model.Status,
 		&model.TransformedImageKey,
 		&model.Checksum,
+		&model.ErrorMessage,
 		&model.Transformations,
 		&model.UpdatedAt,
 		&model.CreatedAt,
@@ -301,8 +307,9 @@ func (p *PostgresImageRepository) UpdateImage(ctx context.Context, image *images
 		    status = $5,
 		    transformed_image_key = $6,
 		    checksum = $7,
-		    transformations = $8,
-		    updated_at = $9
+		    error_message = $8,
+		    transformations = $9,
+		    updated_at = $10
 		WHERE id = $1
 	`
 
@@ -314,6 +321,7 @@ func (p *PostgresImageRepository) UpdateImage(ctx context.Context, image *images
 		model.Status,
 		model.TransformedImageKey,
 		model.Checksum,
+		model.ErrorMessage,
 		model.Transformations,
 		time.Now(),
 	)

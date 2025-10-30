@@ -10,7 +10,26 @@ resource "aws_launch_template" "app" {
 
   vpc_security_group_ids = [aws_security_group.app_server.id]
 
-  user_data = base64encode(file("${path.module}/user_data_app.sh"))
+  user_data = base64encode(templatefile("${path.module}/user_data_app.sh", {
+    AWS_REGION              = var.aws_region
+    DB_HOST                 = aws_db_instance.main.address
+    DB_PORT                 = aws_db_instance.main.port
+    DB_USERNAME             = var.db_username
+    DB_PASSWORD             = var.db_password
+    DB_NAME                 = var.db_name
+    S3_BUCKET_NAME          = aws_s3_bucket.images.bucket
+    SQS_QUEUE_URL           = aws_sqs_queue.image_queue.url
+    OTEL_COLLECTOR_ENDPOINT = "${aws_instance.otel_collector.private_ip}:4317"
+    DOCKER_IMAGE_MIGRATE    = "ghcr.io/taldoflemis/sora-henkan/migrate:latest"
+    DOCKER_IMAGE_WORKER     = "ghcr.io/taldoflemis/sora-henkan/worker:latest"
+    DOCKER_IMAGE_API        = "ghcr.io/taldoflemis/sora-henkan/api:latest"
+    DOCKER_IMAGE_FRONTEND   = "ghcr.io/taldoflemis/sora-henkan/frontend:latest"
+    API_DOMAIN              = var.api_domain
+    ALB_DNS_NAME            = aws_lb.app.dns_name
+    AWS_BUCKET_ENDPOINT     = "https://${aws_s3_bucket.images.bucket}.s3.${var.aws_region}.amazonaws.com/"
+  }))
+
+  update_default_version = true
 
   block_device_mappings {
     device_name = "/dev/xvda"

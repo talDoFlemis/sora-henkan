@@ -1,3 +1,50 @@
+## [1.31.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.30.0...v1.31.0) (2025-10-29)
+
+### Features
+
+* add dynamodb to terraform and docker-compose ([2eed599](https://github.com/talDoFlemis/sora-henkan/commit/2eed5990c6bc5f39ca36a161ac6e708e8730aec5))
+
+## [1.30.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.29.0...v1.30.0) (2025-10-29)
+
+### Features
+
+* add checksum from image original url ([cdc98eb](https://github.com/talDoFlemis/sora-henkan/commit/cdc98eb7cd8aac5f0aad436a55f204243c0f3f52))
+
+## [1.29.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.28.0...v1.29.0) (2025-10-29)
+
+### Features
+
+* add linting step on frontend workflow ([3730d34](https://github.com/talDoFlemis/sora-henkan/commit/3730d34a0a94f92fea9c91971a03f19350ac4f26))
+* format frontend code ([2794dd2](https://github.com/talDoFlemis/sora-henkan/commit/2794dd2a8e390f4b9a6c79d1ec4a83ed5b646ce3))
+
+## [1.28.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.27.0...v1.28.0) (2025-10-29)
+
+### Features
+
+* **shared.Dockerfile:** add libheif to dockerfile for heif processing ([13c7f0c](https://github.com/talDoFlemis/sora-henkan/commit/13c7f0c782060da0fbc3e13a73f5d36f440e133a))
+
+## [1.27.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.26.1...v1.27.0) (2025-10-29)
+
+### Features
+
+* add error message ([79fd791](https://github.com/talDoFlemis/sora-henkan/commit/79fd791861853aa45ee0b22d09568f09f8bfe1b2))
+* add pgx tracer ([3f4107d](https://github.com/talDoFlemis/sora-henkan/commit/3f4107d1acce1417d9a6f6ec11bd88e702a1d001))
+* add timeout middleware ([22f93c2](https://github.com/talDoFlemis/sora-henkan/commit/22f93c255d6b29c38674735e8e448403439e7f19))
+* allow more types on vips ([ea5f53b](https://github.com/talDoFlemis/sora-henkan/commit/ea5f53b3eb2dd9093e11a506056dca6c084e90c1))
+* **image_usecase:** detect mimetype from reading magic bytes and get exntesion from url, fallback to mimetype ([6a5862a](https://github.com/talDoFlemis/sora-henkan/commit/6a5862a7e74a6ccd08ee0f34a4041212f876b136))
+* **image_usecase:** non retry on http request error on image ([9c340ae](https://github.com/talDoFlemis/sora-henkan/commit/9c340ae6126e689639e8760ac7de956ef1385b27))
+* **image:** handle unknown image on non retryable status code ([5f21f27](https://github.com/talDoFlemis/sora-henkan/commit/5f21f27e7f61cf42f8c0c0e568ed889c32e71410))
+* **s3:** make s3 bucket public to download any object ([1912189](https://github.com/talDoFlemis/sora-henkan/commit/1912189e76e6999bd55a790969e6267c762dcc44))
+* send current images on database to realtime updates channel ([5b8ef92](https://github.com/talDoFlemis/sora-henkan/commit/5b8ef9228a82ccff22aaf0652c27f7380a33cc11))
+* use raw image key to get extension of file ([f56df25](https://github.com/talDoFlemis/sora-henkan/commit/f56df25169fcdcdc0fc1204bce96aa0c57056111))
+* **vips_transformer:** dont maintain aspect ratio on vips transformer ([09d226e](https://github.com/talDoFlemis/sora-henkan/commit/09d226ede3e3f407571f6bf108866887137e7198))
+
+## [1.26.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.26.0...v1.26.1) (2025-10-28)
+
+### Bug Fixes
+
+* Remove background gradient from loading and error states in image detail page ([72cca6a](https://github.com/talDoFlemis/sora-henkan/commit/72cca6abf48d0122b4c2ef86a81c9cc8871fc0a4))
+
 ## [1.26.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.25.0...v1.26.0) (2025-10-28)
 
 ### Features

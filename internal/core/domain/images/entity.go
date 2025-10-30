@@ -43,6 +43,7 @@ type Image struct {
 	Status                string             `json:"status"`
 	TransformedImageKey   string             `json:"transformed_image_key"`
 	Checksum              string             `json:"checksum"`
+	ErrorMessage          string             `json:"error_message,omitempty"`
 	Transformations       TransformationList `json:"transformations"`
 	UpdatedAt             time.Time          `json:"updated_at"`
 	CreatedAt             time.Time          `json:"created_at"`

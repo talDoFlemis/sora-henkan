@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css'
-import { LandingPage } from './pages/landing';
-import { GalleryPage } from './pages/gallery';
-import { ImageDetailPage } from './pages/image-detail';
-import { AnnouncementBar } from './components/announcement-bar';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import "./App.css"
+import { LandingPage } from "./pages/landing"
+import { GalleryPage } from "./pages/gallery"
+import { ImageDetailPage } from "./pages/image-detail"
+import { AnnouncementBar } from "./components/announcement-bar"
 
 function App() {
   return (
