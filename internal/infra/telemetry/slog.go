@@ -4,6 +4,12 @@ import (
 	"context"
 	"log/slog"
 	"reflect"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	slogmulti "github.com/samber/slog-multi"
+	"github.com/taldoflemis/sora-henkan/settings"
 )
 
 func errorFormattingMiddleware(
@@ -44,4 +50,32 @@ func errorFormattingMiddleware(
 	record.AddAttrs(attrs...)
 
 	return next(ctx, record)
+}
+
+func DynamoDBSlogHandler(client *dynamodb.Client, dynamoDBSettings settings.DynamoDBLogsSettings) (slog.Handler, error) {
+	mdw := slogmulti.NewHandleInlineHandler(
+		func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
+			item := make(map[string]types.AttributeValue, 0)
+
+			for _, attr := range attrs {
+				item[attr.Key] = &types.AttributeValueMemberS{Value: attr.Value.String()}
+			}
+
+			item["timestamp"] = &types.AttributeValueMemberS{Value: record.Time.String()}
+			item["message"] = &types.AttributeValueMemberS{Value: record.Message}
+			item["level"] = &types.AttributeValueMemberS{Value: record.Level.String()}
+
+			go func() {
+				_, err := client.PutItem(ctx, &dynamodb.PutItemInput{
+					TableName: aws.String(dynamoDBSettings.Table),
+					Item:      item,
+				},
+				)
+				slog.ErrorContext(ctx, "failed to send log to dynamodb", slog.Any("err", err))
+			}()
+			return nil
+		},
+	)
+
+	return mdw, nil
 }

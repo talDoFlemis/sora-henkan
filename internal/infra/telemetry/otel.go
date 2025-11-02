@@ -35,6 +35,7 @@ func SetupOTelSDK(
 	ctx context.Context,
 	appSettings settings.AppSettings,
 	otelSettings settings.OpenTelemetrySettings,
+	dynamoDBSettings settings.DynamoDBLogsSettings,
 ) (shutdown func(context.Context) error, err error) {
 	var shutdownFuncs []func(context.Context) error
 
@@ -80,7 +81,7 @@ func SetupOTelSDK(
 	otel.SetTracerProvider(tracerProvider)
 	otel.SetTextMapPropagator(newPropagator())
 
-	loggerProvider, err := newLoggerProvider(ctx, appSettings, otelSettings, res)
+	loggerProvider, err := newLoggerProvider(ctx, appSettings, otelSettings, dynamoDBSettings, res)
 	if err != nil {
 		handleErr(err)
 		return nil, err
@@ -147,6 +148,7 @@ func newLoggerProvider(
 	ctx context.Context,
 	appSettings settings.AppSettings,
 	otelSettings settings.OpenTelemetrySettings,
+	dynamoDBSettings settings.DynamoDBLogsSettings,
 	res *resource.Resource,
 ) (*log.LoggerProvider, error) {
 	provider := log.NewLoggerProvider()
@@ -155,13 +157,26 @@ func newLoggerProvider(
 		AddSource: true,
 	})
 
+	handlers := make([]slog.Handler, 0)
+	handlers = append(handlers, jsonHandler)
+
+	if dynamoDBSettings.Enabled {
+		client, err := dynamoDBSettings.NewDynamoDBClient()
+		if err != nil {
+			return nil, err
+		}
+
+		handler, err := DynamoDBSlogHandler(client, dynamoDBSettings)
+		handlers = append(handlers, handler)
+	}
+
 	errorFormattingMiddleware := slogmulti.NewHandleInlineMiddleware(errorFormattingMiddleware)
 
 	// Set handler pipeline for logging custom attributes like user.id and errors
 	handlerPipeline := slogmulti.Pipe(errorFormattingMiddleware)
 
 	if !otelSettings.Enabled {
-		slog.SetDefault(slog.New(handlerPipeline.Handler(jsonHandler)))
+		slog.SetDefault(slog.New(handlerPipeline.Handler(slogmulti.Fanout(handlers...))))
 		return provider, nil
 	}
 
@@ -197,8 +212,10 @@ func newLoggerProvider(
 		otelslog.WithSource(true),
 	)
 
+	handlers = append(handlers, otelLogHandler)
+
 	// Set default logger
-	logger := slog.New(handlerPipeline.Handler(slogmulti.Fanout(jsonHandler, otelLogHandler)))
+	logger := slog.New(handlerPipeline.Handler(slogmulti.Fanout(handlers...)))
 	slog.SetDefault(logger)
 
 	logger.InfoContext(ctx, "Logger initialized")
