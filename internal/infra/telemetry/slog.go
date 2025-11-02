@@ -3,6 +3,7 @@ package telemetry
 import (
 	"context"
 	"log/slog"
+	"math/rand"
 	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -56,6 +57,12 @@ func errorFormattingMiddleware(
 func DynamoDBSlogHandler(client *dynamodb.Client, dynamoDBSettings settings.DynamoDBLogsSettings) (slog.Handler, error) {
 	mdw := slogmulti.NewHandleInlineHandler(
 		func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
+			sample := rand.Float64()
+			if sample >= 0.2 {
+				return nil
+			}
+
+			// Sample
 			item := make(map[string]types.AttributeValue, 0)
 
 			for _, attr := range attrs {
