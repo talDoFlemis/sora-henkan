@@ -1,3 +1,16 @@
+## [1.33.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.32.0...v1.33.0) (2025-11-02)
+
+### Features
+
+* add dynamodb logs endpoint to user data app ([cfc40bd](https://github.com/talDoFlemis/sora-henkan/commit/cfc40bd9ef12a0e6a6bc0132706cd40779d591b5))
+* add dynamodb settings ([62a54ad](https://github.com/talDoFlemis/sora-henkan/commit/62a54ad35404928e0c0f1c7ce8ccd09e62f21b2d))
+* add dynamodb slog handler ([f259f2d](https://github.com/talDoFlemis/sora-henkan/commit/f259f2dac1e4af99cc31be9453e1bd21ddb58bd7))
+* add random sampling to slog ([694a6d2](https://github.com/talDoFlemis/sora-henkan/commit/694a6d242fd4ff724ff49ca849dc90b531e60989))
+
+### Code Refactoring
+
+* remove old dynamodb logger ([e9b09c5](https://github.com/talDoFlemis/sora-henkan/commit/e9b09c58a0296a98466a2262328b0f4b97de5c4e))
+
 ## [1.32.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.31.0...v1.32.0) (2025-10-30)
 
 ### Features
