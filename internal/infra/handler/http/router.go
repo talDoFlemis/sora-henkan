@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	slogecho "github.com/samber/slog-echo"
@@ -23,7 +24,7 @@ type Router struct {
 	appSettings  *settings.AppSettings
 }
 
-func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSettings) *Router {
+func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSettings, dynamoClient *dynamodb.Client, dynamoTableName string) *Router {
 	logger := slog.Default()
 	e := echo.New()
 
@@ -53,6 +54,7 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 		}),
 	))
 	e.Use(slogecho.New(logger))
+	e.Use(DynamoDBAuditLogger(dynamoClient, dynamoTableName))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: httpSettings.CORS.Origins,
 		AllowMethods: httpSettings.CORS.Methods,
