@@ -35,7 +35,6 @@ type WorkerSettings struct {
 	ImageProcessor settings.ImageProcessorSettings `mapstructure:"image-processor" validate:"required"`
 	ObjectStorer   settings.ObjectStorerSettings   `mapstructure:"object-storer" validate:"required"`
 	Watermill      settings.WatermillSettings      `mapstructure:"watermill" validate:"required"`
-	DynamoDBLogs   settings.DynamoDBLogsSettings   `mapstructure:"dynamodb-logs" validate:"required"`
 }
 
 func main() {
@@ -62,7 +61,7 @@ func main() {
 	}
 
 	slog.InfoContext(ctx, "Setting up opentelemetry")
-	otelShutdown, err := telemetry.SetupOTelSDK(ctx, settings.App, settings.OpenTelemetry, settings.DynamoDBLogs)
+	otelShutdown, err := telemetry.SetupOTelSDK(ctx, settings.App, settings.OpenTelemetry)
 	if err != nil {
 		slog.Error("failed to setup telemetry", slog.Any("err", err))
 		return

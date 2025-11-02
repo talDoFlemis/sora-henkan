@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	healthgo "github.com/hellofresh/health-go/v5"
 	"github.com/taldoflemis/sora-henkan/internal/core/application"
 	imageProcessor "github.com/taldoflemis/sora-henkan/internal/infra/adapter/image_processor"
@@ -69,7 +70,7 @@ func main() {
 	}
 
 	slog.InfoContext(ctx, "Setting up opentelemetry")
-	otelShutdown, err := telemetry.SetupOTelSDK(ctx, settings.App, settings.OpenTelemetry, settings.DynamoDBLogs)
+	otelShutdown, err := telemetry.SetupOTelSDK(ctx, settings.App, settings.OpenTelemetry)
 	if err != nil {
 		slog.Error("failed to setup telemetry", slog.Any("err", err))
 		return
@@ -100,6 +101,13 @@ func main() {
 		return
 	}
 
+	slog.InfoContext(ctx, "Starting dynamodb")
+	dynamoClient, err := settings.DynamoDBLogs.NewDynamoDBClient()
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to initialize Dynamo client", slog.Any("err", err))
+		return
+	}
+
 	health, err := healthgo.New(
 		healthgo.WithComponent(healthgo.Component{
 			Name:    settings.App.Name,
@@ -114,6 +122,13 @@ func main() {
 				Name: "s3client",
 				Check: func(ctx context.Context) error {
 					_, err := minioClient.ListBuckets(ctx)
+					return err
+				},
+			},
+			healthgo.Config{
+				Name: "dynamoclient",
+				Check: func(ctx context.Context) error {
+					_, err := dynamoClient.ListTables(ctx, &dynamodb.ListTablesInput{})
 					return err
 				},
 			},
@@ -138,7 +153,7 @@ func main() {
 		return
 	}
 
-	router := http.NewRouter(&settings.HTTP, &settings.App)
+	router := http.NewRouter(&settings.HTTP, &settings.App, dynamoClient, settings.DynamoDBLogs.Table)
 	prefixedGroup := router.GetGroup()
 
 	// Create adapters
