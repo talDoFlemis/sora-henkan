@@ -38,6 +38,7 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 			Timeout: time.Duration(httpSettings.Timeout) * time.Second, Skipper: SSETimeoutSkipper,
 		}),
 	)
+	e.Use(middleware.Recover())
 
 	e.Use(otelecho.Middleware(appSettings.Name,
 		otelecho.WithMetricAttributeFn(func(r *http.Request) []attribute.KeyValue {
@@ -55,12 +56,12 @@ func NewRouter(httpSettings *settings.HTTPSettings, appSettings *settings.AppSet
 	))
 	e.Use(slogecho.New(logger))
 	e.Use(DynamoDBAuditLogger(dynamoClient, dynamoTableName))
+	e.Use(ValidationErrorMiddleware())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: httpSettings.CORS.Origins,
 		AllowMethods: httpSettings.CORS.Methods,
 		AllowHeaders: httpSettings.CORS.Headers,
 	}))
-	e.Use(middleware.Recover())
 
 	return &Router{
 		e:            e,

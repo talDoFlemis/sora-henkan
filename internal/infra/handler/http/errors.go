@@ -35,11 +35,11 @@ func GlobalErrorHandler(err error, c echo.Context) {
 			"message": "Internal server error",
 			"error":   err.Error(),
 		})
+		return
 	}
 
-	// Handle validation errors
-	if validationErrs, ok := he.Unwrap().(validator.ValidationErrors); ok {
-		HandleValidationError(c, validationErrs)
+	if validationErr, ok := he.Unwrap().(validator.ValidationErrors); ok {
+		HandleValidationError(c, validationErr)
 		return
 	}
 
