@@ -22,6 +22,7 @@ import (
 
 	_ "embed"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	amazonsqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	transport "github.com/aws/smithy-go/endpoints"
 	wotelfloss "github.com/dentech-floss/watermill-opentelemetry-go-extra/pkg/opentelemetry"
@@ -305,6 +306,29 @@ func (broker *WatermillBrokerSettings) NewSubscriber() (message.Subscriber, erro
 type WatermillSettings struct {
 	Broker     WatermillBrokerSettings `mapstructure:"broker" validate:"required"`
 	ImageTopic string                  `mapstructure:"image-topic" validate:"required"`
+}
+
+type DynamoDBLogsSettings struct {
+	Enabled bool        `mapstructure:"enabled"`
+	Table   string      `mapstructure:"table" validate:"required_if=Enabled true"`
+	AWS     AWSSettings `mapstructure:"aws" validate:"required_if=Enabled true"`
+}
+
+func (d *DynamoDBLogsSettings) NewDynamoDBClient() (*dynamodb.Client, error) {
+	cfg, err := d.AWS.NewAWSConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	awsCfg, ok := cfg.(aws.Config)
+	if !ok {
+		return nil, fmt.Errorf("expected to create aws config for dynamodb client")
+	}
+
+	client := dynamodb.NewFromConfig(awsCfg,
+		dynamodb.WithEndpointResolverV2(dynamodb.NewDefaultEndpointResolverV2()),
+	)
+	return client, nil
 }
 
 type AppSettings struct {

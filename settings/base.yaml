@@ -38,6 +38,16 @@ watermill:
       secret-key: ""
       region: us-east-1
 
+dynamodb-logs:
+  enabled: true
+  table: sora-henkan-dev-main-table
+  aws:
+    anonymous: true
+    endpoint: http://localhost:4566
+    access-key: ""
+    secret-key: ""
+    region: us-east-1
+
 http:
   port: 42069
   prefix: "/"
