@@ -26,7 +26,7 @@ resource "aws_launch_template" "app" {
     DOCKER_IMAGE_FRONTEND   = "ghcr.io/taldoflemis/sora-henkan/frontend:latest"
     API_DOMAIN              = var.api_domain
     ALB_DNS_NAME            = aws_lb.app.dns_name
-    AWS_BUCKET_ENDPOINT     = "https://${aws_s3_bucket.images.bucket}.s3.${var.aws_region}.amazonaws.com/"
+    AWS_BUCKET_ENDPOINT     = "https://${aws_s3_bucket.images.bucket}.s3.${var.aws_region}.amazonaws.com"
     DYNAMODBLOGS_TABLE      = var.dynamodb_logs_table
   }))
 
