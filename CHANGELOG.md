@@ -1,3 +1,14 @@
+## [1.34.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.33.0...v1.34.0) (2025-11-02)
+
+### Features
+
+* add dynamodb middleware only to echo http server ([4cb4b0d](https://github.com/talDoFlemis/sora-henkan/commit/4cb4b0dad7801f29a647852d247881577ed27b4b))
+* add validation error middleware ([63a1238](https://github.com/talDoFlemis/sora-henkan/commit/63a12387969cec6c3e050975cd11ceda524f486c))
+
+### Code Refactoring
+
+* remove dynamo from otel ([f361467](https://github.com/talDoFlemis/sora-henkan/commit/f36146716217a7eb617e326d885a6bb902b0721b))
+
 ## [1.33.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.32.0...v1.33.0) (2025-11-02)
 
 ### Features
