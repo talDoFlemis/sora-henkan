@@ -326,7 +326,9 @@ func (d *DynamoDBLogsSettings) NewDynamoDBClient() (*dynamodb.Client, error) {
 	}
 
 	client := dynamodb.NewFromConfig(awsCfg,
-		dynamodb.WithEndpointResolverV2(dynamodb.NewDefaultEndpointResolverV2()),
+		func(o *dynamodb.Options) {
+			o.BaseEndpoint = aws.String(d.AWS.Endpoint)
+		},
 	)
 	return client, nil
 }
