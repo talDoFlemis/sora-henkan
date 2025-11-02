@@ -1,3 +1,13 @@
+## [1.34.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.0...v1.34.1) (2025-11-02)
+
+### Bug Fixes
+
+* **launch_template:** frontend with trailing / ([f1c99d6](https://github.com/talDoFlemis/sora-henkan/commit/f1c99d6d985c52784e4d0d53af336dbdaa9aa63e))
+
+### Code Refactoring
+
+* **ami_builder:** dont interpolate unused vars ([f66ea4a](https://github.com/talDoFlemis/sora-henkan/commit/f66ea4a8805fa358d0929e399d3daccc7ea6a4e7))
+
 ## [1.34.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.33.0...v1.34.0) (2025-11-02)
 
 ### Features
