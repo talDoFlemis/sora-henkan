@@ -1,3 +1,16 @@
+## [1.34.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.1...v1.34.2) (2025-11-03)
+
+### Bug Fixes
+
+* **dynamodb:** add ListTables to vpc endpoint ([abcada2](https://github.com/talDoFlemis/sora-henkan/commit/abcada25562ebb9d27529b616bddfbf119011644))
+* **launch_template:** use interpolated dynamodb table name ([786faa5](https://github.com/talDoFlemis/sora-henkan/commit/786faa5110994df0d2e9823509786c71c87cf317))
+* **user_data_app:** dynamodb endpoint using s3 ([518cc1f](https://github.com/talDoFlemis/sora-henkan/commit/518cc1f0cba97010e1d2d90d8bf5ac762e806822))
+
+### Code Refactoring
+
+* **autoscaling:** remove worker from autoscaling group ([e398b9a](https://github.com/talDoFlemis/sora-henkan/commit/e398b9a1430cb0c51c78c54c638882a8b5acc8a4))
+* **main.api:** add describe table on dynamodb healthcheck ([3fd8a74](https://github.com/talDoFlemis/sora-henkan/commit/3fd8a743699081ab6f684cd3d9ea9ee2aafca974))
+
 ## [1.34.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.0...v1.34.1) (2025-11-02)
 
 ### Bug Fixes
