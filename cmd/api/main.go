@@ -128,7 +128,9 @@ func main() {
 			healthgo.Config{
 				Name: "dynamoclient",
 				Check: func(ctx context.Context) error {
-					_, err := dynamoClient.ListTables(ctx, &dynamodb.ListTablesInput{})
+					_, err := dynamoClient.DescribeTable(ctx, &dynamodb.DescribeTableInput{
+						TableName: &settings.DynamoDBLogs.Table,
+					})
 					return err
 				},
 			},
