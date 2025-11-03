@@ -118,7 +118,8 @@ resource "aws_vpc_endpoint_policy" "dynamodb" {
         ]
         Resource = [
           aws_dynamodb_table.main.arn,
-          "${aws_dynamodb_table.main.arn}/index/*"
+          "${aws_dynamodb_table.main.arn}/index/*",
+          "*"
         ]
       }
     ]
