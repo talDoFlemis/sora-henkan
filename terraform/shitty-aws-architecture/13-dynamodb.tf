@@ -113,7 +113,8 @@ resource "aws_vpc_endpoint_policy" "dynamodb" {
           "dynamodb:Scan",
           "dynamodb:BatchGetItem",
           "dynamodb:BatchWriteItem",
-          "dynamodb:DescribeTable"
+          "dynamodb:DescribeTable",
+          "dynamodb:ListTables"
         ]
         Resource = [
           aws_dynamodb_table.main.arn,
