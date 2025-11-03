@@ -5,7 +5,6 @@ resource "aws_autoscaling_group" "app" {
   target_group_arns = [
     aws_lb_target_group.frontend.arn,
     aws_lb_target_group.api.arn,
-    aws_lb_target_group.worker.arn
   ]
   health_check_type         = "ELB"
   health_check_grace_period = 300
