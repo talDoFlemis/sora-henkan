@@ -48,7 +48,7 @@ graph TD
     D -- "9. Update Job Status (e.g., completed)" --> E
 ```
 
-### AWS Implementation (`shitty-aws-architecture`)
+### AWS Implementation (`simple-aws-architecture`)
 
 This diagram shows how the conceptual architecture is implemented using AWS services as defined in the Terraform configuration.
 
@@ -245,7 +245,7 @@ All services are instrumented with OpenTelemetry for standardized observability,
 
 ## Deployment
 
-The infrastructure for this project is defined using Terraform in the `terraform/shitty-aws-architecture/` directory. The Terraform code provisions all the necessary resources on AWS to run the application in a scalable and resilient manner.
+The infrastructure for this project is defined using Terraform in the `terraform/simple-aws-architecture/` directory. The Terraform code provisions all the necessary resources on AWS to run the application in a scalable and resilient manner.
 
 ### Key Deployment Features
 
