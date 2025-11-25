@@ -1,3 +1,12 @@
+## [1.35.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.2...v1.35.0) (2025-11-25)
+
+### Features
+
+* add backend helm chart ([98ba5df](https://github.com/talDoFlemis/sora-henkan/commit/98ba5df00465db657f0f5d794ce9fd88a883bf1a))
+* add frontend helm chart ([791098c](https://github.com/talDoFlemis/sora-henkan/commit/791098c48debbfb6b8e5ea6705f8b98633a3f4e0))
+* **helm/backend:** add migrate job ([bf526e8](https://github.com/talDoFlemis/sora-henkan/commit/bf526e8dc8778b1be3953f7d51e756c68bcf738a))
+* **helm/backend:** add worker deployment ([aa1389e](https://github.com/talDoFlemis/sora-henkan/commit/aa1389e96e453ab27fff89bf548a279f1c3edc99))
+
 ## [1.34.2](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.1...v1.34.2) (2025-11-03)
 
 ### Bug Fixes
