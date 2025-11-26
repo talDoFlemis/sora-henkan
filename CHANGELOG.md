@@ -1,3 +1,20 @@
+## [1.36.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.35.0...v1.36.0) (2025-11-26)
+
+### Features
+
+* add frontend values ([150e550](https://github.com/talDoFlemis/sora-henkan/commit/150e5502d0bb7a0380902141348755ca1a4e444f))
+* add gateway ([8f5316b](https://github.com/talDoFlemis/sora-henkan/commit/8f5316b73c42e5e2ffb11ffa6bab8cb1b9756810))
+* add minio gateway ([4c879e6](https://github.com/talDoFlemis/sora-henkan/commit/4c879e6bcb70d867523c73dc82c5f187f9ffd5a3))
+* add rabbitmgmt gateway ([541d5d5](https://github.com/talDoFlemis/sora-henkan/commit/541d5d58dce416116c56f03d77d16bfc54d1906f))
+* **Taskfile:** add all k8s services ([5ab3f2e](https://github.com/talDoFlemis/sora-henkan/commit/5ab3f2e7d34de990d9ba4999d7f285c87281fd41))
+
+### Bug Fixes
+
+* **helm:** missing api and worker prefix ([75db812](https://github.com/talDoFlemis/sora-henkan/commit/75db81202aee15248d3c5f3222d274c089ac86c1))
+* **helm:** missing values on interpolation ([86f1860](https://github.com/talDoFlemis/sora-henkan/commit/86f186018fdf38d8f454780c89b32999b8aadbff))
+* **helpers:** broken templating because of "-" ([df52adc](https://github.com/talDoFlemis/sora-henkan/commit/df52adcfb4fc52d43d0397d311abf04f97ad217b))
+* test connection because of missing args ([68f6ef6](https://github.com/talDoFlemis/sora-henkan/commit/68f6ef67345139cb2e118371166ab636f5993901))
+
 ## [1.35.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.34.2...v1.35.0) (2025-11-25)
 
 ### Features
