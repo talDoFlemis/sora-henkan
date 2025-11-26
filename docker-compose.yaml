@@ -111,6 +111,22 @@ services:
     networks:
       - sora-henkan-network
 
+  createbuckets:
+    image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
+    depends_on:
+      - minio
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set dockerminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb --ignore-existing dockerminio/images;
+      /usr/bin/mc mc anonymous set download dockerminio/images;
+      exit 0;
+      "
+    networks:
+      - sora-henkan-network
+
   localstack:
     image: localstack/localstack
     environment:
@@ -141,6 +157,8 @@ services:
       RABBITMQ_DEFAULT_PASS: rabbitmq
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - sora-henkan-network
 
 volumes:
   postgres_data:

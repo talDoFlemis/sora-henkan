@@ -147,7 +147,9 @@ tasks:
 
   minio:up:
     desc: Start MinIO server
-    cmd: docker compose up -d minio
+    cmds:
+      - docker compose up -d minio
+      - task: minio:create-bucket
 
   minio:down:
     desc: Stop MinIO server
@@ -155,7 +157,7 @@ tasks:
 
   minio:create-bucket:
     desc: Create MinIO bucket
-    cmd: docker compose exec minio mc mb minioadmin/images
+    cmd: docker compose up createbuckets
 
   migrate:up:
     desc: Run all database migrations
