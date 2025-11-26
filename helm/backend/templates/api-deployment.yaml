@@ -45,7 +45,7 @@ spec:
             - name: AWS_REGION
               value: {{ .Values.aws.region }}
             - name: API_IMAGEPROCESSOR_BUCKETNAME
-              value: {{ .Values.image-processor.bucket-name }}
+              value: {{ .Values.imageProcessor.bucketName }}
             {{- include "backend.database" (dict "prefix" "API") | nindent 12 }}
             {{- include "backend.objectstorer" (dict "prefix" "API") | nindent 12 }}
             {{- include "backend.opentelemetry" (dict "prefix" "API") | nindent 12 }}

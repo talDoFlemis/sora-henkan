@@ -45,7 +45,7 @@ spec:
             - name: AWS_REGION
               value: {{ .Values.aws.region }}
             - name: WORKER_IMAGEPROCESSOR_BUCKETNAME
-              value: {{ .Values.image-processor.bucket-name }}
+              value: {{ .Values.imageProcessor.bucketName }}
             {{- include "backend.database" (dict "prefix" "WORKER") | nindent 12 }}
             {{- include "backend.objectstorer" (dict "prefix" "WORKER") | nindent 12 }}
             {{- include "backend.opentelemetry" (dict "prefix" "WORKER") | nindent 12 }}

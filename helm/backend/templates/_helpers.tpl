@@ -153,7 +153,7 @@ Create the name of the service account to use
 {{- define "backend.watermill" -}}
 {{- $prefix := .prefix | upper -}}
 - name: {{ .prefix }}_WATERMILL_IMAGETOPIC
-  value: {{ .Values.watermill.image-topic | quote }}
+  value: {{ .Values.watermill.imageTopic | quote }}
 - name: {{ .prefix }}_WATERMILL_BROKER_KIND
   value: {{ .Values.watermill.broker.kind | quote }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_ENDPOINT
@@ -167,7 +167,7 @@ Create the name of the service account to use
       name: {{ .Values.watermill.broker.aws.secretName }}
       key: {{ .Values.watermill.broker.aws.accessKeyKey }}
 {{- else }}
-  value: {{ .Values.watermill.broker.aws.access-key }}
+  value: {{ .Values.watermill.broker.aws.accessKey }}
 {{- end }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_SECRETKEY
 {{- if and .Values.watermill.broker.aws.secretName .Values.watermill.broker.aws.secretKeyKey }}
@@ -176,7 +176,7 @@ Create the name of the service account to use
       name: {{ .Values.watermill.broker.aws.secretName }}
       key: {{ .Values.watermill.broker.aws.secretKeyKey }}
 {{- else }}
-  value: {{ .Values.watermill.broker.aws.secret-key }}
+  value: {{ .Values.watermill.broker.aws.secretKey }}
 {{- end }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_REGION
   value: {{ .Values.watermill.broker.aws.region }}
