@@ -173,6 +173,14 @@ tasks:
     desc: Stop LocalStack
     cmd: docker compose down localstack
 
+  rabbitmq:up:
+    desc: Start rabbitmq
+    cmd: docker compose up -d rabbitmq
+
+  rabbitmq:down:
+    desc: Stop rabbitmq
+    cmd: docker compose down rabbitmq
+
   clean:
     desc: Clean build artifacts
     cmd: rm -rf bin/
