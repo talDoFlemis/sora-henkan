@@ -1,0 +1,17 @@
+api:
+  url: "http://localhost:42069"
+
+objectstorer:
+  endpoint: "http://localhost:9000"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: gateway
+      sectionName: web
+      namespace: istio-system
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
