@@ -66,7 +66,7 @@ Create the name of the service account to use
 - name: {{ .prefix }}_DATABASE_HOST
   value: {{ .Values.database.host }}
 - name: {{ .prefix }}_DATABASE_PORT
-  value: {{ .Values.database.port }}
+  value: {{ .Values.database.port | quote }}
 - name: {{ .prefix }}_DATABASE_USER
   value: {{ .Values.database.user }}
 - name: {{ .prefix }}_DATABASE_PASSWORD
@@ -78,10 +78,10 @@ Create the name of the service account to use
 {{- else }}
   value: {{ .Values.database.password }}
 {{- end }}
-- name: {{ .prefix }}_DATABASE_NAME
+- name: {{ .prefix }}_DATABASE_DATABASE
   value: {{ .Values.database.name }}
 - name: {{ .prefix }}_DATABASE_SSLMODE
-  value: {{ .Values.database.sslmode }}
+  value: {{ .Values.database.sslmode | quote }}
 {{- end }}
 
 {{- define "backend.objectstorer" -}}

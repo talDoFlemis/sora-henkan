@@ -46,11 +46,11 @@ spec:
               value: {{ .Values.aws.region }}
             - name: WORKER_IMAGEPROCESSOR_BUCKETNAME
               value: {{ .Values.imageProcessor.bucketName }}
-            {{- include "backend.database" (dict "prefix" "WORKER") | nindent 12 }}
-            {{- include "backend.objectstorer" (dict "prefix" "WORKER") | nindent 12 }}
-            {{- include "backend.opentelemetry" (dict "prefix" "WORKER") | nindent 12 }}
-            {{- include "backend.dynamodb" (dict "prefix" "WORKER") | nindent 12 }}
-            {{- include "backend.watermill" (dict "prefix" "WORKER") | nindent 12 }}
+            {{- include "backend.database" (dict "prefix" "WORKER" "Values" .Values) | nindent 12 }}
+            {{- include "backend.objectstorer" (dict "prefix" "WORKER" "Values" .Values) | nindent 12 }}
+            {{- include "backend.opentelemetry" (dict "prefix" "WORKER" "Values" .Values) | nindent 12 }}
+            {{- include "backend.dynamodb" (dict "prefix" "WORKER" "Values" .Values) | nindent 12 }}
+            {{- include "backend.watermill" (dict "prefix" "WORKER" "Values" .Values) | nindent 12 }}
           image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
           ports:

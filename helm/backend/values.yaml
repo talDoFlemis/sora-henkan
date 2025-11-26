@@ -31,6 +31,12 @@ api:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+migrate:
+  image:
+    repository: ghcr.io/taldoflemis/sora-henkan/migrate
+    pullPolicy: IfNotPresent
+    tag: ""
+
 worker:
   replicaCount: 1
   service:

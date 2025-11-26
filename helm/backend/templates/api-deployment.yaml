@@ -46,11 +46,11 @@ spec:
               value: {{ .Values.aws.region }}
             - name: API_IMAGEPROCESSOR_BUCKETNAME
               value: {{ .Values.imageProcessor.bucketName }}
-            {{- include "backend.database" (dict "prefix" "API") | nindent 12 }}
-            {{- include "backend.objectstorer" (dict "prefix" "API") | nindent 12 }}
-            {{- include "backend.opentelemetry" (dict "prefix" "API") | nindent 12 }}
-            {{- include "backend.dynamodb" (dict "prefix" "API") | nindent 12 }}
-            {{- include "backend.watermill" (dict "prefix" "API") | nindent 12 }}
+            {{- include "backend.database" (dict "prefix" "API" "Values" .Values) | nindent 12 }}
+            {{- include "backend.objectstorer" (dict "prefix" "API" "Values" .Values) | nindent 12 }}
+            {{- include "backend.opentelemetry" (dict "prefix" "API" "Values" .Values) | nindent 12 }}
+            {{- include "backend.dynamodb" (dict "prefix" "API" "Values" .Values) | nindent 12 }}
+            {{- include "backend.watermill" (dict "prefix" "API" "Values" .Values) | nindent 12 }}
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           ports:
