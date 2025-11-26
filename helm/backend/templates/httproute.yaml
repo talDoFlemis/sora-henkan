@@ -1,5 +1,5 @@
 {{- if .Values.httpRoute.enabled -}}
-{{- $fullName := printf "%s-api" include "backend.fullname" . -}}
+{{- $fullName := printf "%s-api" (include "backend.fullname" .) -}}
 {{- $svcPort := .Values.api.service.port -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute

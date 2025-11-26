@@ -57,6 +57,7 @@ spec:
             {{- include "backend.database" (dict "prefix" "MIGRATE") | nindent 12 }}
           image: "{{ .Values.migrate.image.repository }}:{{ .Values.migrate.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.migrate.image.pullPolicy }}
+          {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}

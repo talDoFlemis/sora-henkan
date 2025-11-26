@@ -1,4 +1,4 @@
-workerVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "backend.fullname" . }}-worker
@@ -12,7 +12,7 @@ spec:
   selector:
     matchLabels:
       {{- include "backend.selectorLabels" . | nindent 6 }}
-    tier: worker
+      tier: worker
   template:
     metadata:
       {{- with .Values.podAnnotations }}

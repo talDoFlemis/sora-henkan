@@ -12,7 +12,7 @@ spec:
   selector:
     matchLabels:
       {{- include "backend.selectorLabels" . | nindent 6 }}
-    tier: api
+      tier: api
   template:
     metadata:
       {{- with .Values.podAnnotations }}

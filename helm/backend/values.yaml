@@ -1,3 +1,6 @@
+aws:
+  region: us-east-1
+
 api:
   replicaCount: 1
   service:
@@ -76,8 +79,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template.
   name: ""
 
-image-processor:
-  bucket-name: images
+imageProcessor:
+  bucketName: images
 
 database:
   host: ""
@@ -100,7 +103,7 @@ objectstorer:
   region: ""
 
 watermill:
-  image-topic: images
+  imageTopic: images
   broker:
     kind: sqs
     publisher:
@@ -111,8 +114,8 @@ watermill:
       secretName: ""
       accessKeyKey: ""
       secretKeyKey: ""
-      access-key: ""
-      secret-key: ""
+      accessKey: ""
+      secretKey: ""
       region: us-east-1
 
 opentelemetry:
@@ -152,10 +155,12 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -167,7 +172,8 @@ securityContext: {}
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -175,7 +181,8 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+    []
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
@@ -190,18 +197,18 @@ httpRoute:
   annotations: {}
   # Which Gateways this Route is attached to.
   parentRefs:
-  - name: gateway
-    sectionName: http
-    # namespace: default
+    - name: gateway
+      sectionName: http
+      # namespace: default
   # Hostnames matching HTTP header.
   hostnames:
-  - chart-example.local
+    - chart-example.local
   # List of rules and filters applied.
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /headers
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /headers
   #   filters:
   #   - type: RequestHeaderModifier
   #     requestHeaderModifier:
@@ -218,16 +225,17 @@ httpRoute:
   #     - name: version
   #       value: v2
 
-
 # Additional volumes on the output Deployment definition.
-volumes: []
+volumes:
+  []
   # - name: foo
   #   secret:
   #     secretName: mysecret
   #     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
+volumeMounts:
+  []
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
