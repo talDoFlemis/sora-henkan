@@ -1,10 +1,109 @@
 version: "3"
 
+vars:
+  BUCKET_NAME: sorahenkan
+
 includes:
   taskfile: ./frontend/Taskfile.yaml
   dir: ./frontend
 
 tasks:
+  k8s:all:
+    desc: Create a new cluster and deploy all services
+    cmds:
+      - task: k8s:create-cluster
+      - task: k8s:deploy-istio
+      - task: k8s:deploy-services
+
+  k8s:deploy-services:
+    desc: Deploy all services
+    deps:
+      [
+        k8s:deploy-postgres,
+        k8s:deploy-minio,
+        k8s:deploy-rabbit,
+        k8s:deploy-metrics,
+        k8s:deploy-frontend,
+      ]
+    cmds:
+      - echo "All parallel tasks completed, deploying backend"
+      - task: k8s:deploy-backend
+
+  k8s:create-cluster:
+    desc: Create a new cluster
+    cmds:
+      - k3d cluster create -p '80:80@loadbalancer' -p '443:443@loadbalancer' -p '9001:9001@loadbalancer' -p '9000:9000@loadbalancer' -p '15672:15672@loadbalancer' --k3s-arg '--disable=traefik@server:*' sora-henkan
+
+  k8s:deploy-metrics:
+    desc: Deploy Prometheus to the cluster
+    cmds:
+      - helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      - helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+      - kubectl create serviceaccount admin-user
+      - kubectl create clusterrolebinding admin-user --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:admin-user
+      - echo "$(kubectl -n kubernetes-dashboard create token admin-user)"
+
+  k8s:start-cluster:
+    desc: Start the cluster
+    cmd: k3d cluster start sora-henkan
+
+  k8s:stop-cluster:
+    desc: Stop the cluster
+    cmd: k3d cluster stop sora-henkan
+
+  k8s:delete-cluster:
+    desc: Delete the cluster
+    cmd: k3d cluster delete sora-henkan
+
+  k8s:deploy-istio:
+    desc: Deploy Istio to the cluster
+    cmds:
+      - helm repo add istio https://istio-release.storage.googleapis.com/charts
+      - helm repo update
+      - kubectl create namespace istio-system
+      - helm install istio-base istio/base -n istio-system
+      - helm install istiod istio/istiod -n istio-system --wait
+      - kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.4.0" | kubectl apply -f -
+      - kubectl apply -f ./k8s/gateway.yaml
+
+  k8s:create-bucket:
+    desc: Create a bucket in MinIO
+    vars:
+      POD_NAME:
+        sh: kubectl get pods -l app.kubernetes.io/name=minio -o jsonpath="{.items[0].metadata.name}"
+    cmds:
+      - kubectl exec {{.POD_NAME}} -- /bin/sh -c 'mc alias set local http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}'
+      - kubectl exec {{.POD_NAME}} -- mc mb --ignore-existing local/{{.BUCKET_NAME}}
+      - kubectl exec {{.POD_NAME}} -- mc anonymous set download local/{{.BUCKET_NAME}}
+
+  k8s:deploy-minio:
+    desc: Deploy MinIO to the cluster
+    cmds:
+      - helm upgrade --install minio oci://registry-1.docker.io/cloudpirates/minio --set "image.registry"="quay.io" --set "image.tag"=RELEASE.2025-04-22T22-12-26Z --set "persistence.enabled"="true" --wait
+      - kubectl apply -f ./k8s/minio-http-route.yaml
+      - task: k8s:create-bucket
+
+  k8s:deploy-postgres:
+    desc: Deploy PostgreSQL to the cluster
+    cmds:
+      - helm upgrade --install postgres oci://registry-1.docker.io/cloudpirates/postgres
+
+  k8s:deploy-rabbit:
+    desc: Deploy RabbitMQ to the cluster
+    cmds:
+      - helm upgrade --install rabbitmq oci://registry-1.docker.io/cloudpirates/rabbitmq
+      - kubectl apply -f ./k8s/rabbit-http-route.yaml
+
+  k8s:deploy-frontend:
+    desc: Deploy the frontend to the cluster
+    cmds:
+      - helm upgrade --install frontend helm/frontend --values ./k8s/frontend-values.yaml
+
+  k8s:deploy-backend:
+    desc: Deploy the backend to the cluster
+    cmds:
+      - helm upgrade --install backend helm/backend --values ./k8s/backend-values.yaml
+
   api:run:
     desc: Run the API server
     cmd: go run ./cmd/api
@@ -77,7 +176,6 @@ tasks:
   clean:
     desc: Clean build artifacts
     cmd: rm -rf bin/
-
 
   openapi:generate:
     desc: Generate Go server code from OpenAPI 3.0 spec
