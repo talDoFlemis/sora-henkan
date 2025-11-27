@@ -1,11 +1,12 @@
 services:
   frontend:
-    image: ghcr.io/taldoflemis/sora-henkan/api:latest
+    image: ghcr.io/taldoflemis/sora-henkan/frontend:latest
     build:
       dockerfile: ../docker/front.Dockerfile
       context: ./frontend/
     environment:
-      VITE_API_URL: tubias:42069
+      VITE_API_URL: http://localhost:42069
+      VITE_AWS_BUCKET_ENDPOINT: http://localhost:9000/images
     ports:
       - 8080:8080
     networks:
@@ -22,6 +23,7 @@ services:
       WORKER_DATABASE_HOST: postgres
       WORKER_OBJECTSTORER_ENDPOINT: minio:9000
       WORKER_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
+      WORKER_WATERMILL_BROKER_AMQP_HOST: rabbitmq
       WORKER_DYNAMODBLOGS_AWS_ENDPOINT: http://localstack:4566
     depends_on:
       localstack:
@@ -46,6 +48,7 @@ services:
       API_DATABASE_HOST: postgres
       API_OBJECTSTORER_ENDPOINT: minio:9000
       API_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
+      API_WATERMILL_BROKER_AMQP_HOST: rabbitmq
       API_DYNAMODBLOGS_AWS_ENDPOINT: http://localstack:4566
     depends_on:
       localstack:
@@ -125,7 +128,7 @@ services:
       sleep 5;
       /usr/bin/mc alias set dockerminio http://minio:9000 minioadmin minioadmin;
       /usr/bin/mc mb --ignore-existing dockerminio/images;
-      /usr/bin/mc mc anonymous set download dockerminio/images;
+      /usr/bin/mc anonymous set download dockerminio/images;
       exit 0;
       "
     networks:
@@ -159,6 +162,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 3
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
