@@ -56,7 +56,6 @@ worker:
   resources:
     limits:
       cpu: 1500m
-      memory: 700Mi
     requests:
       cpu: 500m
       memory: 200Mi
