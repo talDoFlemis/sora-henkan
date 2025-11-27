@@ -1,3 +1,17 @@
+## [1.38.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.37.0...v1.38.0) (2025-11-27)
+
+### Features
+
+* **helm/backend:** make burstable memory on worker ([7800dff](https://github.com/talDoFlemis/sora-henkan/commit/7800dff9ccc83e0293d93b118203f2717b617d94))
+* **Taskfile:** add api port to lb on k3d ([537b36e](https://github.com/talDoFlemis/sora-henkan/commit/537b36efaef3e93844865d630338f8d3a2818989))
+
+### Bug Fixes
+
+* **backend-values:** using wrong bucket ([1123f0f](https://github.com/talDoFlemis/sora-henkan/commit/1123f0f01f38daeb5f5e4b94b073926eb760172e))
+* **helm/backend:** using chart hostname ([2241b77](https://github.com/talDoFlemis/sora-henkan/commit/2241b77caa9578fd94c901379f728816e263e779))
+* **helpers:** dynamodb injecting wrong variables ([a198ca2](https://github.com/talDoFlemis/sora-henkan/commit/a198ca2bf925c212ad2fb93ec143e39a3684a63f))
+* **localstack-values:** bad init script ([be1f671](https://github.com/talDoFlemis/sora-henkan/commit/be1f67112523eef8d3af6610ad04fc0556797fef))
+
 ## [1.37.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.36.0...v1.37.0) (2025-11-27)
 
 ### Features
