@@ -1,3 +1,13 @@
+## [1.39.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.38.1...v1.39.0) (2025-11-27)
+
+### Features
+
+* **Taskfile:** add default task to run all compose ([23f0ab2](https://github.com/talDoFlemis/sora-henkan/commit/23f0ab2e7f55891f16b667940885e21baa3390b8))
+
+### Bug Fixes
+
+* **docker-compose:** broken watermill reference to rabbitmq and failed to set minio bucket to anonymous download ([e18016e](https://github.com/talDoFlemis/sora-henkan/commit/e18016e7bcac47d54ecd811ce8402b841070b271))
+
 ## [1.38.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.38.0...v1.38.1) (2025-11-27)
 
 ### Documentation
