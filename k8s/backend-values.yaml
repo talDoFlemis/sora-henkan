@@ -30,6 +30,28 @@ database:
   name: "postgres"
   sslmode: "disable"
 
+watermill:
+  imageTopic: images
+  broker:
+    kind: amqp
+    publisher:
+    subscriber:
+    amqp:
+      host: "rabbitmq.default.svc.cluster.local"
+      port: 5672
+      secretName: "rabbitmq"
+      user: "admin"
+      passwordKey: "password"
+      vhost: "/"
+
+dynamodb:
+  endpoint: "localstack.default.svc.cluster.local:4566"
+  anonymous: true
+  table: "sora-henkan-dev-main-table"
+  accessKey: ""
+  secretKey: ""
+  region: "us-east-1"
+
 httpRoute:
   enabled: true
   parentRefs:
