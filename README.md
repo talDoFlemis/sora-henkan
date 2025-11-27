@@ -36,7 +36,7 @@ graph TD
         E[RDBMS]
         F[Object Storage]
     end
-    
+
     A -- "1. POST /images (Image URL)" --> B
     B -- "2. Save Job (pending)" --> E
     B -- "3. Publish Job" --> C
@@ -87,101 +87,97 @@ graph TD
     D -- "Uploads/Reads Images" --> F
 ```
 
-1.  **API Server (`api`):** A Go server built with the Echo framework. It exposes a RESTful API to accept image processing requests. When a new request is received, it saves the job details to the PostgreSQL database and publishes a message to an SQS queue.
-2.  **Worker (`worker`):** A Go application that listens for messages on the SQS queue. When a message is received, it fetches the image from the source URL, performs the required transformations (e.g., scaling) using `libvips`, and uploads the original and transformed images to an S3-compatible object storage.
-3.  **Frontend:** A React application (built with Vite) that provides a user interface to interact with the API.
-4.  **PostgreSQL:** The primary database for storing information about image processing jobs.
-5.  **MinIO/S3:** An object storage service used to store the original and processed images.
-6.  **LocalStack/AWS SQS:** A message queue used to decouple the API server from the worker, enabling asynchronous processing.
-7.  **Terraform:** Infrastructure as Code (IaC) to provision the necessary AWS resources, including VPC, EC2, RDS, S3, and SQS.
-8.  **Jaeger:** Distributed tracing system for monitoring and troubleshooting microservices-based architectures.
-9.  **CloudWatch Agent:** AWS monitoring and observability service for collecting metrics and logs from EC2 instances.
+1. **API Server (`api`):** A Go server built with the Echo framework. It exposes a RESTful API to accept image processing requests. When a new request is received, it saves the job details to the PostgreSQL database and publishes a message to an SQS queue.
+2. **Worker (`worker`):** A Go application that listens for messages on the SQS queue. When a message is received, it fetches the image from the source URL, performs the required transformations (e.g., scaling) using `libvips`, and uploads the original and transformed images to an S3-compatible object storage.
+3. **Frontend:** A React application (built with Vite) that provides a user interface to interact with the API.
+4. **PostgreSQL:** The primary database for storing information about image processing jobs.
+5. **MinIO/S3:** An object storage service used to store the original and processed images.
+6. **LocalStack/AWS SQS:** A message queue used to decouple the API server from the worker, enabling asynchronous processing.
+7. **Terraform:** Infrastructure as Code (IaC) to provision the necessary AWS resources, including VPC, EC2, RDS, S3, and SQS.
+8. **Jaeger:** Distributed tracing system for monitoring and troubleshooting microservices-based architectures.
+9. **CloudWatch Agent:** AWS monitoring and observability service for collecting metrics and logs from EC2 instances.
 
 ## Getting Started
 
 ### Prerequisites
 
--   Go (version 1.21 or higher)
--   Node.js and pnpm
--   Docker and Docker Compose
--   [Task](https://taskfile.dev/installation/)
+- Go (version 1.21 or higher)
+- Node.js and pnpm
+- Docker and Docker Compose
+- [Task](https://taskfile.dev/installation/)
 
 ### Running with Docker Compose
 
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/taldoflemis/sora-henkan.git
-    cd sora-henkan
-    ```
+1. **Clone the repository:**
 
-2.  **Start all services:**
-    This command will start the API server, worker, frontend, PostgreSQL, MinIO, and LocalStack using Docker Compose.
-    ```sh
-    task all:up
-    ```
+   ```sh
+   git clone https://github.com/taldoflemis/sora-henkan.git
+   cd sora-henkan
+   ```
 
-3.  **Create the MinIO bucket:**
-    You need to create the bucket where images will be stored.
-    ```sh
-    task minio:create-bucket
-    ```
+2. **Start all services:**
+   This command will start the API server, worker, frontend, PostgreSQL, MinIO, and LocalStack using Docker Compose.
 
-4.  **Run database migrations:**
-    This will set up the necessary tables in the PostgreSQL database.
-    ```sh
-    task migrate:up
-    ```
+   ```sh
+   task
+   ```
 
 The services will be available at:
--   **Frontend:** `http://localhost:8080`
--   **API Server:** `http://localhost:42069`
--   **API Documentation (Swagger UI):** `http://localhost:42069/swagger/index.html`
--   **MinIO Console:** `http://localhost:9001`
+
+- **Frontend:** `http://localhost:8080`
+- **API Server:** `http://localhost:42069`
+- **API Documentation (Swagger UI):** `http://localhost:42069/swagger/index.html`
+- **MinIO Console:** `http://localhost:9001`
 
 ### Running with Kubernetes
 
 You can also run the application on a local Kubernetes cluster using k3d. This simulates a production-like environment.
 
-1.  **Prerequisites:**
-    -   [k3d](https://k3d.io/)
-    -   [Helm](https://helm.sh/)
-    -   [kubectl](https://kubernetes.io/docs/tasks/tools/)
+1. **Prerequisites:**
 
-2.  **Create cluster and deploy services:**
-    ```sh
-    task k8s:all
-    ```
-    This command creates a k3d cluster and deploys all services including dependencies (PostgreSQL, MinIO, RabbitMQ, LocalStack) and the application (Frontend, Backend).
+   - [k3d](https://k3d.io/)
+   - [Helm](https://helm.sh/)
+   - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
-3.  **Access Services:**
-    -   **Frontend:** `http://localhost:80`
-    -   **API Server:** `http://localhost:42069`
-    -   **MinIO Console:** `http://localhost:9001`
-    -   **RabbitMQ Management:** `http://localhost:15672`
+2. **Create cluster and deploy services:**
 
-4.  **Clean up:**
-    ```sh
-    task k8s:delete-cluster
-    ```
+   ```sh
+   task k8s:all
+   ```
+
+   This command creates a k3d cluster and deploys all services including dependencies (PostgreSQL, MinIO, RabbitMQ, LocalStack) and the application (Frontend, Backend).
+
+3. **Access Services:**
+
+   - **Frontend:** `http://localhost:80`
+   - **API Server:** `http://localhost:42069`
+   - **MinIO Console:** `http://localhost:9001`
+   - **RabbitMQ Management:** `http://localhost:15672`
+
+4. **Clean up:**
+
+   ```sh
+   task k8s:delete-cluster
+   ```
 
 ## Technology Stack
 
--   **Backend:** Go
-    -   **Web Framework:** [Echo](https://echo.labstack.com/)
-    -   **Messaging:** [Watermill](https://watermill.io/) (with AWS SQS)
-    -   **Image Processing:** [govips](https://github.com/davidbyttow/govips)
-    -   **Database:** PostgreSQL with [pgx](https://github.com/jackc/pgx)
-    -   **Migrations:** [golang-migrate](https://github.com/golang-migrate/migrate)
--   **Frontend:**
-    -   **Framework:** React with Vite
-    -   **Language:** TypeScript
--   **Infrastructure:**
-    -   **Containerization:** Docker, Docker Compose
-    -   **IaC:** Terraform
-    -   **Cloud:** AWS (EC2, RDS, S3, SQS, ALB, CloudWatch)
-    -   **CI/CD:** GitHub Actions (not yet implemented)
--   **Observability:** OpenTelemetry, Jaeger
--   **Load Testing:** k6
+- **Backend:** Go
+  - **Web Framework:** [Echo](https://echo.labstack.com/)
+  - **Messaging:** [Watermill](https://watermill.io/) (with AWS SQS)
+  - **Image Processing:** [govips](https://github.com/davidbyttow/govips)
+  - **Database:** PostgreSQL with [pgx](https://github.com/jackc/pgx)
+  - **Migrations:** [golang-migrate](https://github.com/golang-migrate/migrate)
+- **Frontend:**
+  - **Framework:** React with Vite
+  - **Language:** TypeScript
+- **Infrastructure:**
+  - **Containerization:** Docker, Docker Compose
+  - **IaC:** Terraform
+  - **Cloud:** AWS (EC2, RDS, S3, SQS, ALB, CloudWatch)
+  - **CI/CD:** GitHub Actions (not yet implemented)
+- **Observability:** OpenTelemetry, Jaeger
+- **Load Testing:** k6
 
 ## Project Structure
 
@@ -202,13 +198,13 @@ You can also run the application on a local Kubernetes cluster using k3d. This s
 
 ## API Endpoints
 
--   `POST /v1/images`: Create a new image processing request.
--   `GET /v1/images`: List all image processing jobs.
--   `GET /v1/images/:id`: Get details for a specific image processing job.
--   `GET /v1/images/sse`: Get real-time updates for all jobs.
--   `GET /v1/images/:id/sse`: Get real-time updates for a specific job.
--   `GET /health`: API server health check endpoint.
--   `GET /swagger/*`: Swagger UI for interactive API documentation (OpenAPI 3.0).
+- `POST /v1/images`: Create a new image processing request.
+- `GET /v1/images`: List all image processing jobs.
+- `GET /v1/images/:id`: Get details for a specific image processing job.
+- `GET /v1/images/sse`: Get real-time updates for all jobs.
+- `GET /v1/images/:id/sse`: Get real-time updates for a specific job.
+- `GET /health`: API server health check endpoint.
+- `GET /swagger/*`: Swagger UI for interactive API documentation (OpenAPI 3.0).
 
 ### API Documentation
 
@@ -265,6 +261,7 @@ For AWS deployments, the CloudWatch agent collects metrics and logs from EC2 ins
 ### OpenTelemetry
 
 All services are instrumented with OpenTelemetry for standardized observability, including:
+
 - Request tracing
 - Performance metrics
 - Custom application metrics

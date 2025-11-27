@@ -8,6 +8,10 @@ includes:
   dir: ./frontend
 
 tasks:
+  default:
+    desc: Run all services in docker compose
+    cmd: docker compose up -d
+
   k8s:all:
     desc: Create a new cluster and deploy all services
     cmds:
