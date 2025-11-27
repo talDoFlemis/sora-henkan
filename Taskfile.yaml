@@ -33,7 +33,7 @@ tasks:
   k8s:create-cluster:
     desc: Create a new cluster
     cmds:
-      - k3d cluster create -p '80:80@loadbalancer' -p '443:443@loadbalancer' -p '9001:9001@loadbalancer' -p '9000:9000@loadbalancer' -p '15672:15672@loadbalancer' --k3s-arg '--disable=traefik@server:*' sora-henkan
+      - k3d cluster create -p '80:80@loadbalancer' -p '443:443@loadbalancer' -p '9001:9001@loadbalancer' -p '9000:9000@loadbalancer' -p '15672:15672@loadbalancer' -p '42069:42069@loadbalancer' --k3s-arg '--disable=traefik@server:*' sora-henkan
 
   k8s:deploy-metrics:
     desc: Deploy Prometheus to the cluster
