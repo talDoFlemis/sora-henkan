@@ -189,9 +189,23 @@ Create the name of the service account to use
 - name: {{ .prefix }}_WATERMILL_BROKER_AMQP_PORT
   value: {{ .Values.watermill.broker.amqp.port | quote }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AMQP_USER
+{{- if and .Values.watermill.broker.amqp.secretName .Values.watermill.broker.amqp.userKey }}
+  valueFrom:
+    secretKeyRef: 
+      name: {{ .Values.watermill.broker.amqp.secretName }}
+      key: {{ .Values.watermill.broker.amqp.userKey }}
+{{- else }}
   value: {{ .Values.watermill.broker.amqp.user | quote }}
+{{- end }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AMQP_PASSWORD
+{{- if and .Values.watermill.broker.amqp.secretName .Values.watermill.broker.amqp.passwordKey }}
+  valueFrom:
+    secretKeyRef: 
+      name: {{ .Values.watermill.broker.amqp.secretName }}
+      key: {{ .Values.watermill.broker.amqp.passwordKey }}
+{{- else }}
   value: {{ .Values.watermill.broker.amqp.password | quote }}
+{{- end }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AMQP_VHOST
   value: {{ .Values.watermill.broker.amqp.vhost | quote }}
 {{- end }}

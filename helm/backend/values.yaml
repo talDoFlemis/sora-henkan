@@ -129,6 +129,9 @@ watermill:
       user: ""
       password: ""
       vhost: ""
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
 
 opentelemetry:
   enabled: false
