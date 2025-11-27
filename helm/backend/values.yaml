@@ -8,7 +8,7 @@ api:
     port: 80
   image:
     repository: ghcr.io/taldoflemis/sora-henkan/api
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: ""
   livenessProbe:
     tcpSocket:
@@ -34,7 +34,7 @@ api:
 migrate:
   image:
     repository: ghcr.io/taldoflemis/sora-henkan/migrate
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: ""
 
 worker:
@@ -44,7 +44,7 @@ worker:
     port: 80
   image:
     repository: ghcr.io/taldoflemis/sora-henkan/worker
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: ""
   livenessProbe:
     tcpSocket:
@@ -153,15 +153,17 @@ opentelemetry:
     interval: 30
 
 dynamodb:
-  endpoint: ""
-  anonymous: false
+  enabled: false
   table: ""
-  secretName: ""
-  accessKeyKey: ""
-  secretKeyKey: ""
-  accessKey: ""
-  secretKey: ""
-  region: ""
+  aws:
+    endpoint: ""
+    anonymous: false
+    secretName: ""
+    accessKeyKey: ""
+    secretKeyKey: ""
+    accessKey: ""
+    secretKey: ""
+    region: ""
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/

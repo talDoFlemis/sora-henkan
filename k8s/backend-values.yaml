@@ -45,12 +45,14 @@ watermill:
       vhost: "/"
 
 dynamodb:
-  endpoint: "localstack.default.svc.cluster.local:4566"
-  anonymous: true
+  enabled: true
   table: "sora-henkan-dev-main-table"
-  accessKey: ""
-  secretKey: ""
-  region: "us-east-1"
+  aws:
+    endpoint: "http://localstack.default.svc.cluster.local:4566"
+    anonymous: false
+    accessKey: "test"
+    secretKey: "test"
+    region: "us-east-1"
 
 httpRoute:
   enabled: true

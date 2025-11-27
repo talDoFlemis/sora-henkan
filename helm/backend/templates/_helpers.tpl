@@ -121,32 +121,36 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "backend.dynamodb" -}}
+{{- if .Values.dynamodb.enabled }}
 {{- $prefix := .prefix | upper -}}
-- name: {{ .prefix }}_DYNAMODB_ENDPOINT
-  value: {{ .Values.dynamodb.endpoint | quote }}
-- name: {{ .prefix }}_DYNAMODB_TABLE
+- name: {{ .prefix }}_DYNAMODBLOGS_ENABLED
+  value: "true"
+- name: {{ .prefix }}_DYNAMODBLOGS_TABLE
   value: {{ .Values.dynamodb.table | quote }}
-- name: {{ .prefix }}_DYNAMODB_ANONYMOUS
-  value: {{ .Values.dynamodb.anonymous | quote }}
-- name: {{ .prefix }}_DYNAMODB_REGION
-  value: {{ .Values.dynamodb.region | quote }}
-- name: {{ .prefix }}_DYNAMODB_ACCESSKEY
-{{- if and .Values.dynamodb.secretName .Values.dynamodb.accessKeyKey }}
+- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ENDPOINT
+  value: {{ .Values.dynamodb.aws.endpoint | quote }}
+- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ANONYMOUS
+  value: {{ .Values.dynamodb.aws.anonymous | quote }}
+- name: {{ .prefix }}_DYNAMODBLOGS_AWS_REGION
+  value: {{ .Values.dynamodb.aws.region | quote }}
+- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ACCESSKEY
+{{- if and .Values.dynamodb.aws.secretName .Values.dynamodb.accessKeyKey }}
   valueFrom:
     secretKeyRef: 
-      name: {{ .Values.dynamodb.secretName }}
-      key: {{ .Values.dynamodb.accessKeyKey }}
+      name: {{ .Values.dynamodb.aws.secretName }}
+      key: {{ .Values.dynamodb.aws.accessKeyKey }}
 {{- else }}
-  value: {{ .Values.dynamodb.accessKey }}
+  value: {{ .Values.dynamodb.aws.accessKey }}
 {{- end }}
-- name: {{ .prefix }}_DYNAMODB_SECRETKEY
-{{- if and .Values.dynamodb.secretName .Values.dynamodb.secretKeyKey }}
+- name: {{ .prefix }}_DYNAMODBLOGS_AWS_SECRETKEY
+{{- if and .Values.dynamodb.aws.secretName .Values.dynamodb.secretKeyKey }}
   valueFrom:
     secretKeyRef: 
-      name: {{ .Values.dynamodb.secretName }}
-      key: {{ .Values.dynamodb.secretKeyKey }}
+      name: {{ .Values.dynamodb.aws.secretName }}
+      key: {{ .Values.dynamodb.aws.secretKeyKey }}
 {{- else }}
-  value: {{ .Values.dynamodb.secretKey }}
+  value: {{ .Values.dynamodb.aws.secretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 
