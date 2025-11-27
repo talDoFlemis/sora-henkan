@@ -10,8 +10,8 @@ migrate:
   image:
     tag: "latest"
 
-image-processor:
-  bucket-name: sorahenkan
+imageProcessor:
+  bucketName: sorahenkan
 
 objectstorer:
   endpoint: "minio.default.svc.cluster.local:9000"
