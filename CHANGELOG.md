@@ -1,3 +1,14 @@
+## [1.37.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.36.0...v1.37.0) (2025-11-27)
+
+### Features
+
+* add localstack deploy on k8s ([055a7f8](https://github.com/talDoFlemis/sora-henkan/commit/055a7f85eb8f4325419ed52d36c7472905a27554))
+* add minio create bucket cmd ([ec853b0](https://github.com/talDoFlemis/sora-henkan/commit/ec853b09c1ca3c6d0aeb9cef2616a5b8ae954f28))
+* add rabbitmq to docker compose ([769c5e1](https://github.com/talDoFlemis/sora-henkan/commit/769c5e1dfa06f79290d8537b5d06b07a5e4eaac3))
+* add rabbitmq watermill pub/sub ([9a1e642](https://github.com/talDoFlemis/sora-henkan/commit/9a1e642ecda0f4bbde098b5d420fc72c21c558ab))
+* **backend-values:** add watermill and dynamodb ([1d749a4](https://github.com/talDoFlemis/sora-henkan/commit/1d749a4b117bebea44cd94a47a494411f2994d76))
+* **helm/backend:** add secret way to store amqp creds ([7388cdc](https://github.com/talDoFlemis/sora-henkan/commit/7388cdc8baced3de91b1279ddbdff4b7ccef78be))
+
 ## [1.36.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.35.0...v1.36.0) (2025-11-26)
 
 ### Features
