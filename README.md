@@ -106,7 +106,7 @@ graph TD
 -   Docker and Docker Compose
 -   [Task](https://taskfile.dev/installation/)
 
-### Local Development
+### Running with Docker Compose
 
 1.  **Clone the repository:**
     ```sh
@@ -137,6 +137,32 @@ The services will be available at:
 -   **API Server:** `http://localhost:42069`
 -   **API Documentation (Swagger UI):** `http://localhost:42069/swagger/index.html`
 -   **MinIO Console:** `http://localhost:9001`
+
+### Running with Kubernetes
+
+You can also run the application on a local Kubernetes cluster using k3d. This simulates a production-like environment.
+
+1.  **Prerequisites:**
+    -   [k3d](https://k3d.io/)
+    -   [Helm](https://helm.sh/)
+    -   [kubectl](https://kubernetes.io/docs/tasks/tools/)
+
+2.  **Create cluster and deploy services:**
+    ```sh
+    task k8s:all
+    ```
+    This command creates a k3d cluster and deploys all services including dependencies (PostgreSQL, MinIO, RabbitMQ, LocalStack) and the application (Frontend, Backend).
+
+3.  **Access Services:**
+    -   **Frontend:** `http://localhost:80`
+    -   **API Server:** `http://localhost:42069`
+    -   **MinIO Console:** `http://localhost:9001`
+    -   **RabbitMQ Management:** `http://localhost:15672`
+
+4.  **Clean up:**
+    ```sh
+    task k8s:delete-cluster
+    ```
 
 ## Technology Stack
 
