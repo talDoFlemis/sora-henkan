@@ -1,3 +1,9 @@
+## [1.38.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.38.0...v1.38.1) (2025-11-27)
+
+### Documentation
+
+* **README:** add section to run with docker-compose ([239e0d9](https://github.com/talDoFlemis/sora-henkan/commit/239e0d98eddea9b410367ad243f5d0bd61f75b36))
+
 ## [1.38.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.37.0...v1.38.0) (2025-11-27)
 
 ### Features
