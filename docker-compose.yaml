@@ -1,5 +1,6 @@
 services:
   frontend:
+    image: ghcr.io/taldoflemis/sora-henkan/api:latest
     build:
       dockerfile: ../docker/front.Dockerfile
       context: ./frontend/
@@ -11,6 +12,7 @@ services:
       - sora-henkan-network
 
   worker:
+    image: ghcr.io/taldoflemis/sora-henkan/worker:latest
     build:
       dockerfile: ./docker/shared.Dockerfile
       context: .
@@ -34,6 +36,7 @@ services:
       - sora-henkan-network
 
   api:
+    image: ghcr.io/taldoflemis/sora-henkan/api:latest
     build:
       dockerfile: ./docker/shared.Dockerfile
       context: .
@@ -59,6 +62,7 @@ services:
       - sora-henkan-network
 
   migrate:
+    image: ghcr.io/taldoflemis/sora-henkan/migrate:latest
     build:
       dockerfile: ./docker/migrate.Dockerfile
       context: .

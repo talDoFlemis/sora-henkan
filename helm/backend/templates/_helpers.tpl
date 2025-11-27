@@ -156,6 +156,8 @@ Create the name of the service account to use
   value: {{ .Values.watermill.imageTopic | quote }}
 - name: {{ .prefix }}_WATERMILL_BROKER_KIND
   value: {{ .Values.watermill.broker.kind | quote }}
+
+{{- if .Values.watermill.broker.kind | eq "aws" }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_ENDPOINT
   value: {{ .Values.watermill.broker.aws.endpoint | quote }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_ANONYMOUS
@@ -180,4 +182,17 @@ Create the name of the service account to use
 {{- end }}
 - name: {{ .prefix }}_WATERMILL_BROKER_AWS_REGION
   value: {{ .Values.watermill.broker.aws.region }}
+
+{{- else if .Values.watermill.broker.kind | eq "amqp" }}
+- name: {{ .prefix }}_WATERMILL_BROKER_AMQP_HOST
+  value: {{ .Values.watermill.broker.amqp.host | quote }}
+- name: {{ .prefix }}_WATERMILL_BROKER_AMQP_PORT
+  value: {{ .Values.watermill.broker.amqp.port | quote }}
+- name: {{ .prefix }}_WATERMILL_BROKER_AMQP_USER
+  value: {{ .Values.watermill.broker.amqp.user | quote }}
+- name: {{ .prefix }}_WATERMILL_BROKER_AMQP_PASSWORD
+  value: {{ .Values.watermill.broker.amqp.password | quote }}
+- name: {{ .prefix }}_WATERMILL_BROKER_AMQP_VHOST
+  value: {{ .Values.watermill.broker.amqp.vhost | quote }}
+{{- end }}
 {{- end }}

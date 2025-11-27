@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill-amqp/v3/pkg/amqp"
 	"github.com/ThreeDotsLabs/watermill-aws/sqs"
 	watermillSqs "github.com/ThreeDotsLabs/watermill-aws/sqs"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -211,14 +212,33 @@ func (a *AWSSettings) GetEndpointResolver() (func(*amazonsqs.Options), error) {
 	}), nil
 }
 
+type AMQPSettings struct {
+	Host     string `mapstructure:"host" validate:"required"`
+	Port     int    `mapstructure:"port" validate:"required"`
+	User     string `mapstructure:"user" validate:"required"`
+	Password string `mapstructure:"password" validate:"required"`
+	VHost    string `mapstructure:"vhost"`
+}
+
+func (a *AMQPSettings) BuildURI() string {
+	u := url.URL{
+		Scheme: "amqp",
+		User:   url.UserPassword(a.User, a.Password),
+		Host:   fmt.Sprintf("%s:%d", a.Host, a.Port),
+		Path:   a.VHost,
+	}
+	return u.String()
+}
+
 type (
 	WatermillPublisherSettings  struct{}
 	WatermillSubscriberSettings struct{}
 )
 
 type WatermillBrokerSettings struct {
-	Kind       string                      `mapstructure:"kind" validate:"required,oneof=sqs nats"`
+	Kind       string                      `mapstructure:"kind" validate:"required,oneof=sqs amqp"`
 	AWS        AWSSettings                 `mapstructure:"aws" validate:"required_if=Kind sqs"`
+	AMQP       AMQPSettings                `mapstructure:"amqp" validate:"required_if=Kind amqp"`
 	Publisher  WatermillPublisherSettings  `mapstructure:"publisher" validate:"omitempty"`
 	Subscriber WatermillSubscriberSettings `mapstructure:"subscriber" validate:"omitempty"`
 }
@@ -256,8 +276,13 @@ func (broker *WatermillBrokerSettings) NewPublisher() (message.Publisher, error)
 		}
 
 		publisher = sqsPublisher
-	case "nats":
-		println("nats")
+	case "amqp":
+		amqpConfig := amqp.NewDurablePubSubConfig(broker.AMQP.BuildURI(), amqp.GenerateQueueNameTopicNameWithSuffix("images_queue"))
+		amqpPublisher, err := amqp.NewPublisher(amqpConfig, wattermilLogger)
+		if err != nil {
+			return nil, err
+		}
+		publisher = amqpPublisher
 	}
 
 	tracePropagatingPublisherDecorator := wotelfloss.NewTracePropagatingPublisherDecorator(publisher)
@@ -296,8 +321,13 @@ func (broker *WatermillBrokerSettings) NewSubscriber() (message.Subscriber, erro
 		}
 
 		subscriber = sqsSubs
-	case "nats":
-		println("nats")
+	case "amqp":
+		amqpConfig := amqp.NewDurablePubSubConfig(broker.AMQP.BuildURI(), amqp.GenerateQueueNameTopicName)
+		amqpSubscriber, err := amqp.NewSubscriber(amqpConfig, wattermilLogger)
+		if err != nil {
+			return nil, err
+		}
+		subscriber = amqpSubscriber
 	}
 
 	return subscriber, nil

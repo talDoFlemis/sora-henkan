@@ -123,6 +123,12 @@ watermill:
       accessKey: ""
       secretKey: ""
       region: us-east-1
+    amqp:
+      host: ""
+      port: 5672
+      user: ""
+      password: ""
+      vhost: ""
 
 opentelemetry:
   enabled: false

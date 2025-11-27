@@ -28,7 +28,7 @@ object-storer:
 watermill:
   image-topic: images
   broker:
-    kind: sqs
+    kind: amqp
     publisher:
     subscriber:
     aws:
@@ -37,6 +37,12 @@ watermill:
       access-key: ""
       secret-key: ""
       region: us-east-1
+    amqp:
+      host: localhost
+      port: 5672
+      user: rabbitmq
+      password: rabbitmq
+      vhost: "/"
 
 dynamodb-logs:
   enabled: true
