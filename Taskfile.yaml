@@ -24,6 +24,7 @@ tasks:
         k8s:deploy-rabbit,
         k8s:deploy-metrics,
         k8s:deploy-frontend,
+        k8s:deploy-localstack,
       ]
     cmds:
       - echo "All parallel tasks completed, deploying backend"
@@ -103,6 +104,12 @@ tasks:
     desc: Deploy the backend to the cluster
     cmds:
       - helm upgrade --install backend helm/backend --values ./k8s/backend-values.yaml
+
+  k8s:deploy-localstack:
+    desc: Deploy LocalStack to the cluster
+    cmds:
+      - helm repo add localstack-charts https://localstack.github.io/helm-charts
+      - helm upgrade --install localstack localstack-charts/localstack --values ./k8s/localstack-values.yaml
 
   api:run:
     desc: Run the API server
