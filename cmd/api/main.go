@@ -13,6 +13,7 @@ import (
 	"github.com/taldoflemis/sora-henkan/internal/core/application"
 	imageProcessor "github.com/taldoflemis/sora-henkan/internal/infra/adapter/image_processor"
 	objectStorer "github.com/taldoflemis/sora-henkan/internal/infra/adapter/object_storer"
+	dynamodbAdapter "github.com/taldoflemis/sora-henkan/internal/infra/adapter/persistence/dynamodb"
 	"github.com/taldoflemis/sora-henkan/internal/infra/adapter/persistence/postgres"
 	"github.com/taldoflemis/sora-henkan/internal/infra/handler/http"
 	"github.com/taldoflemis/sora-henkan/internal/infra/telemetry"
@@ -43,7 +44,7 @@ type APISettings struct {
 	ImageProcessor settings.ImageProcessorSettings `mapstructure:"image-processor" validate:"required"`
 	ObjectStorer   settings.ObjectStorerSettings   `mapstructure:"object-storer" validate:"required"`
 	Watermill      settings.WatermillSettings      `mapstructure:"watermill" validate:"required"`
-	DynamoDBLogs   settings.DynamoDBLogsSettings   `mapstructure:"dynamodb-logs" validate:"required"`
+	DynamoDB       settings.DynamoDBSettings       `mapstructure:"dynamodb" validate:"required"`
 }
 
 func main() {
@@ -101,8 +102,8 @@ func main() {
 		return
 	}
 
-	slog.InfoContext(ctx, "Starting dynamodb")
-	dynamoClient, err := settings.DynamoDBLogs.NewDynamoDBClient()
+	slog.InfoContext(ctx, "Initializing DynamoDB client")
+	dynamoClient, err := settings.DynamoDB.NewDynamoDBClient()
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to initialize Dynamo client", slog.Any("err", err))
 		return
@@ -129,7 +130,7 @@ func main() {
 				Name: "dynamoclient",
 				Check: func(ctx context.Context) error {
 					_, err := dynamoClient.DescribeTable(ctx, &dynamodb.DescribeTableInput{
-						TableName: &settings.DynamoDBLogs.Table,
+						TableName: &settings.DynamoDB.Table,
 					})
 					return err
 				},
@@ -155,7 +156,7 @@ func main() {
 		return
 	}
 
-	router := http.NewRouter(&settings.HTTP, &settings.App, dynamoClient, settings.DynamoDBLogs.Table)
+	router := http.NewRouter(&settings.HTTP, &settings.App)
 	prefixedGroup := router.GetGroup()
 
 	// Create adapters
@@ -169,12 +170,14 @@ func main() {
 	pipelineProcessor := imageProcessor.NewPipeline(transformerFactory)
 	objectStorerAdapter := objectStorer.NewMinioObjectStorer(minioClient)
 	imageRepository := postgres.NewPostgresImageRepository(pgxpool)
+	metadataRepository := dynamodbAdapter.NewDynamoDBImageMetadataRepository(dynamoClient, settings.DynamoDB.Table)
 
 	// Create usecases
 	imageUseCase := application.NewImageUseCase(
 		publisher,
 		subscriber,
 		imageRepository,
+		metadataRepository,
 		pipelineProcessor,
 		objectStorerAdapter,
 		settings.ImageProcessor.BucketName,

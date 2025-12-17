@@ -27,7 +27,7 @@ resource "aws_launch_template" "app" {
     API_DOMAIN              = var.api_domain
     ALB_DNS_NAME            = aws_lb.app.dns_name
     AWS_BUCKET_ENDPOINT     = "https://${aws_s3_bucket.images.bucket}.s3.${var.aws_region}.amazonaws.com"
-    DYNAMODBLOGS_TABLE      = aws_dynamodb_table.main.name
+    DYNAMODB_TABLE          = aws_dynamodb_table.main.name
   }))
 
   update_default_version = true

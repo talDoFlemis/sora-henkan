@@ -123,17 +123,17 @@ Create the name of the service account to use
 {{- define "backend.dynamodb" -}}
 {{- if .Values.dynamodb.enabled }}
 {{- $prefix := .prefix | upper -}}
-- name: {{ .prefix }}_DYNAMODBLOGS_ENABLED
+- name: {{ .prefix }}_DYNAMODB_ENABLED
   value: "true"
-- name: {{ .prefix }}_DYNAMODBLOGS_TABLE
+- name: {{ .prefix }}_DYNAMODB_TABLE
   value: {{ .Values.dynamodb.table | quote }}
-- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ENDPOINT
+- name: {{ .prefix }}_DYNAMODB_AWS_ENDPOINT
   value: {{ .Values.dynamodb.aws.endpoint | quote }}
-- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ANONYMOUS
+- name: {{ .prefix }}_DYNAMODB_AWS_ANONYMOUS
   value: {{ .Values.dynamodb.aws.anonymous | quote }}
-- name: {{ .prefix }}_DYNAMODBLOGS_AWS_REGION
+- name: {{ .prefix }}_DYNAMODB_AWS_REGION
   value: {{ .Values.dynamodb.aws.region | quote }}
-- name: {{ .prefix }}_DYNAMODBLOGS_AWS_ACCESSKEY
+- name: {{ .prefix }}_DYNAMODB_AWS_ACCESSKEY
 {{- if and .Values.dynamodb.aws.secretName .Values.dynamodb.accessKeyKey }}
   valueFrom:
     secretKeyRef: 
@@ -142,7 +142,7 @@ Create the name of the service account to use
 {{- else }}
   value: {{ .Values.dynamodb.aws.accessKey }}
 {{- end }}
-- name: {{ .prefix }}_DYNAMODBLOGS_AWS_SECRETKEY
+- name: {{ .prefix }}_DYNAMODB_AWS_SECRETKEY
 {{- if and .Values.dynamodb.aws.secretName .Values.dynamodb.secretKeyKey }}
   valueFrom:
     secretKeyRef: 

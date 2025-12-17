@@ -44,7 +44,7 @@ watermill:
       password: rabbitmq
       vhost: "/"
 
-dynamodb-logs:
+dynamodb:
   enabled: true
   table: sora-henkan-dev-main-table
   aws:
