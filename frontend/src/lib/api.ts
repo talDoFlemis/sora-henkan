@@ -8,6 +8,7 @@ export interface Image {
   mime_type: string
   checksum: string
   status: string
+  error_message?: string
   transformations: TransformationRequest[]
   created_at: string
   updated_at: string
