@@ -47,7 +47,9 @@ const transformationColors = {
 
 export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
   const [imageUrl, setImageUrl] = useState("")
-  const [transformations, setTransformations] = useState<TransformationRequest[]>([])
+  const [transformations, setTransformations] = useState<
+    TransformationRequest[]
+  >([])
   const [loading, setLoading] = useState(false)
   const [previewError, setPreviewError] = useState(false)
 
@@ -96,7 +98,10 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Image URL Input */}
       <div className="space-y-3">
-        <Label htmlFor="imageUrl" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+        <Label
+          htmlFor="imageUrl"
+          className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+        >
           <Link className="w-4 h-4" />
           Image URL
         </Label>
@@ -144,7 +149,11 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
               </span>
             )}
           </Label>
-          <Select onValueChange={(v) => addTransformation(v as TransformationRequest["name"])}>
+          <Select
+            onValueChange={(v) =>
+              addTransformation(v as TransformationRequest["name"])
+            }
+          >
             <SelectTrigger className="w-[180px] rounded-xl border-gray-200">
               <Plus className="w-4 h-4 mr-2" />
               <SelectValue placeholder="Add transform" />
@@ -193,17 +202,24 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
               const colorClass = transformationColors[transform.name]
 
               return (
-                <Card key={index} className="p-4 rounded-2xl border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <Card
+                  key={index}
+                  className="p-4 rounded-2xl border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0 shadow-lg`}
+                    >
                       <Icon className="w-6 h-6 text-white" />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-gray-800 capitalize">{transform.name}</span>
+                        <span className="font-semibold text-gray-800 capitalize">
+                          {transform.name}
+                        </span>
                         <Button
                           type="button"
                           variant="ghost"
@@ -219,7 +235,9 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
                       {transform.name === "resize" && (
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label className="text-xs text-gray-500 mb-1 block">Width (px)</Label>
+                            <Label className="text-xs text-gray-500 mb-1 block">
+                              Width (px)
+                            </Label>
                             <Input
                               type="number"
                               value={transform.config.width}
@@ -234,7 +252,9 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
                             />
                           </div>
                           <div>
-                            <Label className="text-xs text-gray-500 mb-1 block">Height (px)</Label>
+                            <Label className="text-xs text-gray-500 mb-1 block">
+                              Height (px)
+                            </Label>
                             <Input
                               type="number"
                               value={transform.config.height}
@@ -253,12 +273,16 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
 
                       {transform.name === "trim" && (
                         <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">Threshold (0-255)</Label>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            Threshold (0-255)
+                          </Label>
                           <Input
                             type="number"
                             value={transform.config.threshold}
                             onChange={(e) =>
-                              updateTransformation(index, { threshold: +e.target.value })
+                              updateTransformation(index, {
+                                threshold: +e.target.value,
+                              })
                             }
                             min={0}
                             max={255}
@@ -269,13 +293,17 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
 
                       {transform.name === "blur" && (
                         <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">Sigma (blur intensity)</Label>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            Sigma (blur intensity)
+                          </Label>
                           <Input
                             type="number"
                             step="0.1"
                             value={transform.config.sigma}
                             onChange={(e) =>
-                              updateTransformation(index, { sigma: +e.target.value })
+                              updateTransformation(index, {
+                                sigma: +e.target.value,
+                              })
                             }
                             min={0.1}
                             className="h-10 rounded-lg"
@@ -285,10 +313,14 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
 
                       {transform.name === "rotate" && (
                         <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">Angle</Label>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            Angle
+                          </Label>
                           <Select
                             value={transform.config.angle.toString()}
-                            onValueChange={(v) => updateTransformation(index, { angle: +v })}
+                            onValueChange={(v) =>
+                              updateTransformation(index, { angle: +v })
+                            }
                           >
                             <SelectTrigger className="h-10 rounded-lg">
                               <SelectValue />
@@ -303,7 +335,9 @@ export function CreateImageForm({ onSuccess, onCancel }: CreateImageFormProps) {
                       )}
 
                       {transform.name === "grayscale" && (
-                        <p className="text-xs text-gray-400">No configuration needed</p>
+                        <p className="text-xs text-gray-400">
+                          No configuration needed
+                        </p>
                       )}
                     </div>
                   </div>

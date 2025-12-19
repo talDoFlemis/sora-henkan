@@ -54,7 +54,7 @@ export function ImageComparison({
           alt={`${alt} - before`}
           className="absolute inset-0 w-full h-full object-contain"
         />
-        
+
         {/* After Image with clip */}
         <div
           className="absolute inset-0 overflow-hidden"

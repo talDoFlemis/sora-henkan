@@ -61,7 +61,9 @@ export function ImageDetailPage() {
   const [image, setImage] = useState<Image | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [transformations, setTransformations] = useState<TransformationRequest[]>([])
+  const [transformations, setTransformations] = useState<
+    TransformationRequest[]
+  >([])
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copiedId, setCopiedId] = useState(false)
@@ -94,7 +96,12 @@ export function ImageDetailPage() {
   }, [id])
 
   const handleDelete = async () => {
-    if (!id || !confirm("Are you sure you want to delete this image? This action cannot be undone."))
+    if (
+      !id ||
+      !confirm(
+        "Are you sure you want to delete this image? This action cannot be undone.",
+      )
+    )
       return
     setDeleting(true)
     try {
@@ -194,7 +201,9 @@ export function ImageDetailPage() {
           <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-6">
             <ImageIcon className="w-10 h-10 text-gray-400" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Image Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Image Not Found
+          </h2>
           <p className="text-gray-600 mb-8">
             The image you're looking for doesn't exist or has been deleted.
           </p>
@@ -223,7 +232,9 @@ export function ImageDetailPage() {
               <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold gradient-text">Sora Henkan</span>
+              <span className="text-xl font-bold gradient-text">
+                Sora Henkan
+              </span>
             </button>
 
             <div className="flex items-center gap-3">
@@ -253,20 +264,30 @@ export function ImageDetailPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-fade-in-up">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Image Details</h1>
-              <Badge className={`${getStatusColor(image.status)} text-white border-0 rounded-lg px-3`}>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+                Image Details
+              </h1>
+              <Badge
+                className={`${getStatusColor(image.status)} text-white border-0 rounded-lg px-3`}
+              >
                 {image.status}
               </Badge>
             </div>
             <div className="flex items-center gap-2 text-gray-500">
-              <code className="text-sm bg-gray-100 px-2 py-1 rounded-lg">{image.id}</code>
+              <code className="text-sm bg-gray-100 px-2 py-1 rounded-lg">
+                {image.id}
+              </code>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => copyToClipboard(image.id)}
               >
-                {copiedId ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                {copiedId ? (
+                  <Check className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>
@@ -314,14 +335,25 @@ export function ImageDetailPage() {
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Image Comparison */}
-          <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+          <div
+            className="lg:col-span-2 animate-fade-in-up"
+            style={{ animationDelay: "0.1s" }}
+          >
             {editing ? (
               <Card className="p-6 glass-dark rounded-3xl border-0 shadow-lg">
-                <h2 className="text-xl font-bold text-gray-800 mb-6">Edit Transformations</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-6">
+                  Edit Transformations
+                </h2>
                 <form onSubmit={handleUpdate} className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold text-gray-700">Transformations</Label>
-                    <Select onValueChange={(v) => addTransformation(v as TransformationRequest["name"])}>
+                    <Label className="text-sm font-semibold text-gray-700">
+                      Transformations
+                    </Label>
+                    <Select
+                      onValueChange={(v) =>
+                        addTransformation(v as TransformationRequest["name"])
+                      }
+                    >
                       <SelectTrigger className="w-[180px] rounded-xl">
                         <Plus className="w-4 h-4 mr-2" />
                         <SelectValue placeholder="Add transform" />
@@ -344,18 +376,28 @@ export function ImageDetailPage() {
                   ) : (
                     <div className="space-y-3">
                       {transformations.map((transform, index) => {
-                        const Icon = transformationIcons[transform.name] || ImageIcon
-                        const colorClass = transformationColors[transform.name] || "from-gray-500 to-gray-600"
+                        const Icon =
+                          transformationIcons[transform.name] || ImageIcon
+                        const colorClass =
+                          transformationColors[transform.name] ||
+                          "from-gray-500 to-gray-600"
 
                         return (
-                          <Card key={index} className="p-4 rounded-2xl border-gray-100">
+                          <Card
+                            key={index}
+                            className="p-4 rounded-2xl border-gray-100"
+                          >
                             <div className="flex items-start gap-4">
-                              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0`}>
+                              <div
+                                className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0`}
+                              >
                                 <Icon className="w-5 h-5 text-white" />
                               </div>
                               <div className="flex-1 space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <span className="font-semibold text-gray-800 capitalize">{transform.name}</span>
+                                  <span className="font-semibold text-gray-800 capitalize">
+                                    {transform.name}
+                                  </span>
                                   <Button
                                     type="button"
                                     variant="ghost"
@@ -370,20 +412,34 @@ export function ImageDetailPage() {
                                 {transform.name === "resize" && (
                                   <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                      <Label className="text-xs text-gray-500">Width</Label>
+                                      <Label className="text-xs text-gray-500">
+                                        Width
+                                      </Label>
                                       <Input
                                         type="number"
                                         value={transform.config.width}
-                                        onChange={(e) => updateTransformation(index, { ...transform.config, width: +e.target.value })}
+                                        onChange={(e) =>
+                                          updateTransformation(index, {
+                                            ...transform.config,
+                                            width: +e.target.value,
+                                          })
+                                        }
                                         className="h-9 rounded-lg"
                                       />
                                     </div>
                                     <div>
-                                      <Label className="text-xs text-gray-500">Height</Label>
+                                      <Label className="text-xs text-gray-500">
+                                        Height
+                                      </Label>
                                       <Input
                                         type="number"
                                         value={transform.config.height}
-                                        onChange={(e) => updateTransformation(index, { ...transform.config, height: +e.target.value })}
+                                        onChange={(e) =>
+                                          updateTransformation(index, {
+                                            ...transform.config,
+                                            height: +e.target.value,
+                                          })
+                                        }
                                         className="h-9 rounded-lg"
                                       />
                                     </div>
@@ -392,12 +448,18 @@ export function ImageDetailPage() {
 
                                 {transform.name === "blur" && (
                                   <div>
-                                    <Label className="text-xs text-gray-500">Sigma</Label>
+                                    <Label className="text-xs text-gray-500">
+                                      Sigma
+                                    </Label>
                                     <Input
                                       type="number"
                                       step="0.1"
                                       value={transform.config.sigma}
-                                      onChange={(e) => updateTransformation(index, { sigma: +e.target.value })}
+                                      onChange={(e) =>
+                                        updateTransformation(index, {
+                                          sigma: +e.target.value,
+                                        })
+                                      }
                                       className="h-9 rounded-lg"
                                     />
                                   </div>
@@ -405,11 +467,17 @@ export function ImageDetailPage() {
 
                                 {transform.name === "trim" && (
                                   <div>
-                                    <Label className="text-xs text-gray-500">Threshold</Label>
+                                    <Label className="text-xs text-gray-500">
+                                      Threshold
+                                    </Label>
                                     <Input
                                       type="number"
                                       value={transform.config.threshold}
-                                      onChange={(e) => updateTransformation(index, { threshold: +e.target.value })}
+                                      onChange={(e) =>
+                                        updateTransformation(index, {
+                                          threshold: +e.target.value,
+                                        })
+                                      }
                                       className="h-9 rounded-lg"
                                     />
                                   </div>
@@ -417,18 +485,28 @@ export function ImageDetailPage() {
 
                                 {transform.name === "rotate" && (
                                   <div>
-                                    <Label className="text-xs text-gray-500">Angle</Label>
+                                    <Label className="text-xs text-gray-500">
+                                      Angle
+                                    </Label>
                                     <Select
                                       value={transform.config.angle.toString()}
-                                      onValueChange={(v) => updateTransformation(index, { angle: +v })}
+                                      onValueChange={(v) =>
+                                        updateTransformation(index, {
+                                          angle: +v,
+                                        })
+                                      }
                                     >
                                       <SelectTrigger className="h-9 rounded-lg">
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
                                         <SelectItem value="90">90°</SelectItem>
-                                        <SelectItem value="180">180°</SelectItem>
-                                        <SelectItem value="270">270°</SelectItem>
+                                        <SelectItem value="180">
+                                          180°
+                                        </SelectItem>
+                                        <SelectItem value="270">
+                                          270°
+                                        </SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -481,7 +559,9 @@ export function ImageDetailPage() {
                           <div className="text-center text-white">
                             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-3" />
                             <p className="font-medium">Processing image...</p>
-                            <p className="text-sm opacity-70">This may take a moment</p>
+                            <p className="text-sm opacity-70">
+                              This may take a moment
+                            </p>
                           </div>
                         </div>
                       )}
@@ -490,14 +570,18 @@ export function ImageDetailPage() {
                           <div className="text-center text-red-600 bg-white/90 p-6 rounded-2xl">
                             <X className="w-12 h-12 mx-auto mb-3" />
                             <p className="font-medium">Processing failed</p>
-                            <p className="text-sm mt-2 text-gray-600">{image.error_message || "Unknown error occurred"}</p>
+                            <p className="text-sm mt-2 text-gray-600">
+                              {image.error_message || "Unknown error occurred"}
+                            </p>
                           </div>
                         </div>
                       )}
                     </div>
                     {image.status === "pending" && (
                       <div className="mt-4 text-center text-gray-500">
-                        <p className="text-sm">Image is queued for processing</p>
+                        <p className="text-sm">
+                          Image is queued for processing
+                        </p>
                       </div>
                     )}
                   </div>
@@ -507,10 +591,15 @@ export function ImageDetailPage() {
           </div>
 
           {/* Sidebar Info */}
-          <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+          <div
+            className="space-y-6 animate-fade-in-up"
+            style={{ animationDelay: "0.2s" }}
+          >
             {/* Image Info */}
             <Card className="p-6 glass-dark rounded-3xl border-0 shadow-lg">
-              <h3 className="font-bold text-gray-800 mb-4">Image Information</h3>
+              <h3 className="font-bold text-gray-800 mb-4">
+                Image Information
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
@@ -518,7 +607,9 @@ export function ImageDetailPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Mime Type</p>
-                    <p className="font-medium text-gray-800">{image.mime_type || "Unknown"}</p>
+                    <p className="font-medium text-gray-800">
+                      {image.mime_type || "Unknown"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -558,25 +649,38 @@ export function ImageDetailPage() {
                 Transformations ({image.transformations.length})
               </h3>
               {image.transformations.length === 0 ? (
-                <p className="text-gray-500 text-sm">No transformations applied</p>
+                <p className="text-gray-500 text-sm">
+                  No transformations applied
+                </p>
               ) : (
                 <div className="space-y-3">
                   {image.transformations.map((t, i) => {
                     const Icon = transformationIcons[t.name] || ImageIcon
-                    const colorClass = transformationColors[t.name] || "from-gray-500 to-gray-600"
+                    const colorClass =
+                      transformationColors[t.name] ||
+                      "from-gray-500 to-gray-600"
 
                     return (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${colorClass} flex items-center justify-center`}>
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl"
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-lg bg-gradient-to-br ${colorClass} flex items-center justify-center`}
+                        >
                           <Icon className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-800 capitalize text-sm">{t.name}</p>
+                          <p className="font-medium text-gray-800 capitalize text-sm">
+                            {t.name}
+                          </p>
                           <p className="text-xs text-gray-500">
-                            {t.name === "resize" && `${t.config.width}x${t.config.height}`}
+                            {t.name === "resize" &&
+                              `${t.config.width}x${t.config.height}`}
                             {t.name === "blur" && `σ ${t.config.sigma}`}
                             {t.name === "rotate" && `${t.config.angle}°`}
-                            {t.name === "trim" && `threshold ${t.config.threshold}`}
+                            {t.name === "trim" &&
+                              `threshold ${t.config.threshold}`}
                             {t.name === "grayscale" && "Applied"}
                           </p>
                         </div>

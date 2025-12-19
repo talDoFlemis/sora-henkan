@@ -41,7 +41,9 @@ export function GalleryPage() {
   const [showForm, setShowForm] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [gridSize, setGridSize] = useState<"small" | "medium" | "large">("medium")
+  const [gridSize, setGridSize] = useState<"small" | "medium" | "large">(
+    "medium",
+  )
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const limit = 12
@@ -73,8 +75,11 @@ export function GalleryPage() {
   const getImageUrl = (key: string) => `${env.AWS_BUCKET_ENDPOINT}/${key}`
 
   const filteredImages = images.filter((image) => {
-    const matchesSearch = image.id.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || image.status === statusFilter
+    const matchesSearch = image.id
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+    const matchesStatus =
+      statusFilter === "all" || image.status === statusFilter
     return matchesSearch && matchesStatus
   })
 
@@ -115,7 +120,9 @@ export function GalleryPage() {
               <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold gradient-text">Sora Henkan</span>
+              <span className="text-xl font-bold gradient-text">
+                Sora Henkan
+              </span>
             </button>
 
             <div className="flex items-center gap-3">
@@ -146,12 +153,16 @@ export function GalleryPage() {
             Image <span className="gradient-text">Gallery</span>
           </h1>
           <p className="text-gray-600">
-            {totalCount} {totalCount === 1 ? "image" : "images"} • Page {page} of {totalPages || 1}
+            {totalCount} {totalCount === 1 ? "image" : "images"} • Page {page}{" "}
+            of {totalPages || 1}
           </p>
         </div>
 
         {/* Filters */}
-        <Card className="p-5 mb-8 glass-dark rounded-2xl shadow-lg border-0 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+        <Card
+          className="p-5 mb-8 glass-dark rounded-2xl shadow-lg border-0 animate-fade-in-up"
+          style={{ animationDelay: "0.1s" }}
+        >
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
@@ -215,7 +226,10 @@ export function GalleryPage() {
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
               <span className="text-sm text-gray-500">Active filters:</span>
               {searchQuery && (
-                <Badge variant="secondary" className="gap-1 rounded-lg px-3 py-1">
+                <Badge
+                  variant="secondary"
+                  className="gap-1 rounded-lg px-3 py-1"
+                >
                   Search: {searchQuery}
                   <X
                     className="w-3 h-3 cursor-pointer hover:text-red-500 transition-colors"
@@ -224,7 +238,10 @@ export function GalleryPage() {
                 </Badge>
               )}
               {statusFilter !== "all" && (
-                <Badge variant="secondary" className="gap-1 rounded-lg px-3 py-1">
+                <Badge
+                  variant="secondary"
+                  className="gap-1 rounded-lg px-3 py-1"
+                >
                   Status: {statusFilter}
                   <X
                     className="w-3 h-3 cursor-pointer hover:text-red-500 transition-colors"
@@ -250,7 +267,9 @@ export function GalleryPage() {
               <div className="w-24 h-24 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <ImageIcon className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-3">No images found</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                No images found
+              </h3>
               <p className="text-gray-600 mb-8">
                 {searchQuery || statusFilter !== "all"
                   ? "Try adjusting your filters or search query"
@@ -281,7 +300,10 @@ export function GalleryPage() {
                   {/* Image */}
                   <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative">
                     <img
-                      src={getImageUrl(image.transformed_image_key || image.object_storage_image_key)}
+                      src={getImageUrl(
+                        image.transformed_image_key ||
+                          image.object_storage_image_key,
+                      )}
                       alt={image.id}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       loading="lazy"
@@ -289,12 +311,16 @@ export function GalleryPage() {
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <p className="text-sm font-medium">Click to view details</p>
+                        <p className="text-sm font-medium">
+                          Click to view details
+                        </p>
                       </div>
                     </div>
                     {/* Status Badge */}
                     <div className="absolute top-3 right-3">
-                      <Badge className={`${getStatusColor(image.status)} text-white shadow-lg border-0 rounded-lg px-3`}>
+                      <Badge
+                        className={`${getStatusColor(image.status)} text-white shadow-lg border-0 rounded-lg px-3`}
+                      >
                         {image.status}
                       </Badge>
                     </div>
@@ -308,11 +334,14 @@ export function GalleryPage() {
                           {image.id.slice(0, 8)}...
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {new Date(image.created_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(image.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )}
                         </p>
                       </div>
                     </div>
@@ -330,7 +359,10 @@ export function GalleryPage() {
                           </Badge>
                         ))}
                         {image.transformations.length > 3 && (
-                          <Badge variant="outline" className="text-xs rounded-md">
+                          <Badge
+                            variant="outline"
+                            className="text-xs rounded-md"
+                          >
                             +{image.transformations.length - 3}
                           </Badge>
                         )}
@@ -369,7 +401,9 @@ export function GalleryPage() {
                         </Button>
                       )
                     })}
-                    {totalPages > 5 && <span className="text-gray-400 px-2">...</span>}
+                    {totalPages > 5 && (
+                      <span className="text-gray-400 px-2">...</span>
+                    )}
                   </div>
 
                   <Button
@@ -398,10 +432,14 @@ export function GalleryPage() {
               Create New Image
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              Upload an image URL and apply transformations to create a new processed image.
+              Upload an image URL and apply transformations to create a new
+              processed image.
             </DialogDescription>
           </DialogHeader>
-          <CreateImageForm onSuccess={handleCreateSuccess} onCancel={() => setShowForm(false)} />
+          <CreateImageForm
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setShowForm(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>

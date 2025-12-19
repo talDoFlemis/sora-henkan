@@ -18,8 +18,14 @@ export function LandingPage() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" />
-        <div className="absolute top-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: "1s" }} />
-        <div className="absolute bottom-40 right-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: "2s" }} />
+        <div
+          className="absolute top-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"
+          style={{ animationDelay: "1s" }}
+        />
+        <div
+          className="absolute bottom-40 right-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"
+          style={{ animationDelay: "2s" }}
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -42,7 +48,9 @@ export function LandingPage() {
             <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
               Transform your images with powerful AI-driven processing.
               <br />
-              <span className="font-medium text-gray-700">Simple. Fast. Beautiful.</span>
+              <span className="font-medium text-gray-700">
+                Simple. Fast. Beautiful.
+              </span>
             </p>
           </div>
 
@@ -108,7 +116,8 @@ export function LandingPage() {
                 Multiple Transformations
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Resize, blur, rotate, grayscale, and trim with intuitive controls
+                Resize, blur, rotate, grayscale, and trim with intuitive
+                controls
               </p>
             </div>
 
@@ -121,7 +130,8 @@ export function LandingPage() {
                 Real-time Updates
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Watch your images transform instantly with live server-sent events
+                Watch your images transform instantly with live server-sent
+                events
               </p>
             </div>
 
@@ -134,7 +144,8 @@ export function LandingPage() {
                 Gallery Management
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Organize and manage all your transformed images in one beautiful place
+                Organize and manage all your transformed images in one beautiful
+                place
               </p>
             </div>
           </div>
@@ -168,7 +179,9 @@ export function LandingPage() {
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold mb-4 shadow-xl">
                 2
               </div>
-              <h3 className="font-bold text-gray-800 mb-2">Choose Transforms</h3>
+              <h3 className="font-bold text-gray-800 mb-2">
+                Choose Transforms
+              </h3>
               <p className="text-sm text-gray-600">Select effects to apply</p>
             </div>
 
