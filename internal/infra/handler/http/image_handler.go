@@ -32,6 +32,7 @@ func (h *ImageHandler) RegisterRoute(g *echo.Group) {
 	imageHandlerGroup.GET("/sse", h.GetAllImagesRealtimeUpdates)
 	imageHandlerGroup.GET("/:id/sse", h.GetImageRealtimeUpdate)
 	imageHandlerGroup.GET("/:id", h.GetImage)
+	imageHandlerGroup.GET("/:id/metadata", h.GetImageMetadata)
 	imageHandlerGroup.POST("/", h.CreateImage)
 	imageHandlerGroup.PUT("/", h.UpdateImage)
 	imageHandlerGroup.DELETE("/:id", h.DeleteImage)
@@ -192,6 +193,21 @@ func (h *ImageHandler) GetImage(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, apiImage)
+}
+
+func (h *ImageHandler) GetImageMetadata(c echo.Context) error {
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	metadata, err := h.imageUseCase.GetImageMetadata(ctx, id)
+	if err != nil {
+		if errors.Is(err, ports.ErrMetadataNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Metadata not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get metadata")
+	}
+
+	return c.JSON(http.StatusOK, metadata)
 }
 
 func (h *ImageHandler) CreateImage(c echo.Context) error {

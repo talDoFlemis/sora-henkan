@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { api, type Image, type TransformationRequest } from "@/lib/api"
+import { api, type Image, type TransformationRequest, type ImageMetadata } from "@/lib/api"
 import { ImageComparison } from "@/components/image-comparison"
 import {
   ArrowLeft,
@@ -26,6 +26,7 @@ import {
   Scissors,
   Droplet,
   RotateCw,
+  Database,
 } from "lucide-react"
 import { env } from "@/utils/constants"
 import { Input } from "@/components/ui/input"
@@ -59,6 +60,7 @@ export function ImageDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [image, setImage] = useState<Image | null>(null)
+  const [metadata, setMetadata] = useState<ImageMetadata | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [transformations, setTransformations] = useState<
@@ -75,6 +77,13 @@ export function ImageDetailPage() {
       const data = await api.getImage(id)
       setImage(data)
       setTransformations(data.transformations)
+
+      try {
+        const meta = await api.getImageMetadata(id)
+        setMetadata(meta)
+      } catch (err) {
+        console.error("Failed to load metadata", err)
+      }
     } catch (error) {
       console.error("Failed to load image", error)
     } finally {
@@ -704,6 +713,63 @@ export function ImageDetailPage() {
                 <span className="truncate">{image.original_image_url}</span>
               </a>
             </Card>
+
+            {/* Technical Metadata (DynamoDB) */}
+            {metadata && (
+              <Card className="p-6 glass-dark rounded-3xl border-0 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                    <Database className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h3 className="font-bold text-gray-800">
+                    Technical Metadata (DynamoDB)
+                  </h3>
+                </div>
+
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Storage Key</p>
+                    <p className="font-mono text-xs text-gray-800 break-all bg-gray-50 p-2 rounded-lg mt-1 border border-gray-100">
+                      {metadata.object_storage_image_key}
+                    </p>
+                  </div>
+                  {metadata.transformed_image_key && (
+                    <div>
+                      <p className="text-xs text-gray-500">Transformed Key</p>
+                      <p className="font-mono text-xs text-gray-800 break-all bg-gray-50 p-2 rounded-lg mt-1 border border-gray-100">
+                        {metadata.transformed_image_key}
+                      </p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-500">Transformations</p>
+                      <p className="font-medium text-gray-800">
+                        {metadata.transformation_count}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Checksum</p>
+                      <p className="font-mono text-xs text-gray-800 truncate" title={metadata.checksum}>
+                        {metadata.checksum.substring(0, 10)}...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <details className="group">
+                  <summary className="text-xs font-semibold text-indigo-600 cursor-pointer hover:text-indigo-700 transition-colors flex items-center gap-1 select-none">
+                    <span>View Raw JSON</span>
+                  </summary>
+                  <div className="mt-3 animate-fade-in-up">
+                    <pre className="p-3 bg-gray-900 text-green-400 rounded-xl text-[10px] leading-relaxed overflow-x-auto font-mono custom-scrollbar">
+                      {JSON.stringify(metadata, null, 2)}
+                    </pre>
+                  </div>
+                </details>
+              </Card>
+            )}
+
           </div>
         </div>
       </main>

@@ -169,6 +169,20 @@ func (u *ImageUseCase) GetImage(ctx context.Context, id string) (*images.Image, 
 	return storedImage, nil
 }
 
+func (u *ImageUseCase) GetImageMetadata(ctx context.Context, id string) (*images.ImageMetadata, error) {
+	ctx, span := tracer.Start(ctx, "ImageUseCase.GetImageMetadata", trace.WithAttributes(attribute.String("image.id", id)))
+	defer span.End()
+
+	metadata, err := u.metadataRepository.GetMetadata(ctx, id)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to get image metadata", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
+	return metadata, nil
+}
+
 func (u *ImageUseCase) ValidateTransformations(ctx context.Context, transformations []images.TransformationRequest) error {
 	ctx, span := tracer.Start(ctx, "ImageUseCase.ValidateTransformations")
 	defer span.End()
