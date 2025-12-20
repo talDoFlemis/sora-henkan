@@ -1,3 +1,14 @@
+## [1.40.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.39.0...v1.40.0) (2025-12-20)
+
+### Features
+
+* integrate DynamoDB for image metadata storage ([5212f37](https://github.com/talDoFlemis/sora-henkan/commit/5212f37f53ca827d479f52dfa6c23dc5640e54d4))
+* show metadata from DYNAMO in frontend. ( create api endpoint to show it ) ([2cd593c](https://github.com/talDoFlemis/sora-henkan/commit/2cd593c1b0434bc6710853af3ebc37865af57e7b))
+
+### Documentation
+
+* **README:** update to include kubernetes architecture ([b614220](https://github.com/talDoFlemis/sora-henkan/commit/b6142207bc41a8c99f3d8407c1bf8be01b14e45b))
+
 ## [1.39.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.38.1...v1.39.0) (2025-11-27)
 
 ### Features
