@@ -97,6 +97,110 @@ graph TD
 8. **Jaeger:** Distributed tracing system for monitoring and troubleshooting microservices-based architectures.
 9. **CloudWatch Agent:** AWS monitoring and observability service for collecting metrics and logs from EC2 instances.
 
+### Kubernetes Implementation
+
+This diagram shows how the conceptual architecture is implemented in Kubernetes using the `task k8s:all` deployment.
+
+```mermaid
+graph TD
+    subgraph "User"
+        A[Client]
+    end
+
+    subgraph "k3d Cluster"
+        subgraph "Istio Service Mesh"
+            B[Gateway API]
+        end
+
+        subgraph "Application Namespace"
+            subgraph "Backend Helm Chart"
+                C[API Deployment]
+                D[Worker Deployment]
+                E[Migrate Job]
+            end
+
+            subgraph "Frontend Helm Chart"
+                F[Frontend Deployment]
+            end
+
+            subgraph "Infrastructure Services"
+                G[PostgreSQL StatefulSet]
+                H[MinIO StatefulSet]
+                I[RabbitMQ StatefulSet]
+                J[LocalStack Deployment]
+            end
+        end
+
+        subgraph "Observability"
+            K[Kubernetes Dashboard]
+        end
+    end
+
+    A -- HTTP/HTTPS --> B
+    B -- Routes to --> C
+    B -- Routes to --> F
+    B -- Routes to --> H
+    B -- Routes to --> I
+    C -- Publishes Jobs --> I
+    C -- Reads/Writes --> G
+    D -- Consumes Jobs --> I
+    D -- Reads/Writes --> G
+    D -- Stores Images --> H
+    E -- Runs Migrations --> G
+    F -- API Calls --> C
+```
+
+#### Kubernetes Components
+
+1. **k3d Cluster:** A lightweight Kubernetes cluster running locally via k3d (k3s in Docker), configured with port mappings for services (80, 443, 9001, 9000, 15672, 42069).
+
+2. **Istio Service Mesh:**
+
+   - **Gateway API:** Modern Kubernetes ingress using Gateway API resources (v1.4.0) for traffic routing
+   - **Control Plane (istiod):** Manages service mesh configuration and routing rules
+   - **HTTPRoute Resources:** Define routing rules for frontend, API, MinIO, and RabbitMQ management interfaces
+
+3. **Backend Helm Chart (`helm/backend`):**
+
+   - **API Deployment:** Go-based REST API server with configurable replicas and auto-scaling (HPA)
+   - **Worker Deployment:** Image processing workers with auto-scaling capabilities
+   - **Migrate Job:** Kubernetes Job that runs database migrations on deployment
+   - **Service Accounts:** IAM for Kubernetes with proper RBAC configurations
+   - **ConfigMaps & Secrets:** Environment-based configuration for databases, message queues, and object storage
+
+4. **Frontend Helm Chart (`helm/frontend`):**
+
+   - **Deployment:** React/Vite application served via Nginx
+   - **Service:** ClusterIP service exposing the frontend internally
+   - **HTTPRoute:** Routes traffic from the gateway to the frontend service
+
+5. **Infrastructure Services:**
+
+   - **PostgreSQL:** StatefulSet deployment for persistent database storage (job metadata, processing status)
+   - **MinIO:** S3-compatible object storage deployed as StatefulSet with persistent volumes for images
+   - **RabbitMQ:** Message broker using AMQP protocol for pub/sub messaging (alternative to AWS SQS)
+   - **LocalStack:** AWS service emulator for local development (optional, provides SQS/S3 emulation)
+
+6. **Message Queue Options:**
+
+   - **RabbitMQ (AMQP):** Used in Kubernetes deployments for reliable message delivery with durable pub/sub configuration
+   - **LocalStack SQS:** Alternative queue option for AWS-compatible workflows
+
+7. **Observability:**
+   - **Kubernetes Dashboard:** Web-based UI for cluster management and monitoring
+   - **Service Mesh Telemetry:** Built-in observability from Istio for traffic monitoring
+
+#### Key Features in Kubernetes Deployment
+
+- **Declarative Infrastructure:** All resources defined in Helm charts for reproducible deployments
+- **Auto-scaling:** Horizontal Pod Autoscalers (HPA) for API and Worker based on CPU utilization
+- **Gateway API:** Modern, role-oriented API for traffic management replacing traditional Ingress
+- **StatefulSets:** Persistent storage for databases and stateful services
+- **Health Checks:** Liveness and readiness probes for all deployments
+- **Resource Limits:** CPU and memory limits defined for efficient resource utilization
+- **Secret Management:** Kubernetes Secrets for sensitive credentials (database, AMQP, object storage)
+- **Service Mesh:** Istio provides traffic management, security, and observability out of the box
+
 ## Getting Started
 
 ### Prerequisites

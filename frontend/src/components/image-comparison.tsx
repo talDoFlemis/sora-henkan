@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Card } from "@/components/ui/card"
 
 interface ImageComparisonProps {
   beforeSrc: string
@@ -13,10 +12,12 @@ export function ImageComparison({
   alt = "Image comparison",
 }: ImageComparisonProps) {
   const [sliderPosition, setSliderPosition] = useState(50)
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleMove = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ) => {
+    if (!isDragging && e.type !== "touchmove") return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = "touches" in e ? e.touches[0].clientX : e.clientX
     const position = ((x - rect.left) / rect.width) * 100
@@ -24,17 +25,37 @@ export function ImageComparison({
   }
 
   return (
-    <Card
-      className="relative overflow-hidden select-none"
+    <div
+      className="relative overflow-hidden select-none cursor-ew-resize"
+      onMouseDown={() => setIsDragging(true)}
+      onMouseUp={() => setIsDragging(false)}
+      onMouseLeave={() => setIsDragging(false)}
       onMouseMove={handleMove}
       onTouchMove={handleMove}
+      onTouchStart={() => setIsDragging(true)}
+      onTouchEnd={() => setIsDragging(false)}
     >
-      <div className="relative w-full aspect-video">
+      {/* Labels */}
+      <div className="absolute top-4 left-4 z-20">
+        <span className="px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white text-xs font-medium rounded-full">
+          Original
+        </span>
+      </div>
+      <div className="absolute top-4 right-4 z-20">
+        <span className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-medium rounded-full">
+          Transformed
+        </span>
+      </div>
+
+      <div className="relative w-full aspect-video bg-gray-100">
+        {/* Before Image */}
         <img
           src={beforeSrc}
           alt={`${alt} - before`}
           className="absolute inset-0 w-full h-full object-contain"
         />
+
+        {/* After Image with clip */}
         <div
           className="absolute inset-0 overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
@@ -45,13 +66,16 @@ export function ImageComparison({
             className="absolute inset-0 w-full h-full object-contain"
           />
         </div>
+
+        {/* Slider Line */}
         <div
-          className="absolute inset-y-0 w-1 bg-white cursor-ew-resize"
-          style={{ left: `${sliderPosition}%` }}
+          className="absolute inset-y-0 w-0.5 bg-white shadow-lg z-10"
+          style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+          {/* Slider Handle */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center border-2 border-indigo-500 transition-transform hover:scale-110">
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5 text-indigo-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -59,13 +83,20 @@ export function ImageComparison({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 9l4-4 4 4m0 6l-4 4-4-4"
+                strokeWidth={2.5}
+                d="M8 7l-4 5 4 5M16 7l4 5-4 5"
               />
             </svg>
           </div>
         </div>
       </div>
-    </Card>
+
+      {/* Hint */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+        <span className="px-3 py-1.5 bg-black/40 backdrop-blur-sm text-white/80 text-xs rounded-full">
+          Drag to compare
+        </span>
+      </div>
+    </div>
   )
 }

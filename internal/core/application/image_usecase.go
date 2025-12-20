@@ -53,32 +53,35 @@ var (
 )
 
 type ImageUseCase struct {
-	imageRepository   ports.ImageRepository
-	pipelineProcessor ports.ImagePipelineProcessor
-	objectStorer      ports.ObjectStorer
-	imagesBucket      string
-	publisher         message.Publisher
-	subscriber        message.Subscriber
-	imageTopic        string
+	imageRepository    ports.ImageRepository
+	metadataRepository ports.ImageMetadataRepository
+	pipelineProcessor  ports.ImagePipelineProcessor
+	objectStorer       ports.ObjectStorer
+	imagesBucket       string
+	publisher          message.Publisher
+	subscriber         message.Subscriber
+	imageTopic         string
 }
 
 func NewImageUseCase(
 	publisher message.Publisher,
 	subscriber message.Subscriber,
 	imageRepository ports.ImageRepository,
+	metadataRepository ports.ImageMetadataRepository,
 	pipelineProcessor ports.ImagePipelineProcessor,
 	objectStorer ports.ObjectStorer,
 	imagesBucket string,
 	imageTopic string,
 ) *ImageUseCase {
 	return &ImageUseCase{
-		publisher:         publisher,
-		subscriber:        subscriber,
-		imageRepository:   imageRepository,
-		pipelineProcessor: pipelineProcessor,
-		imagesBucket:      imagesBucket,
-		objectStorer:      objectStorer,
-		imageTopic:        imageTopic,
+		publisher:          publisher,
+		subscriber:         subscriber,
+		imageRepository:    imageRepository,
+		metadataRepository: metadataRepository,
+		pipelineProcessor:  pipelineProcessor,
+		imagesBucket:       imagesBucket,
+		objectStorer:       objectStorer,
+		imageTopic:         imageTopic,
 	}
 }
 
@@ -116,6 +119,12 @@ func (u *ImageUseCase) CreateImageRequest(ctx context.Context, req *images.Creat
 		slog.ErrorContext(ctx, "failed to create image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
 		return nil, err
+	}
+
+	// Save metadata to DynamoDB for fast querying
+	if err := u.metadataRepository.SaveMetadata(ctx, &imageEntity); err != nil {
+		slog.WarnContext(ctx, "failed to save image metadata to DynamoDB", slog.Any("err", err))
+		// Don't fail the request if metadata save fails - it's supplementary
 	}
 
 	processReq := &images.ProcessImageRequest{
@@ -158,6 +167,20 @@ func (u *ImageUseCase) GetImage(ctx context.Context, id string) (*images.Image, 
 	}
 
 	return storedImage, nil
+}
+
+func (u *ImageUseCase) GetImageMetadata(ctx context.Context, id string) (*images.ImageMetadata, error) {
+	ctx, span := tracer.Start(ctx, "ImageUseCase.GetImageMetadata", trace.WithAttributes(attribute.String("image.id", id)))
+	defer span.End()
+
+	metadata, err := u.metadataRepository.GetMetadata(ctx, id)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to get image metadata", slog.Any("err", err))
+		telemetry.RegisterSpanError(span, err)
+		return nil, err
+	}
+
+	return metadata, nil
 }
 
 func (u *ImageUseCase) ValidateTransformations(ctx context.Context, transformations []images.TransformationRequest) error {
@@ -209,6 +232,11 @@ func (u *ImageUseCase) UpdateImage(ctx context.Context, req *images.UpdateImageR
 		return err
 	}
 
+	// Update metadata in DynamoDB
+	if err := u.metadataRepository.UpdateMetadata(ctx, imageEntity); err != nil {
+		slog.WarnContext(ctx, "failed to update image metadata in DynamoDB", slog.Any("err", err))
+	}
+
 	processReq := &images.ProcessImageRequest{
 		ID:               imageEntity.ID.String(),
 		OriginalImageURL: imageEntity.OriginalImageURL,
@@ -244,6 +272,11 @@ func (u *ImageUseCase) DeleteImage(ctx context.Context, id string) error {
 		slog.ErrorContext(ctx, "failed to delete image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
 		return err
+	}
+
+	// Delete metadata from DynamoDB
+	if err := u.metadataRepository.DeleteMetadata(ctx, id); err != nil {
+		slog.WarnContext(ctx, "failed to delete image metadata from DynamoDB", slog.Any("err", err))
 	}
 
 	err = u.objectStorer.Delete(ctx, rawImagePath+"/"+id, u.imagesBucket)
@@ -312,6 +345,11 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 				if updateErr := u.imageRepository.UpdateImage(ctx, imageEntity); updateErr != nil {
 					slog.ErrorContext(ctx, "failed to update image status to failed", slog.Any("err", updateErr))
 					// Return the original non-retryable error
+				} else {
+					// Update metadata in DynamoDB
+					if metaErr := u.metadataRepository.UpdateMetadata(ctx, imageEntity); metaErr != nil {
+						slog.WarnContext(ctx, "failed to update image metadata in DynamoDB", slog.Any("err", metaErr))
+					}
 				}
 
 				// Return the non-retryable error so the worker can ACK the message
@@ -331,6 +369,11 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 			slog.ErrorContext(ctx, "failed to update image with storage info", slog.Any("err", err))
 			telemetry.RegisterSpanError(span, err)
 			return err
+		}
+
+		// Update metadata in DynamoDB
+		if metaErr := u.metadataRepository.UpdateMetadata(ctx, imageEntity); metaErr != nil {
+			slog.WarnContext(ctx, "failed to update image metadata in DynamoDB", slog.Any("err", metaErr))
 		}
 	}
 
@@ -372,6 +415,11 @@ func (u *ImageUseCase) ProcessImage(ctx context.Context, req *images.ProcessImag
 		slog.ErrorContext(ctx, "failed to update image", slog.Any("err", err))
 		telemetry.RegisterSpanError(span, err)
 		return err
+	}
+
+	// Update metadata in DynamoDB with final status
+	if metaErr := u.metadataRepository.UpdateMetadata(ctx, imageEntity); metaErr != nil {
+		slog.WarnContext(ctx, "failed to update image metadata in DynamoDB", slog.Any("err", metaErr))
 	}
 
 	slog.InfoContext(ctx, "image processed successfully", slog.String("image_id", imageEntity.ID.String()))

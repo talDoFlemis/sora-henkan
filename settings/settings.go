@@ -338,13 +338,13 @@ type WatermillSettings struct {
 	ImageTopic string                  `mapstructure:"image-topic" validate:"required"`
 }
 
-type DynamoDBLogsSettings struct {
+type DynamoDBSettings struct {
 	Enabled bool        `mapstructure:"enabled"`
-	Table   string      `mapstructure:"table" validate:"required_if=Enabled true"`
-	AWS     AWSSettings `mapstructure:"aws" validate:"required_if=Enabled true"`
+	Table   string      `mapstructure:"table" validate:"required"`
+	AWS     AWSSettings `mapstructure:"aws" validate:"required"`
 }
 
-func (d *DynamoDBLogsSettings) NewDynamoDBClient() (*dynamodb.Client, error) {
+func (d *DynamoDBSettings) NewDynamoDBClient() (*dynamodb.Client, error) {
 	cfg, err := d.AWS.NewAWSConfig()
 	if err != nil {
 		return nil, err

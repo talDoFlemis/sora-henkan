@@ -24,7 +24,8 @@ services:
       WORKER_OBJECTSTORER_ENDPOINT: minio:9000
       WORKER_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
       WORKER_WATERMILL_BROKER_AMQP_HOST: rabbitmq
-      WORKER_DYNAMODBLOGS_AWS_ENDPOINT: http://localstack:4566
+      WORKER_DYNAMODB_AWS_ENDPOINT: http://localstack:4566
+      WORKER_DYNAMODB_TABLE: sora-henkan-dev-main-table
     depends_on:
       localstack:
         condition: service_healthy
@@ -49,7 +50,8 @@ services:
       API_OBJECTSTORER_ENDPOINT: minio:9000
       API_WATERMILL_BROKER_AWS_ENDPOINT: http://localstack:4566
       API_WATERMILL_BROKER_AMQP_HOST: rabbitmq
-      API_DYNAMODBLOGS_AWS_ENDPOINT: http://localstack:4566
+      API_DYNAMODB_AWS_ENDPOINT: http://localstack:4566
+      API_DYNAMODB_TABLE: sora-henkan-dev-main-table
     depends_on:
       localstack:
         condition: service_healthy

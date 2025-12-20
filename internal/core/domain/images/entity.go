@@ -48,3 +48,35 @@ type Image struct {
 	UpdatedAt             time.Time          `json:"updated_at"`
 	CreatedAt             time.Time          `json:"created_at"`
 }
+
+// ImageMetadata represents metadata stored in DynamoDB for fast querying
+type ImageMetadata struct {
+	ID                    string    `json:"id"`
+	OriginalImageURL      string    `json:"original_image_url"`
+	ObjectStorageImageKey string    `json:"object_storage_image_key"`
+	TransformedImageKey   string    `json:"transformed_image_key"`
+	MimeType              string    `json:"mime_type"`
+	Status                string    `json:"status"`
+	Checksum              string    `json:"checksum"`
+	ErrorMessage          string    `json:"error_message,omitempty"`
+	TransformationCount   int       `json:"transformation_count"`
+	UpdatedAt             time.Time `json:"updated_at"`
+	CreatedAt             time.Time `json:"created_at"`
+}
+
+// ToMetadata converts an Image to ImageMetadata
+func (i *Image) ToMetadata() *ImageMetadata {
+	return &ImageMetadata{
+		ID:                    i.ID.String(),
+		OriginalImageURL:      i.OriginalImageURL,
+		ObjectStorageImageKey: i.ObjectStorageImageKey,
+		TransformedImageKey:   i.TransformedImageKey,
+		MimeType:              i.MimeType,
+		Status:                i.Status,
+		Checksum:              i.Checksum,
+		ErrorMessage:          i.ErrorMessage,
+		TransformationCount:   len(i.Transformations),
+		UpdatedAt:             i.UpdatedAt,
+		CreatedAt:             i.CreatedAt,
+	}
+}

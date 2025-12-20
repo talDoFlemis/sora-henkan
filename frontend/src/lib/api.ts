@@ -8,9 +8,24 @@ export interface Image {
   mime_type: string
   checksum: string
   status: string
+  error_message?: string
   transformations: TransformationRequest[]
   created_at: string
   updated_at: string
+}
+
+export interface ImageMetadata {
+  id: string
+  original_image_url: string
+  object_storage_image_key: string
+  transformed_image_key: string
+  mime_type: string
+  status: string
+  checksum: string
+  error_message?: string
+  transformation_count: number
+  updated_at: string
+  created_at: string
 }
 
 export type TransformationRequest =
@@ -51,6 +66,12 @@ export const api = {
   async getImage(id: string): Promise<Image> {
     const res = await fetch(`${API_BASE}/v1/images/${id}`)
     if (!res.ok) throw new Error("Failed to fetch image")
+    return res.json()
+  },
+
+  async getImageMetadata(id: string): Promise<ImageMetadata> {
+    const res = await fetch(`${API_BASE}/v1/images/${id}/metadata`)
+    if (!res.ok) throw new Error("Failed to fetch image metadata")
     return res.json()
   },
 
