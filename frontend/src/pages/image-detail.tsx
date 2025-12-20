@@ -2,7 +2,12 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { api, type Image, type TransformationRequest, type ImageMetadata } from "@/lib/api"
+import {
+  api,
+  type Image,
+  type TransformationRequest,
+  type ImageMetadata,
+} from "@/lib/api"
 import { ImageComparison } from "@/components/image-comparison"
 import {
   ArrowLeft,
@@ -750,7 +755,10 @@ export function ImageDetailPage() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Checksum</p>
-                      <p className="font-mono text-xs text-gray-800 truncate" title={metadata.checksum}>
+                      <p
+                        className="font-mono text-xs text-gray-800 truncate"
+                        title={metadata.checksum}
+                      >
                         {metadata.checksum.substring(0, 10)}...
                       </p>
                     </div>
@@ -769,7 +777,6 @@ export function ImageDetailPage() {
                 </details>
               </Card>
             )}
-
           </div>
         </div>
       </main>
