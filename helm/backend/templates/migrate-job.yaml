@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "backend.labels" . | nindent 4 }}
     tier: migrate
-  annnotations:
+  annotations:
     "helm.sh/hook": "post-install,post-upgrade"
     "helm.sh/hook-delete-policy": "hook-succeeded,before-hook-creation"
     "helm.sh/hook-weight": "-1"
