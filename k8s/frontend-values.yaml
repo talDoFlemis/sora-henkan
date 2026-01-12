@@ -2,7 +2,7 @@ api:
   url: "http://localhost:42069"
 
 objectstorer:
-  endpoint: "http://localhost:9000"
+  endpoint: "http://localhost:9000/sorahenkan"
 
 httpRoute:
   enabled: true
