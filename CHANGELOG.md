@@ -1,3 +1,9 @@
+## [1.40.1](https://github.com/talDoFlemis/sora-henkan/compare/v1.40.0...v1.40.1) (2026-01-12)
+
+### Bug Fixes
+
+* **migrate-job:** fix unknown attribute annnotations ([ec458c2](https://github.com/talDoFlemis/sora-henkan/commit/ec458c2d9ecedc6863ba5897ac2797a9b2df7d0a))
+
 ## [1.40.0](https://github.com/talDoFlemis/sora-henkan/compare/v1.39.0...v1.40.0) (2025-12-20)
 
 ### Features
